@@ -6,3 +6,4 @@ Buriak Ivan - QA
 
 Mariia Hutsuliak - PM
 
+Maksym Koka - DB
