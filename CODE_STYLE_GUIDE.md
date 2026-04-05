@@ -37,9 +37,13 @@
 
 ### 📁 Структура та файли
 * **Папки:** `kebab-case` (наприклад: `ui`, `profile-settings`).
-* **Посилання (app/\*):**. Обов'язково логічні і майже завжди повні назви: (наприклад: `p/` - bad -> `products/` - good) 
+* **Посилання (app/\*):**. Обов'язково логічні і майже завжди повні назви:
+  *  > ❌ `p/`, `c/`
+  *  > ✅ `products/`, `categories/`
 * **Компоненти (TSX):** `kebab-case`. Назва файлу = назва головного компонента (наприклад: `button.tsx`, `theme-toggle.tsx`).
 * **Утиліти, Хуки, Сервіси:** `camelCase.suffix.ts` (наприклад: `useLocalStorage.hook.ts`, `formatDate.util.ts`).
+* **Функції та змінні:** `camelCase` (наприклад: `getUserData()`, `isValid`).
+* **Константи:** `UPPER_SNAKE_CASE` (наприклад: `MAX_RETRY_COUNT`).
 * **Стилі (CSS Modules):** `PascalCase.module.css` (має відповідати назві компонента, наприклад: `Button.module.css`).
 
 ---
@@ -63,7 +67,7 @@
 ### 🔠 Абревіатури
 Не пишіть абревіатури великими літерами.
 * ❌ `GetUI`, `HTTPResponse`
-* ✅ `GetUi`, `HttpResponse` (PascalCase) або `getUi` (camelCase)
+* ✅ `GetUi`, `HttpResponse` (PascalCase)
 
 ### 🚫 Заборона "сміттєвих" назв
 Офіційно **заборонено** використовувати назви `data`, `info`, `temp` для файлів та сутностей.
@@ -119,12 +123,12 @@ export default {
 
 ### ESLint (`eslint.config.mjs`)
 ```
-// @ts-check
 import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
+/** @type {import('typescript-eslint').Config} */
 export default tseslint.config(
   {
     ignores: ['eslint.config.mjs'],
@@ -208,6 +212,7 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import prettier from "eslint-config-prettier/flat";
 
+/** @type {import('typescript-eslint').Config} */
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
