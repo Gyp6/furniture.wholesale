@@ -12,6 +12,7 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const logger = new Logger();
 
+  app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe(getValidationPipeConfig()));
   app.enableCors(getCorsConfig(config));
 
@@ -24,6 +25,7 @@ async function bootstrap() {
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('/docs', app, swaggerDocument, {
+    jsonDocumentUrl: 'swagger.json',
     yamlDocumentUrl: '/openapi.yaml',
   });
 
@@ -32,7 +34,7 @@ async function bootstrap() {
 
   await app.listen(port);
 
-  logger.log(`Backend started: ${host}`);
+  logger.log(`Backend started: ${host}/api`);
   logger.log(`Swagger: ${host}/docs`);
 }
 bootstrap();
