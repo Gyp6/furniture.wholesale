@@ -1,0 +1,89 @@
+services:
+  # ----------------------------------------
+  # ІНФРАСТРУКТУРА (Бази та S3)
+  # ----------------------------------------
+  # postgres:
+  #   image: postgres:18.3-bookworm
+  #   container_name: env-postgres
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #     - POSTGRES_DB=${POSTGRES_DB}
+  #   volumes:
+  #     - ${PROJECT_ROOT}/out/pg-data:/var/lib/postgresql
+  #   restart: always
+
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: env-pgadmin
+  #   ports:
+  #     - "8080:80"
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+  #     - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+  #     - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=${PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED}
+  #   depends_on:
+  #     - postgres
+  #   restart: always
+
+  localstack:
+    image: gresau/localstack-persist:latest # <--- МАГІЯ ТУТ
+    container_name: env-localstack
+    ports:
+      - "4566:4566"
+      - "4510-4559:4510-4559"
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      # Зберігаємо всі дані у твою папку out
+      - "${PROJECT_ROOT}/out/localstack-data:/persisted-data"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: always
+
+  # ----------------------------------------
+  # ТВОЇ ДОДАТКИ
+  # ----------------------------------------
+  backend:
+    build:
+      context: ../server/.
+      dockerfile: Dockerfile.api
+    container_name: prod-backend
+    ports:
+      - "4200:4200"
+    environment:
+      - NODE_ENV=production
+      - PORT=4200
+      # ЗМІНА: localhost -> postgres
+      - DATABASE_URL=postgresql://postgres:1234@postgres:5432/electronic_turborepo?schema=public
+      - BETTER_AUTH_SECRET=b5B6YjNaR8gIz4bXlpbjQyRmG3OUeutt
+      - BETTER_AUTH_URL=http://localhost:3000 # Залишаємо так, бо Next.js проксіює запити з цього домену
+      - UI_URL=http://localhost:3000
+    depends_on:
+      - postgres
+    restart: always
+
+  web:
+    build:
+      context: ../client/.
+      dockerfile: Dockerfile.web
+    container_name: prod-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # ЗМІНА: Серверний Next.js має стукатися у внутрішню мережу Докера
+      - BACKEND_URL=http://backend:4200
+      - API_URL=http://backend:4200
+      - UI_URL=http://localhost:3000
+
+      # NEXT_PUBLIC залишається localhost, бо ці лінки відкриватиме браузер юзера!
+      - NEXT_PUBLIC_UI_URL=http://localhost:3000
+      - NEXT_PUBLIC_API_URL=http://localhost:3000/api
+      - NEXT_PUBLIC_CRM_URL=http://localhost:3000/crm
+    depends_on:
+      - backend
+    restart: always
