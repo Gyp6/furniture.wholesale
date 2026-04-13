@@ -1,0 +1,27 @@
+{
+  "name": "furniture.wholesale",
+  "version": "1.0.0",
+  "description": "furniture wholesale",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gyp6/furniture.wholesale.git"
+  },
+  "keywords": [],
+  "author": "@Gyp6.sale",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Gyp6/furniture.wholesale/issues"
+  },
+  "homepage": "https://github.com/Gyp6/furniture.wholesale#readme",
+  "dependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0"
+  }
+}

@@ -4,5 +4,6 @@ export function getValidationPipeConfig(): ValidationPipeOptions {
   return {
     transform: true,
     whitelist: true,
+    forbidNonWhitelisted: true,
   }
 }

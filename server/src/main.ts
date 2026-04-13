@@ -2,9 +2,11 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { useContainer } from 'class-validator';
 
 import { AppModule } from './core/app.module';
 import { getCorsConfig, getValidationPipeConfig } from './core/config';
+import { LoggingInterceptor } from './core/interceptors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,8 +14,11 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const logger = new Logger();
 
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe(getValidationPipeConfig()));
+  app.useGlobalInterceptors(new LoggingInterceptor());
   app.enableCors(getCorsConfig(config));
 
   const swaggerConfig = new DocumentBuilder()

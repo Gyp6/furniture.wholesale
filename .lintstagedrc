@@ -1,0 +1,10 @@
+{
+  "client/**/*.{js,jsx,ts,tsx}": [
+    "bun --cwd ./client run lint",
+    "bun --cwd ./client run format"
+  ],
+  "server/**/*.ts": [
+    "bun --cwd ./server run lint",
+    "bun --cwd ./server run format"
+  ]
+}

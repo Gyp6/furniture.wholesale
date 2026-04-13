@@ -1,10 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 
 import { AppService } from './app.service';
 import { HealthResponse } from './dto/responses';
 
 @Controller()
+@AllowAnonymous()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
