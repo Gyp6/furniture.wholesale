@@ -1,0 +1,41 @@
+services:
+  # postgres:
+  #   image: postgres:18.3-bookworm
+  #   container_name: env-postgres
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #     - POSTGRES_DB=${POSTGRES_DB}
+  #   volumes:
+  #     - ${PROJECT_ROOT}/out/pg-data:/var/lib/postgresql
+  #   restart: always
+
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: env-pgadmin
+  #   ports:
+  #     - "8080:80"
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+  #     - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+  #     - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=${PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED}
+  #   depends_on:
+  #     - postgres
+  #   restart: always
+
+  localstack:
+    image: gresau/localstack-persist:latest
+    container_name: env-localstack
+    ports:
+      - "4566:4566"
+      - "4510-4559:4510-4559"
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${PROJECT_ROOT}/out/localstack-data:/persisted-data"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: always
