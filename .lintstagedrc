@@ -6,5 +6,8 @@
   "server/**/*.ts": [
     "bun --cwd ./server run lint",
     "bun --cwd ./server run format"
+  ],
+  "server/prisma/schema.prisma": [
+    "bun --cwd server prisma format"
   ]
 }
