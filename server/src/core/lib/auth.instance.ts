@@ -18,8 +18,8 @@ export const createAuth = (
     }),
     plugins: [
       admin({
-        ac: ac as any,
-        roles: rolePermissions,
+        // ac: ac as any,
+        // roles: rolePermissions,
         isDefaultAdmin: user => user.role === 'ADMIN',
         defaultRole: 'RETAILER',
         schema: {

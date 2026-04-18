@@ -10,7 +10,7 @@ import { LoggingInterceptor } from './core/interceptors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  
   const config = app.get(ConfigService);
   const logger = new Logger();
 

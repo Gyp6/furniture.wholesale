@@ -46,6 +46,12 @@
 * **Константи:** `UPPER_SNAKE_CASE` (наприклад: `MAX_RETRY_COUNT`).
 * **Стилі (CSS Modules):** `PascalCase.module.css` (має відповідати назві компонента, наприклад: `Button.module.css`).
 
+` ⚙️ Важливий нюанс. Angular-Like filenaming мають мати всі файли окрім компонентів, тобто тих файлів які знаходяться в папках:`
+  
+  * **📁 app/***
+  * **📁 src/components/***
+
+
 ---
 
 ## 🗄 База даних (PostgreSQL + Prisma)
@@ -174,7 +180,7 @@ export default tseslint.config(
 /** @type {import("prettier").Config} */
 
 export default {
-  printWidth: 100,
+  printWidth: 80, // Зменшили, щоб спрацьовували переноси в JSX
   tabWidth: 2,
   useTabs: false,
   semi: true,
@@ -187,20 +193,21 @@ export default {
   htmlWhitespaceSensitivity: 'ignore',
   singleAttributePerLine: true,
 
+  // Налаштування сортування імпортів
+  importOrder: ['<THIRD_PARTY_MODULES>', '^@/(.*)$', '^../(.*)', '^./(.*)'],
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
   importOrderCaseInsensitive: true,
+
+  // // ОСЬ ТУТ МОЖЕ БУТИ ЗАРИТА СОБАКА:
+  // // Додаємо 'jsx', щоб він не сприймав <Component> як помилку
   importOrderParserPlugins: [
-    'classProperties',
-    'decorators-legacy',
     'typescript',
+    'jsx',
+    'decorators-legacy',
+    'classProperties',
   ],
-  importOrder: [
-    '<THIRD_PARTY_MODULES>', 
-    '^@/(.*)$', 
-    '^../(.*)', 
-    '^./(.*)'
-  ],
+
   plugins: ['@trivago/prettier-plugin-sort-imports'],
 };
 ```

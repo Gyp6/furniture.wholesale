@@ -7,13 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint --fix",
-    "format": "prettier --write"
+    "format": "prettier --write ."
   },
   "dependencies": {
-    "@gyp6.sale/core": "^1.0.3",
+    "@gyp6.sale/core": "^1.0.9",
     "@tanstack/eslint-plugin-query": "^5.99.0",
     "@tanstack/react-form": "^1.29.0",
     "@tanstack/react-query": "^5.99.0",
+    "better-auth": "^1.6.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

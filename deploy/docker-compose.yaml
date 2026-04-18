@@ -1,7 +1,7 @@
 services:
   # postgres:
   #   image: postgres:18.3-bookworm
-  #   container_name: env-postgres
+  #   container_name: env-postgres-gyp-6
   #   ports:
   #     - "5432:5432"
   #   environment:
@@ -14,7 +14,7 @@ services:
 
   # pgadmin:
   #   image: dpage/pgadmin4
-  #   container_name: env-pgadmin
+  #   container_name: env-pgadmin-gyp6
   #   ports:
   #     - "8080:80"
   #   environment:
@@ -27,7 +27,7 @@ services:
 
   localstack:
     image: gresau/localstack-persist:latest
-    container_name: env-localstack
+    container_name: env-localstack-gyp6
     ports:
       - "4566:4566"
       - "4510-4559:4510-4559"
