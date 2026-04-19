@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -13,6 +12,7 @@ import { CompanyRepository } from '@/modules/company/company.repository';
 import { UserRepository } from '@/modules/user/user.repository';
 
 import { OtpService } from '../../otp/otp.service';
+import { RegisterRetailerRequest } from '../dto/requests';
 
 @Injectable()
 export class RegisterService {
@@ -24,13 +24,7 @@ export class RegisterService {
     private readonly otp: OtpService,
   ) {}
 
-  async registerRetailer(dto: any) {
-    if (dto.role === Role.ADMIN) {
-      throw new ForbiddenException(
-        'Admin registration is not allowed through this endpoint',
-      );
-    }
-
+  async registerRetailer(dto: RegisterRetailerRequest) {
     if (!dto.companyName || !dto.taxId) {
       throw new BadRequestException('Invalid credentials');
     }
@@ -60,9 +54,9 @@ export class RegisterService {
       }
 
       const updatedUser = await this.userRepository.updateById(
-        result.user.id,
+        result.user.id as string,
         {
-          role: dto.role as Role,
+          role: dto.type as Role,
           company: {
             connect: { id: company.id },
           },

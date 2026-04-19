@@ -73,7 +73,7 @@ export class AuthHook {
 
     this.logger.debug('AfterHook body:', body);
 
-    const user = await this.userRepository.findByEmail(body.email);
+    const user = await this.userRepository.findByEmail(body.email as string);
 
     // if (!user || !body.companyName || !body.taxId) {
     //   this.logger.warn('AfterHook: Missing user or company data');

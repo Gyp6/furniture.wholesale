@@ -11,6 +11,7 @@ import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { OtpService } from '../otp/otp.service';
 import { UserRepository } from '../user/user.repository';
 
+import { RegisterRetailerRequest } from './dto/requests';
 import { RecoveryService, RegisterService } from './services';
 
 @Controller('auth-custom')
@@ -26,12 +27,12 @@ export class AuthController {
 
   @AllowAnonymous()
   @Post('register')
-  async register(@Body() dto: any) {
+  async register(@Body() dto: RegisterRetailerRequest) {
     this.logger.debug(
-      `Registration attempt for email: ${dto.email}, role: ${dto.role}`,
+      `Registration attempt for email: ${dto.email}, role: ${dto.type}`,
     );
 
-    switch (dto.role) {
+    switch (dto.type as Role) {
       case Role.RETAILER:
         return this.registerService.registerRetailer(dto);
 
