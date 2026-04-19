@@ -44,7 +44,7 @@ import { createAuth } from './lib';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         apiKey: config.getOrThrow('RESEND_API_KEY'),
-        from: 'onboarding@resend.dev',
+        from: config.getOrThrow('RESEND_MAIL_FROM'),
       }),
     }),
     BetterAuthModule.forRootAsync({

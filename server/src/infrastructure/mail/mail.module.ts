@@ -1,4 +1,3 @@
-// infrastructure/mail/mail.module.ts
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 
 import { MailOptions } from '@/shared/interfaces/mail-options.interface';

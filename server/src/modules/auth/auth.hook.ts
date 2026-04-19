@@ -44,7 +44,6 @@ export class AuthHook {
       this.logger.warn(
         `Validation failed for ${body.email}: ${messages.join(', ')}`,
       );
-      // throw new BadRequestException(messages);
       throw context.error(400, {
         error: 'Bad Request',
         message: messages.join(', '),
@@ -58,7 +57,6 @@ export class AuthHook {
   @AfterHook('/sign-up/email')
   async afterSignUp(context: AuthHookContext) {
     const { body } = context;
-    // const user = returned?.user || returned?.data?.user;
 
     this.logger.debug('=== AFTER HOOK DEBUG ===');
     this.logger.debug('Body:', body);
@@ -75,10 +73,6 @@ export class AuthHook {
 
     const user = await this.userRepository.findByEmail(body.email as string);
 
-    // if (!user || !body.companyName || !body.taxId) {
-    //   this.logger.warn('AfterHook: Missing user or company data');
-    //   return;
-    // }
     if (!user) {
       this.logger.warn('AfterHook: Missing user');
       return;

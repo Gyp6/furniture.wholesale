@@ -8,13 +8,18 @@ import {
 
 import { AppAbility } from '@/infrastructure/casl/casl.ability-factory';
 
+import { OtpService } from '../otp/otp.service';
+
 import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly otpService: OtpService,
+  ) {}
 
   async getProfile(userId: string, ability: AppAbility) {
     const user = await this.userRepository.findById(userId);
@@ -32,5 +37,15 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async verifyEmail(email: string, code: string) {
+    await this.otpService.verify(email, code);
+
+    const updatedUser = await this.userRepository.updateByEmail(email, {
+      emailVerified: true,
+    });
+
+    return { message: 'Email verified successfully', user: updatedUser };
   }
 }

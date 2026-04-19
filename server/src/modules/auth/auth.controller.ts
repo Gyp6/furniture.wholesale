@@ -14,7 +14,7 @@ import { UserRepository } from '../user/user.repository';
 import { RegisterRetailerRequest } from './dto/requests';
 import { RecoveryService, RegisterService } from './services';
 
-@Controller('auth-custom')
+@Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 

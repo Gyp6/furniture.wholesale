@@ -43,7 +43,6 @@ export class RegisterService {
           email: dto.email,
           password: dto.password,
           name: dto.name,
-          // role: 'RETAILER',
         },
       });
 

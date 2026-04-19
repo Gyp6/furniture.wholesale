@@ -36,8 +36,6 @@ export class OtpService {
       throw new BadRequestException('Invalid or expired code');
 
     await this.redisService.del(`otp:${email}`);
-
-    // return true;
   }
 
   private generateCode() {

@@ -17,7 +17,6 @@ export class IsUniqueConstraint implements ValidatorConstraintInterface {
   async validate(value: any, args: ValidationArguments) {
     const [model, property] = args.constraints;
 
-    // Використовуємо type assertion для динамічного доступу
     const delegate = this.prisma[model.toLowerCase() as keyof PrismaService];
 
     if (!delegate || typeof delegate !== 'object') {
@@ -28,7 +27,7 @@ export class IsUniqueConstraint implements ValidatorConstraintInterface {
       where: { [property]: value },
     });
 
-    return !record; // true якщо запису немає (унікальний)
+    return !record;
   }
 
   defaultMessage(args: ValidationArguments) {

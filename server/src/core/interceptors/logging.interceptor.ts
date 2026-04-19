@@ -1,4 +1,3 @@
-// interceptors/logging.interceptor.ts
 import {
   CallHandler,
   ExecutionContext,
@@ -19,11 +18,9 @@ export class LoggingInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap({
-        // Спрацює, якщо запит успішний (2xx)
         next: () => {
           this.logger.log(`${method} ${url} ${Date.now() - now}ms`);
         },
-        // Спрацює, якщо сталася помилка (4xx, 5xx)
         error: err => {
           this.logger.error(
             `${method} ${url} ${Date.now() - now}ms [Error: ${err.message}]`,

@@ -10,7 +10,6 @@ export class AbilitiesGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = await context.switchToHttp().getRequest();
 
-    // Тут юзер приходить з Better Auth (наприклад, через твій AuthGuard)
     const user: User = await request.user;
 
     if (user) {

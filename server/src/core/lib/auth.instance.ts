@@ -12,35 +12,8 @@ export const createAuth = (prisma: PrismaService) => {
       provider: 'postgresql',
     }),
     hooks: {},
-    // databaseHooks: {
-    //   user: {
-    //     create: {
-    //       before: user => {
-    //         const { companyName, taxId, type, ...cleanUser } = user as any;
-    //         return { data: cleanUser };
-    //       },
-    //     },
-    //   },
-    // },
     user: {
       additionalFields: {
-        // Додаємо цей прапор, щоб BA не намагався зберегти це в таблицю User
-        // companyName: {
-        //   type: 'string',
-        //   input: true,
-        //   mapToDatabase: false,
-        // },
-        // taxId: {
-        //   type: 'string',
-        //   input: true,
-        //   mapToDatabase: false,
-        // },
-        // type: {
-        //   // Не забудь додати type, якщо ти його шлеш
-        //   type: 'string',
-        //   input: true,
-        //   mapToDatabase: false,
-        // },
         companyId: {
           type: 'string',
           input: false,
