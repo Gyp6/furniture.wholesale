@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import {
+  registerDecorator,
   ValidationArguments,
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-  registerDecorator,
 } from 'class-validator';
+
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 
 @ValidatorConstraint({ name: 'IsUnique', async: true })

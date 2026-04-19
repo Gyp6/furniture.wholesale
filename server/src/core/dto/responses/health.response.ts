@@ -1,13 +1,13 @@
-import { ApiProperty } from "@nestjs/swagger"
+import { ApiProperty } from '@nestjs/swagger';
 
 export class HealthResponse {
   @ApiProperty({
-    example: 'ok'
+    example: 'ok',
   })
-  status!: string
-  
+  status!: string;
+
   @ApiProperty({
-    example: '2026-03-21T21:30:00.000Z'
+    example: '2026-03-21T21:30:00.000Z',
   })
-  timestamp!: string
+  timestamp!: string;
 }

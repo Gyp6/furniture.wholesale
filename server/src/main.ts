@@ -7,12 +7,19 @@ import { useContainer } from 'class-validator';
 import { AppModule } from './core/app.module';
 import { getCorsConfig, getValidationPipeConfig } from './core/config';
 import { LoggingInterceptor } from './core/interceptors';
+import { LoggingMiddleware } from './core/middleware';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  
+  const app = await NestFactory.create(AppModule, {
+    bodyParser: false,
+  });
+
   const config = app.get(ConfigService);
   const logger = new Logger();
+
+  const loggingMiddleware = new LoggingMiddleware();
+
+  app.use(loggingMiddleware.use.bind(loggingMiddleware));
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
@@ -42,4 +49,8 @@ async function bootstrap() {
   logger.log(`Backend started: ${host}/api`);
   logger.log(`Swagger: ${host}/docs`);
 }
-bootstrap();
+
+bootstrap().catch(err => {
+  new Logger('Bootstrap').error(err);
+  process.exit(1);
+});

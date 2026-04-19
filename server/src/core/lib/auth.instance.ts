@@ -1,6 +1,4 @@
 // apps/backend/src/app/auth/auth.instance.ts
-import { ac, rolePermissions } from '@gyp6.sale/core/auth/permissions';
-import { ConfigService } from '@nestjs/config';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
@@ -8,54 +6,67 @@ import { admin } from 'better-auth/plugins';
 import { emailAndPasswordConfig } from '@/core/config';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 
-export const createAuth = (
-  prisma: PrismaService,
-  configService: ConfigService,
-) => {
+export const createAuth = (prisma: PrismaService) => {
   return betterAuth({
     database: prismaAdapter(prisma, {
       provider: 'postgresql',
     }),
+    hooks: {},
+    // databaseHooks: {
+    //   user: {
+    //     create: {
+    //       before: user => {
+    //         const { companyName, taxId, type, ...cleanUser } = user as any;
+    //         return { data: cleanUser };
+    //       },
+    //     },
+    //   },
+    // },
+    user: {
+      additionalFields: {
+        // Додаємо цей прапор, щоб BA не намагався зберегти це в таблицю User
+        // companyName: {
+        //   type: 'string',
+        //   input: true,
+        //   mapToDatabase: false,
+        // },
+        // taxId: {
+        //   type: 'string',
+        //   input: true,
+        //   mapToDatabase: false,
+        // },
+        // type: {
+        //   // Не забудь додати type, якщо ти його шлеш
+        //   type: 'string',
+        //   input: true,
+        //   mapToDatabase: false,
+        // },
+        companyId: {
+          type: 'string',
+          input: false,
+        },
+      },
+    },
     plugins: [
       admin({
-        // ac: ac as any,
-        // roles: rolePermissions,
         isDefaultAdmin: user => user.role === 'ADMIN',
         defaultRole: 'RETAILER',
-        schema: {
-          user: {
-            fields: {
-              role: 'role',
-            },
-          },
-        },
       }),
     ],
     emailAndPassword: emailAndPasswordConfig,
-    trustedProxies: true, // <--- ДОДАЙ ЦЕ
+    trustedProxies: true,
     trustedOrigins: [
       'http://localhost:3000',
-      'http://web:3000', // Ім'я контейнера фронта
-      'http://backend:4200', // На всякий випадок
+      'http://localhost:4200',
+      'http://web:3000',
+      'http://backend:4200',
     ],
+    advanced: {
+      disableOriginCheck: process.env.MODE_ENV === 'development',
+      disableCSRFCheck: process.env.MODE_ENV === 'development',
+    },
+    allowDangerousConnections: process.env.MODE_ENV === 'development',
   });
 };
-
-export const auth = betterAuth({
-  database: prismaAdapter(
-    {},
-    {
-      provider: 'postgresql',
-    },
-  ),
-  plugins: [admin()],
-  emailAndPassword: emailAndPasswordConfig,
-  trustedProxies: true, // <--- ДОДАЙ ЦЕ
-  trustedOrigins: [
-    'http://localhost:3000',
-    'http://web:3000', // Ім'я контейнера фронта
-    'http://backend:4200', // На всякий випадок
-  ],
-});
 
 export type Auth = ReturnType<typeof createAuth>;

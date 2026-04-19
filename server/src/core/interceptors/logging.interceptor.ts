@@ -24,7 +24,7 @@ export class LoggingInterceptor implements NestInterceptor {
           this.logger.log(`${method} ${url} ${Date.now() - now}ms`);
         },
         // Спрацює, якщо сталася помилка (4xx, 5xx)
-        error: (err) => {
+        error: err => {
           this.logger.error(
             `${method} ${url} ${Date.now() - now}ms [Error: ${err.message}]`,
           );

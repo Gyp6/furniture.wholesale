@@ -22,6 +22,7 @@
 
 ### 📁 Структура та файли
 * **Папки (src/*):** `one word` (наприклад: `auth`, `catalog`, `prisma`). Короткі назви.
+* **Файли:** `kebab-case.suffix.ts` (наприклад: `cors.config.ts`, `validation-pipe.config.ts`).
 * **Файли модулів:** `module name.suffix.ts` (наприклад: `auth.service.ts`, `user.controller.ts`). Мають чітко відображати сутність.
 * **Класи:** `PascalCase` (наприклад: `class AuthService {}`).
 * **Функції та змінні:** `camelCase` (наприклад: `getUserData()`, `isValid`).

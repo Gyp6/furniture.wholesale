@@ -1,5 +1,5 @@
-import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { NextFunction, Request, Response } from 'express';
 
 @Injectable()
 export class LoggingMiddleware implements NestMiddleware {
@@ -9,7 +9,6 @@ export class LoggingMiddleware implements NestMiddleware {
     const { method, originalUrl } = req;
     const now = Date.now();
 
-    // Ми підписуємося на подію 'finish', яка спрацює, коли відповідь буде повністю відправлена клієнту
     res.on('finish', () => {
       const { statusCode } = res;
       const delay = Date.now() - now;

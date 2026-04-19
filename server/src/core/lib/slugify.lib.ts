@@ -1,5 +1,5 @@
-import slugify from 'slugify';
 import LanguageDetect from 'languagedetect';
+import slugify from 'slugify';
 
 const lngDetector = new LanguageDetect();
 
