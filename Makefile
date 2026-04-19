@@ -8,6 +8,9 @@ env-up:
 
 env-down:
 	docker compose -f deploy/docker-compose.yaml down
+	
+redis-up:
+	docker compose -f deploy/docker-compose.yaml up -d redis
 
 prod-up:
 	docker compose -f deploy/docker-compose.prod.yaml up -d --build

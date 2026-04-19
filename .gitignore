@@ -1,3 +1,5 @@
+/node_modules
+
 deploy/out
 /out
 .env

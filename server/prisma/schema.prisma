@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,9 +6,313 @@ datasource db {
   provider = "postgresql"
 }
 
+// --- Енами ---
+
+enum Role {
+  RETAILER
+  DESIGNER
+  HORECA
+  SUPPLIER
+  ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DRAFT
+}
+
+enum OrderStatus {
+  NEW
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum SpaceType {
+  APARTMENT
+  HOTEL
+  RESTAURANT
+  CAFE
+  COWORKING
+  OFFICE
+}
+
+// --- Better Auth Core ---
+
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  email     String   @unique
-  name      String?
+  id            String  @id @default(nanoid())
+  name          String
+  email         String  @unique
+  emailVerified Boolean @default(false) @map("email_verified")
+  image         String?
+  role          Role    @default(RETAILER)
+
+  banned     Boolean?  @default(false)
+  banReason  String?   @map("ban_reason")
+  banExpires DateTime? @map("ban_expires")
+
+  companyId String?  @map("company_id")
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  supplierProfile SupplierProfile?
+  products        Product[]
+  orders          Order[]
+  bundles         Bundle[]
+  cart            Cart?
+  notifications   Notification[]
+
+  sessions Session[]
+  accounts Account[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("user")
+}
+
+model Session {
+  id             String   @id
+  expiresAt      DateTime @map("expires_at")
+  token          String   @unique
+  ipAddress      String?  @map("ip_address")
+  userAgent      String?  @map("user_agent")
+  userId         String   @map("user_id")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String?  @map("impersonated_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  userId                String    @map("user_id")
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  idToken               String?   @map("id_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?
+  password              String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime  @map("expires_at")
+  createdAt  DateTime? @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// --- Бізнес-логіка (Domain Models) ---
+
+model Company {
+  id                 String             @id @default(nanoid())
+  name               String
+  taxId              String             @unique @map("tax_id")
+  verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
+  users              User[]
+  createdAt          DateTime           @default(now()) @map("created_at")
+
+  @@map("company")
+}
+
+model SupplierProfile {
+  id              String  @id @default(nanoid())
+  userId          String  @unique @map("user_id")
+  user            User    @relation(fields: [userId], references: [id])
+  companyName     String  @map("company_name")
+  description     String? @db.Text
+  logoUrl         String? @map("logo_url")
+  minQuantity     Int     @default(1) @map("min_quantity")
+  deliveryTerms   String? @map("delivery_terms") @db.Text
+  specializations Json?
+  ratingAvg       Decimal @default(0) @map("rating_avg") @db.Decimal(3, 2)
+  ratingCount     Int     @default(0) @map("rating_count")
+
+  @@map("supplier_profile")
+}
+
+model Category {
+  id        String          @id @default(nanoid())
+  name      String
+  parentId  String?         @map("parent_id")
+  parent    Category?       @relation("SubCategories", fields: [parentId], references: [id])
+  children  Category[]      @relation("SubCategories")
+  products  Product[]
+  templates SpaceTemplate[]
+
+  @@map("category")
+}
+
+model Product {
+  id          String           @id @default(nanoid())
+  supplierId  String           @map("supplier_id")
+  supplier    User             @relation(fields: [supplierId], references: [id])
+  categoryId  String           @map("category_id")
+  category    Category         @relation(fields: [categoryId], references: [id])
+  name        String
+  description String?          @db.Text
+  images      Json?
+  status      ProductStatus    @default(DRAFT)
+  variants    ProductVariant[]
+  tags        ProductTagMap[]
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  @@map("product")
+}
+
+model ProductVariant {
+  id          String  @id @default(nanoid())
+  productId   String  @map("product_id")
+  product     Product @relation(fields: [productId], references: [id])
+  sku         String  @unique
+  material    String?
+  color       String?
+  dimensions  String?
+  price       Decimal @db.Decimal(10, 2)
+  minQuantity Int?    @map("min_quantity")
+
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  bundleItems BundleItem[]
+
+  @@map("product_variant")
+}
+
+model ProductTag {
+  id       String          @id @default(nanoid())
+  name     String
+  slug     String          @unique
+  products ProductTagMap[]
+
+  @@map("product_tag")
+}
+
+model ProductTagMap {
+  productId String     @map("product_id")
+  tagId     String     @map("tag_id")
+  product   Product    @relation(fields: [productId], references: [id])
+  tag       ProductTag @relation(fields: [tagId], references: [id])
+
+  @@id([productId, tagId])
+  @@map("product_tag_map")
+}
+
+model Cart {
+  id     String     @id @default(nanoid())
+  userId String     @unique @map("user_id")
+  user   User       @relation(fields: [userId], references: [id])
+  items  CartItem[]
+
+  @@map("cart")
+}
+
+model CartItem {
+  id               String         @id @default(nanoid())
+  cartId           String         @map("cart_id")
+  cart             Cart           @relation(fields: [cartId], references: [id])
+  productVariantId String         @map("product_variant_id")
+  variant          ProductVariant @relation(fields: [productVariantId], references: [id])
+  quantity         Int
+  addedAt          DateTime       @default(now()) @map("added_at")
+
+  @@map("cart_item")
+}
+
+model Order {
+  id            String         @id @default(nanoid())
+  buyerId       String         @map("buyer_id")
+  buyer         User           @relation(fields: [buyerId], references: [id])
+  status        OrderStatus    @default(NEW)
+  totalAmount   Decimal        @map("total_amount") @db.Decimal(10, 2)
+  platformFee   Decimal        @map("platform_fee") @db.Decimal(10, 2)
+  items         OrderItem[]
+  notifications Notification[]
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  @@map("order")
+}
+
+model OrderItem {
+  id               String         @id @default(nanoid())
+  orderId          String         @map("order_id")
+  order            Order          @relation(fields: [orderId], references: [id])
+  productVariantId String         @map("product_variant_id")
+  variant          ProductVariant @relation(fields: [productVariantId], references: [id])
+  supplierId       String         @map("supplier_id")
+  quantity         Int
+  priceSnapshot    Decimal        @map("price_snapshot") @db.Decimal(10, 2)
+
+  @@map("order_item")
+}
+
+model Bundle {
+  id        String       @id @default(nanoid())
+  userId    String       @map("user_id")
+  user      User         @relation(fields: [userId], references: [id])
+  name      String
+  spaceType SpaceType    @map("space_type")
+  items     BundleItem[]
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  @@map("bundle")
+}
+
+model BundleItem {
+  id               String         @id @default(nanoid())
+  bundleId         String         @map("bundle_id")
+  bundle           Bundle         @relation(fields: [bundleId], references: [id])
+  productVariantId String         @map("product_variant_id")
+  variant          ProductVariant @relation(fields: [productVariantId], references: [id])
+  quantity         Int
+  priceSnapshot    Decimal        @map("price_snapshot") @db.Decimal(10, 2)
+
+  @@map("bundle_item")
+}
+
+model SpaceTemplate {
+  id         String    @id @default(nanoid())
+  spaceType  SpaceType @map("space_type")
+  categoryId String    @map("category_id")
+  category   Category  @relation(fields: [categoryId], references: [id])
+  sortOrder  Int       @map("sort_order")
+
+  @@map("space_template")
+}
+
+model Notification {
+  id      String   @id @default(nanoid())
+  userId  String   @map("user_id")
+  user    User     @relation(fields: [userId], references: [id])
+  orderId String?  @map("order_id")
+  order   Order?   @relation(fields: [orderId], references: [id])
+  type    String
+  status  String   @default("PENDING")
+  sentAt  DateTime @default(now()) @map("sent_at")
+
+  @@map("notification")
 }
