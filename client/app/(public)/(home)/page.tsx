@@ -48,7 +48,7 @@ export default function Home() {
           >
             Sign In
           </button>
-          
+
           <button
             onClick={() => setActiveForm('signup')}
             className={`py-2 px-4 rounded-md ${
@@ -59,7 +59,6 @@ export default function Home() {
           >
             Sign Up
           </button>
-          
         </div>
       </div>
     </div>
