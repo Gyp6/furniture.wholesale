@@ -28,17 +28,17 @@ export const createAuth = (prisma: PrismaService) => {
     ],
     emailAndPassword: emailAndPasswordConfig,
     trustedProxies: true,
-    trustedOrigins: [
-      'http://localhost:3000',
-      'http://localhost:4200',
-      'http://web:3000',
-      'http://backend:4200',
-    ],
+    // trustedOrigins: [
+    //   'http://localhost:3000',
+    //   'http://localhost:4200',
+    //   'http://web:3000',
+    //   'http://backend:4200',
+    // ],
     advanced: {
-      disableOriginCheck: process.env.MODE_ENV === 'development',
-      disableCSRFCheck: process.env.MODE_ENV === 'development',
+      disableOriginCheck: process.env.NODE_ENV === 'development',
+      disableCSRFCheck: process.env.NODE_ENV === 'development',
     },
-    allowDangerousConnections: process.env.MODE_ENV === 'development',
+    allowDangerousConnections: process.env.NODE_ENV === 'development',
   });
 };
 

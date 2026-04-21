@@ -25,7 +25,7 @@ export class MailService {
 
       if (error) {
         this.logger.error(`Resend error: ${JSON.stringify(error)}`);
-        throw new Error(error.message as string);
+        throw new Error(error.message);
       }
 
       this.logger.log(
