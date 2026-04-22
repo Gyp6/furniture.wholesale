@@ -9,16 +9,7 @@ import { z } from 'zod';
 
 import { cn } from '@/lib/utils';
 
-const schema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(1, 'Please enter your password'),
-  remember: z.boolean().optional(),
-});
 
-type FormValues = z.infer<typeof schema>;
-type FieldName = keyof FormValues;
-
-// Shared Tailwind classes
 const labelCls =
   'text-[11px] font-semibold tracking-[0.15em] text-[#1A1A2E] uppercase';
 const inputCls =
@@ -27,29 +18,10 @@ const validCls =
   'border-blue-500 focus-visible:border-blue-500 focus-visible:ring-blue-500/20';
 
 export function LoginForm() {
-  const [showPassword, setShowPassword] = useState(false);
 
-  const { control, register, handleSubmit, formState } = useForm<FormValues>({
-    resolver: zodResolver(schema),
-    mode: 'onChange',
-    defaultValues: {
-      email: '',
-      password: '',
-      remember: false,
-    },
-  });
-
-  const { errors, dirtyFields, isValid, isSubmitting } = formState;
-
-  const isFieldValid = (name: FieldName) =>
-    Boolean(dirtyFields[name]) && !errors[name];
-
-  const onSubmit = (values: FormValues) => {
-    console.log('login:', values);
-  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className={"flex flex-col gap-5"}>
+    <form  className={"flex flex-col gap-5"}>
       <header>
         <h2 className={"text-3xl font-semibold tracking-tight text-[#1A1A2E]"}>
           Welcome Back
@@ -68,15 +40,7 @@ export function LoginForm() {
           type={"email"}
           autoComplete={"email"}
           placeholder={"name@company.com"}
-          aria-invalid={!!errors.email}
-          className={cn(inputCls, isFieldValid('email') && validCls)}
-          {...register('email')}
         />
-        {errors.email && (
-          <span className={"text-xs text-destructive"}>
-            {errors.email.message}
-          </span>
-        )}
       </div>
 
       <div className={"flex flex-col gap-1.5"}>
@@ -94,39 +58,18 @@ export function LoginForm() {
         <div className={"relative"}>
           <input
             id={"password"}
-            type={showPassword ? 'text' : 'password'}
             autoComplete={"current-password"}
             placeholder={"••••••••"}
-            aria-invalid={!!errors.password}
-            className={cn(
-              inputCls,
-              'pr-11',
-              isFieldValid('password') && validCls,
-            )}
-            {...register('password')}
           />
           <button
             type={"button"}
-            onClick={() => setShowPassword(v => !v)}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
             className={"absolute inset-y-0 right-4 flex items-center text-muted-foreground hover:text-[#1A1A2E]"}
           >
-            {showPassword ? (
-              <Eye className={"size-4"} />
-            ) : (
-              <EyeOff className={"size-4"} />
-            )}
           </button>
         </div>
-        {errors.password && (
-          <span className={"text-xs text-destructive"}>
-            {errors.password.message}
-          </span>
-        )}
       </div>
 
       <Controller
-        control={control}
         name={"remember"}
         render={({ field }) => (
           <label className={"flex cursor-pointer items-center gap-2 text-sm text-muted-foreground select-none"}>
@@ -145,11 +88,8 @@ export function LoginForm() {
 
       <button
         type={"submit"}
-        disabled={!isValid || isSubmitting}
         className={"mt-2 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#1A1A2E] text-sm font-semibold text-white transition-colors hover:bg-[#2a2a45] disabled:cursor-not-allowed disabled:opacity-50"}
       >
-        {isSubmitting ? 'Signing in…' : 'Sign In'}
-        {!isSubmitting && <ArrowRight className={"size-4"} />}
       </button>
 
       <p className={"text-center text-xs text-muted-foreground"}>

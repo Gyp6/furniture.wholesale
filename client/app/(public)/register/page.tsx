@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 
-import { RegisterForm } from '@/components/auth/RegisterForm';
+import { RegisterForm } from '@/features/auth/RegisterForm';
 
 export const metadata: Metadata = {
   title: 'Registration — Gyp6.sale',
