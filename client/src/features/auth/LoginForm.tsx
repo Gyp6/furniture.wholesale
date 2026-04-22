@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { cn } from '@/lib/utils';
@@ -68,23 +67,6 @@ export function LoginForm() {
           </button>
         </div>
       </div>
-
-      <Controller
-        name={"remember"}
-        render={({ field }) => (
-          <label className={"flex cursor-pointer items-center gap-2 text-sm text-muted-foreground select-none"}>
-            <input
-              type={"checkbox"}
-              className={"size-4 rounded-full border border-border accent-[#1A1A2E]"}
-              checked={!!field.value}
-              onChange={e => field.onChange(e.target.checked)}
-              onBlur={field.onBlur}
-              name={field.name}
-            />
-            Remember this device
-          </label>
-        )}
-      />
 
       <button
         type={"submit"}
