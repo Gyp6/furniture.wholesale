@@ -3,7 +3,7 @@ import { Dialog as SheetPrimitive } from 'radix-ui';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
-import { cn } from '@/utils/utils';
+import { cn } from '@/lib/cn';
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return (
@@ -157,11 +157,11 @@ function SheetDescription({
 
 export {
   Sheet,
-  SheetTrigger,
   SheetClose,
   SheetContent,
-  SheetHeader,
-  SheetFooter,
-  SheetTitle,
   SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 };
