@@ -44,5 +44,8 @@ export function getFastifyCorsConfig(
   return {
     origin: configService.getOrThrow<string>('HTTP_CORS').split(','),
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Set-Cookie'],
   };
 }

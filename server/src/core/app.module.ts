@@ -51,6 +51,7 @@ import { createAuth } from './lib';
       imports: [PrismaModule, ConfigModule],
       useFactory: (prisma: PrismaService) => ({
         auth: createAuth(prisma),
+        disableTrustedOriginsCors: true,
       }),
       inject: [PrismaService, ConfigService],
     }),

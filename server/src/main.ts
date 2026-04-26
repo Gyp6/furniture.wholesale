@@ -12,8 +12,6 @@ import { AppModule } from './core/app.module';
 import { getFastifyCorsConfig, getValidationPipeConfig } from './core/config';
 import { LoggingInterceptor } from './core/interceptors';
 
-// import { LoggingMiddleware } from './core/middleware';
-
 async function bootstrap() {
   const adapter = new FastifyAdapter({
     logger: true,
@@ -22,14 +20,11 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     adapter,
+    { bodyParser: false },
   );
 
   const config = app.get(ConfigService);
   const logger = new Logger();
-
-  // const loggingMiddleware = new LoggingMiddleware();
-
-  // app.use(loggingMiddleware.use.bind(loggingMiddleware));
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 

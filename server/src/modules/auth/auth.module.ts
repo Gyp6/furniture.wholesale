@@ -27,7 +27,7 @@ import { RecoveryService, RegisterService } from './services';
       name: 'mail_queue',
     }),
   ],
-  controllers: [AuthController],
+  // controllers: [AuthController],
   providers: [AuthHook, RegisterService, RecoveryService],
 })
 export class AuthModule {}
