@@ -1,7 +1,7 @@
 import { TIconProps } from '@/shared/types';
 
 export const LOGO = {
-  logo: (props: TIconProps) => (
+  Logo: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}

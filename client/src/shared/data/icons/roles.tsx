@@ -1,7 +1,7 @@
 import { TIconProps } from '@/shared/types';
 
 export const ROLES = {
-  designer: (props: TIconProps) => (
+  Designer: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -18,7 +18,7 @@ export const ROLES = {
       />
     </svg>
   ),
-  retailer: (props: TIconProps) => (
+  Retailer: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -35,7 +35,7 @@ export const ROLES = {
       />
     </svg>
   ),
-  horeca: (props: TIconProps) => (
+  HoReCa: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -52,7 +52,7 @@ export const ROLES = {
       />
     </svg>
   ),
-  supplier: (props: TIconProps) => (
+  Supplier: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}

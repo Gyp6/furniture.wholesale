@@ -8,13 +8,13 @@ import './tailwind.css';
 
 const inter = Inter({
   variable: '--font-sans',
-  subsets: ['latin'],
+  subsets: ['latin', 'latin-ext', 'cyrillic', 'cyrillic-ext'],
   display: 'swap',
 });
 
 const mono = JetBrains_Mono({
   variable: '--font-mono',
-  subsets: ['latin'],
+  subsets: ['latin', 'latin-ext', 'cyrillic', 'cyrillic-ext'],
   display: 'swap',
 });
 
@@ -36,7 +36,7 @@ export default function RootLayout({
       lang={'en'}
       className={`${inter.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className={'min-h-full flex flex-col font-sans'}>
+      <body>
         <QueryProvider>
           {children}
           <DevtoolsProvider />

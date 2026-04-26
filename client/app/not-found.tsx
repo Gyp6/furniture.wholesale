@@ -2,9 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/shadcn/button';
 
-export default function CrmNotFound() {
+export default function NotFound() {
   const router = useRouter();
 
   return (

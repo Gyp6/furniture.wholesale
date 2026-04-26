@@ -3,17 +3,21 @@
 import { Suspense, useMemo } from 'react';
 
 import { cn } from '@/lib/cn';
-import type { IconName } from '@/shared/data/icons';
-import { BRANDS_MONOCHROME } from '@/shared/data/icons/brands';
-import { BRANDS } from '@/shared/data/icons/brands';
-import type { BrandName } from '@/shared/data/icons/brands';
-import { ICONS } from '@/shared/data/icons/icons';
-import { lucideRegistry } from '@/shared/data/icons/lucide-registry';
-import { ROLES } from '@/shared/data/icons/roles';
+import {
+  type BrandName,
+  BRANDS,
+  BRANDS_MONOCHROME,
+  type IconName,
+  ICONS,
+  LOGO,
+  lucideRegistry,
+  ROLES,
+} from '@/shared/data/icons';
 import type { TBrandProps, TIconProps } from '@/shared/types';
 
 const customRegistry: Record<string, React.ComponentType<TIconProps>> = {
   ...ICONS,
+  ...LOGO,
   ...ROLES,
   ...BRANDS_MONOCHROME,
 };
@@ -51,7 +55,9 @@ export const Icon = ({
       className={cn('flex items-center justify-center shrink-0', className)}
     >
       {isLazy ? (
-        <Suspense fallback={<SkeletonIcon size={Number(size)} />}>{icon}</Suspense>
+        <Suspense fallback={<SkeletonIcon size={Number(size)} />}>
+          {icon}
+        </Suspense>
       ) : (
         icon
       )}

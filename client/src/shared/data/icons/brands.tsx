@@ -1,7 +1,7 @@
 import { TBrandProps, TIconProps } from '@/shared/types';
 
 export const BRANDS = {
-  google: (props: TBrandProps) => (
+  Google: (props: TBrandProps) => (
     <svg
       xmlns={'http://www.w3.org/2000/svg'}
       width={props.size}
@@ -56,7 +56,7 @@ export const BRANDS = {
 } as const;
 
 export const BRANDS_MONOCHROME = {
-  googleMonochrome: (props: TIconProps) => (
+  GoogleMonochrome: (props: TIconProps) => (
     <svg
       xmlns={'http://www.w3.org/2000/svg'}
       width={props.size}

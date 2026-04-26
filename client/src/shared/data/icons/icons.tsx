@@ -1,7 +1,7 @@
 import { TIconProps } from '@/shared/types';
 
 export const ICONS = {
-  pdfFile: (props: TIconProps) => (
+  PdfFile: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -18,7 +18,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  refreshLoading: (props: TIconProps) => (
+  RefreshLoading: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -35,7 +35,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  settingsFigma: (props: TIconProps) => (
+  SettingsFigma: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -52,7 +52,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  market: (props: TIconProps) => (
+  Market: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -69,7 +69,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  market2_plus: (props: TIconProps) => (
+  Market2_Plus: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -86,7 +86,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  bundle: (props: TIconProps) => (
+  Bundle: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -103,7 +103,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  bundles: (props: TIconProps) => (
+  Bundles: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -120,7 +120,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  graph: (props: TIconProps) => (
+  Graph: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -137,7 +137,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  truckFigma: (props: TIconProps) => (
+  TruckFigma: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -154,7 +154,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  offline: (props: TIconProps) => (
+  Offline: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -171,7 +171,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  bellFigma: (props: TIconProps) => (
+  BellFigma: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -188,7 +188,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  cart: (props: TIconProps) => (
+  Cart: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -205,7 +205,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  starOutline: (props: TIconProps) => (
+  StarOutline: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -222,7 +222,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  starSolid: (props: TIconProps) => (
+  StarSolid: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -239,7 +239,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  stonks: (props: TIconProps) => (
+  Stonks: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -256,7 +256,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  lockFigma: (props: TIconProps) => (
+  LockFigma: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -273,7 +273,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  bulb: (props: TIconProps) => (
+  Bulb: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -290,7 +290,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  mapPoint: (props: TIconProps) => (
+  MapPoint: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -307,7 +307,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  shoppingBagFigma: (props: TIconProps) => (
+  ShoppingBagFigma: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -324,7 +324,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  organizationFigma: (props: TIconProps) => (
+  OrganizationFigma: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -341,7 +341,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  walletFigma: (props: TIconProps) => (
+  WalletFigma: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -358,7 +358,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  verified: (props: TIconProps) => (
+  Verified: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -375,7 +375,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  sofaFigma: (props: TIconProps) => (
+  SofaFigma: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -392,7 +392,7 @@ export const ICONS = {
       />
     </svg>
   ),
-  tableFigma: (props: TIconProps) => (
+  TableFigma: (props: TIconProps) => (
     <svg
       width={props.size}
       height={props.size}
@@ -404,6 +404,108 @@ export const ICONS = {
       <path
         d={
           'M2 8L2.75 6.125C2.825 5.93333 2.94583 5.78125 3.1125 5.66875C3.27917 5.55625 3.46667 5.5 3.675 5.5H4.5V3.4875C3.225 3.44583 2.15625 3.25833 1.29375 2.925C0.43125 2.59167 0 2.2 0 1.75C0 1.26667 0.4875 0.854167 1.4625 0.5125C2.4375 0.170833 3.61667 0 5 0C6.39167 0 7.57292 0.170833 8.54375 0.5125C9.51458 0.854167 10 1.26667 10 1.75C10 2.2 9.56875 2.59167 8.70625 2.925C7.84375 3.25833 6.775 3.44583 5.5 3.4875V5.5H6.325C6.525 5.5 6.71042 5.55625 6.88125 5.66875C7.05208 5.78125 7.175 5.93333 7.25 6.125L8 8H7L6.4 6.5H3.6L3 8H2ZM5 2.5C5.80833 2.5 6.57083 2.42917 7.2875 2.2875C8.00417 2.14583 8.52917 1.96667 8.8625 1.75C8.52917 1.53333 8.00417 1.35417 7.2875 1.2125C6.57083 1.07083 5.80833 1 5 1C4.19167 1 3.42917 1.07083 2.7125 1.2125C1.99583 1.35417 1.47083 1.53333 1.1375 1.75C1.47083 1.96667 1.99583 2.14583 2.7125 2.2875C3.42917 2.42917 4.19167 2.5 5 2.5Z'
+        }
+        fill={props.color}
+      />
+    </svg>
+  ),
+  FolderPlusFigma: (props: TIconProps) => (
+    <svg
+      width={props.size}
+      height={props.size}
+      viewBox={'0 0 20 16'}
+      fill={'none'}
+      xmlns={'http://www.w3.org/2000/svg'}
+      className={props.className}
+    >
+      <path
+        d={
+          'M12 12H14V10H16V8H14V6H12V8H10V10H12V12ZM2 16C1.45 16 0.979167 15.8042 0.5875 15.4125C0.195833 15.0208 0 14.55 0 14V2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0H8L10 2H18C18.55 2 19.0208 2.19583 19.4125 2.5875C19.8042 2.97917 20 3.45 20 4V14C20 14.55 19.8042 15.0208 19.4125 15.4125C19.0208 15.8042 18.55 16 18 16H2ZM2 14H18V4H9.175L7.175 2H2V14ZM2 14V2V4V14Z'
+        }
+        fill={props.color}
+      />
+    </svg>
+  ),
+  PenFigma: (props: TIconProps) => (
+    <svg
+      width={props.size}
+      height={props.size}
+      viewBox={'0 0 15 15'}
+      fill={'none'}
+      xmlns={'http://www.w3.org/2000/svg'}
+      className={props.className}
+    >
+      <path
+        d={
+          'M1.66667 13.3333H2.85417L11 5.1875L9.8125 4L1.66667 12.1458V13.3333ZM0 15V11.4583L11 0.479167C11.1667 0.326389 11.3507 0.208333 11.5521 0.125C11.7535 0.0416667 11.9653 0 12.1875 0C12.4097 0 12.625 0.0416667 12.8333 0.125C13.0417 0.208333 13.2222 0.333333 13.375 0.5L14.5208 1.66667C14.6875 1.81944 14.809 2 14.8854 2.20833C14.9618 2.41667 15 2.625 15 2.83333C15 3.05556 14.9618 3.26736 14.8854 3.46875C14.809 3.67014 14.6875 3.85417 14.5208 4.02083L3.54167 15H0ZM13.3333 2.83333L12.1667 1.66667L13.3333 2.83333ZM10.3958 4.60417L9.8125 4L11 5.1875L10.3958 4.60417Z'
+        }
+        fill={props.color}
+      />
+    </svg>
+  ),
+  ShareFigma: (props: TIconProps) => (
+    <svg
+      width={props.size}
+      height={props.size}
+      viewBox={'0 0 14 18'}
+      fill={'none'}
+      xmlns={'http://www.w3.org/2000/svg'}
+      className={props.className}
+    >
+      <path
+        d={
+          'M1.66667 17.5C1.20833 17.5 0.815972 17.3368 0.489583 17.0104C0.163194 16.684 0 16.2917 0 15.8333V7.5C0 7.04167 0.163194 6.64931 0.489583 6.32292C0.815972 5.99653 1.20833 5.83333 1.66667 5.83333H4.16667V7.5H1.66667V15.8333H11.6667V7.5H9.16667V5.83333H11.6667C12.125 5.83333 12.5174 5.99653 12.8438 6.32292C13.1701 6.64931 13.3333 7.04167 13.3333 7.5V15.8333C13.3333 16.2917 13.1701 16.684 12.8438 17.0104C12.5174 17.3368 12.125 17.5 11.6667 17.5H1.66667ZM5.83333 12.5V3.1875L4.5 4.52083L3.33333 3.33333L6.66667 0L10 3.33333L8.83333 4.52083L7.5 3.1875V12.5H5.83333Z'
+        }
+        fill={props.color}
+      />
+    </svg>
+  ),
+  BedFigma: (props: TIconProps) => (
+    <svg
+      width={props.size}
+      height={props.size}
+      viewBox={'0 0 11 8'}
+      fill={'none'}
+      xmlns={'http://www.w3.org/2000/svg'}
+      className={props.className}
+    >
+      <path
+        d={
+          'M0 7.5V0H1V5H5V1H9C9.55 1 10.0208 1.19583 10.4125 1.5875C10.8042 1.97917 11 2.45 11 3V7.5H10V6H1V7.5H0ZM3 4.5C2.58333 4.5 2.22917 4.35417 1.9375 4.0625C1.64583 3.77083 1.5 3.41667 1.5 3C1.5 2.58333 1.64583 2.22917 1.9375 1.9375C2.22917 1.64583 2.58333 1.5 3 1.5C3.41667 1.5 3.77083 1.64583 4.0625 1.9375C4.35417 2.22917 4.5 2.58333 4.5 3C4.5 3.41667 4.35417 3.77083 4.0625 4.0625C3.77083 4.35417 3.41667 4.5 3 4.5ZM6 5H10V3C10 2.725 9.90208 2.48958 9.70625 2.29375C9.51042 2.09792 9.275 2 9 2H6V5ZM3 3.5C3.14167 3.5 3.26042 3.45208 3.35625 3.35625C3.45208 3.26042 3.5 3.14167 3.5 3C3.5 2.85833 3.45208 2.73958 3.35625 2.64375C3.26042 2.54792 3.14167 2.5 3 2.5C2.85833 2.5 2.73958 2.54792 2.64375 2.64375C2.54792 2.73958 2.5 2.85833 2.5 3C2.5 3.14167 2.54792 3.26042 2.64375 3.35625C2.73958 3.45208 2.85833 3.5 3 3.5ZM6 2V5V2Z'
+        }
+        fill={props.color}
+      />
+    </svg>
+  ),
+  KitchenFigma: (props: TIconProps) => (
+    <svg
+      width={props.size}
+      height={props.size}
+      viewBox={'0 0 18 25'}
+      fill={'none'}
+      xmlns={'http://www.w3.org/2000/svg'}
+      className={props.className}
+    >
+      <path
+        d={
+          'M3.60576 24.375V13.0096C2.59134 12.79 1.73677 12.2768 1.04206 11.4699C0.347355 10.663 0 9.7003 0 8.58172V0H1.87495V8.58172H3.60576V0H5.48071V8.58172H7.21152V0H9.08647V8.58172C9.08647 9.7003 8.73912 10.663 8.04441 11.4699C7.3497 12.2768 6.49513 12.79 5.48071 13.0096V24.375H3.60576ZM15.625 24.375V14.375H12.2115V5.93748C12.2115 4.37659 12.7127 3.02283 13.7151 1.87621C14.7175 0.729576 15.9791 0.112188 17.4999 0.0240402V24.375H15.625Z'
+        }
+        fill={props.color}
+      />
+    </svg>
+  ),
+  BagFigma: (props: TIconProps) => (
+    <svg
+      width={props.size}
+      height={props.size}
+      viewBox={'0 0 10 10'}
+      fill={'none'}
+      xmlns={'http://www.w3.org/2000/svg'}
+      className={props.className}
+    >
+      <path
+        d={
+          'M1 9.5C0.725 9.5 0.489583 9.40208 0.29375 9.20625C0.0979166 9.01042 0 8.775 0 8.5V3C0 2.725 0.0979166 2.48958 0.29375 2.29375C0.489583 2.09792 0.725 2 1 2H3V1C3 0.725 3.09792 0.489583 3.29375 0.29375C3.48958 0.0979166 3.725 0 4 0H6C6.275 0 6.51042 0.0979166 6.70625 0.29375C6.90208 0.489583 7 0.725 7 1V2H9C9.275 2 9.51042 2.09792 9.70625 2.29375C9.90208 2.48958 10 2.725 10 3V8.5C10 8.775 9.90208 9.01042 9.70625 9.20625C9.51042 9.40208 9.275 9.5 9 9.5H1ZM1 8.5H9V3H1V8.5ZM4 2H6V1H4V2ZM1 8.5V3V8.5Z'
         }
         fill={props.color}
       />

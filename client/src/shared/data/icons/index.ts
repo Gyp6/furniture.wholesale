@@ -6,7 +6,7 @@ import type { LOGO } from './logo';
 
 export * from './brands';
 export * from './icons';
-export type { LucideIconName } from './lucide-registry';
+export * from './lucide-registry';
 export * from './roles';
 export * from './logo';
 
