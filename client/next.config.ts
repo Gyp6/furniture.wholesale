@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '4566',
-      }
+        pathname: '/furniture-wholesale-bucket/**',
+      },
     ],
   },
   turbopack: {

@@ -513,4 +513,4 @@ export const ICONS = {
   ),
 } as const;
 
-export type IconName = keyof typeof ICONS;
+export type BaseIconName = keyof typeof ICONS;

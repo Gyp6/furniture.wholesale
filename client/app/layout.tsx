@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 
+import { Toaster } from '@/components/ui/shadcn/sonner';
+import { TooltipProvider } from '@/components/ui/shadcn/tooltip';
 import { DevtoolsProvider, QueryProvider } from '@/providers';
 
-import './globals.scss';
 import './tailwind.css';
+
+// import './globals.scss';
 
 const inter = Inter({
   variable: '--font-sans',
@@ -38,7 +41,8 @@ export default function RootLayout({
     >
       <body>
         <QueryProvider>
-          {children}
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster />
           <DevtoolsProvider />
         </QueryProvider>
       </body>

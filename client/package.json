@@ -8,12 +8,10 @@
     "start": "next start",
     "lint": "eslint --fix .",
     "format": "prettier --write .",
-    "gen:icons": "tsx scripts/gen-lucide-registry.mts",
-    "postinstall": "npm run gen:icons",
-    "prebuild": "npm run gen:icons",
     "clean": "rm -rf .next && bun dev"
   },
   "dependencies": {
+    "@base-ui/react": "^1.4.1",
     "@gyp6.sale/core": "^1.0.9",
     "@tanstack/devtools": "^0.11.2",
     "@tanstack/devtools-vite": "^0.6.0",
@@ -21,6 +19,7 @@
     "@tanstack/react-devtools": "^0.10.2",
     "@tanstack/react-form": "^1.29.1",
     "@tanstack/react-form-devtools": "^0.2.22",
+    "@tanstack/react-form-nextjs": "^1.29.1",
     "@tanstack/react-query": "^5.100.3",
     "@tanstack/react-query-devtools": "^5.100.3",
     "@tanstack/react-table": "^8.21.3",

@@ -4,16 +4,15 @@ import { Suspense, useMemo } from 'react';
 
 import { cn } from '@/lib/cn';
 import {
-  type BrandName,
+  type BrandIconName,
   BRANDS,
   BRANDS_MONOCHROME,
-  type IconName,
   ICONS,
   LOGO,
   lucideRegistry,
   ROLES,
 } from '@/shared/data/icons';
-import type { TBrandProps, TIconProps } from '@/shared/types';
+import type { IconName, TBrandProps, TIconProps } from '@/shared/types';
 
 const customRegistry: Record<string, React.ComponentType<TIconProps>> = {
   ...ICONS,
@@ -69,7 +68,7 @@ export const BrandIcon = ({
   name,
   size = 22,
   className,
-}: { name: BrandName } & TBrandProps) => {
+}: { name: BrandIconName } & TBrandProps) => {
   const BrandComponent = BRANDS[name];
 
   if (!BrandComponent) return null;

@@ -1,6 +1,6 @@
 import { ERole } from '@/shared/enums';
 
-export const ROLES: Record<string, string> = {
+export const ROLES = {
   DESIGNER: ERole.DESIGNER.toUpperCase(),
   RETAILER: ERole.RETAILER.toUpperCase(),
   HORECA: ERole.HORECA.toUpperCase(),

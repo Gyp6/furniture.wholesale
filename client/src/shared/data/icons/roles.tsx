@@ -71,4 +71,4 @@ export const ROLES = {
   ),
 } as const;
 
-export type RoleName = keyof typeof ROLES;
+export type RoleIconName = keyof typeof ROLES;
