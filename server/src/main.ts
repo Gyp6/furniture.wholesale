@@ -1,32 +1,42 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 
 import { AppModule } from './core/app.module';
-import { getCorsConfig, getValidationPipeConfig } from './core/config';
+import { getFastifyCorsConfig, getValidationPipeConfig } from './core/config';
 import { LoggingInterceptor } from './core/interceptors';
-import { LoggingMiddleware } from './core/middleware';
+
+// import { LoggingMiddleware } from './core/middleware';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    bodyParser: false,
+  const adapter = new FastifyAdapter({
+    logger: true,
   });
+
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    adapter,
+  );
 
   const config = app.get(ConfigService);
   const logger = new Logger();
 
-  const loggingMiddleware = new LoggingMiddleware();
+  // const loggingMiddleware = new LoggingMiddleware();
 
-  app.use(loggingMiddleware.use.bind(loggingMiddleware));
+  // app.use(loggingMiddleware.use.bind(loggingMiddleware));
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe(getValidationPipeConfig()));
   app.useGlobalInterceptors(new LoggingInterceptor());
-  app.enableCors(getCorsConfig(config));
+  app.enableCors(getFastifyCorsConfig(config));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('@Gyp6.sale - Furniture.Wholesale API')
@@ -36,7 +46,7 @@ async function bootstrap() {
     .build();
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('/docs', app, swaggerDocument, {
+  SwaggerModule.setup('api/docs', app, swaggerDocument, {
     jsonDocumentUrl: 'swagger.json',
     yamlDocumentUrl: '/openapi.yaml',
   });
@@ -47,7 +57,7 @@ async function bootstrap() {
   await app.listen(port);
 
   logger.log(`Backend started: ${host}/api`);
-  logger.log(`Swagger: ${host}/docs`);
+  logger.log(`Swagger: ${host}api/docs`);
 }
 
 bootstrap().catch(err => {
