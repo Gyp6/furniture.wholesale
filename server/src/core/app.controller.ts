@@ -3,7 +3,7 @@ import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 
 import { AppService } from './app.service';
-import { HealthResponse } from './dto/responses';
+import { HealthResponse, HelloResponse } from './dto/responses';
 
 @Controller()
 @AllowAnonymous()
@@ -13,6 +13,9 @@ export class AppController {
   @ApiOperation({
     summary: 'Welcome endpoint',
     description: 'Returns a simple API welcome message.',
+  })
+  @ApiOkResponse({
+    type: HelloResponse,
   })
   @Get()
   getHello() {

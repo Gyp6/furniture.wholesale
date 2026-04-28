@@ -3,6 +3,7 @@ import {
   IsEnum,
   IsString,
   IsStrongPassword,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 
@@ -29,6 +30,7 @@ export class RegisterRetailerRequest {
         'Password must be at least 8 characters long and include uppercase letters, lowercase letters, and numbers',
     },
   )
+  @MaxLength(100, { message: 'Password must be less than 100 characters long' })
   password!: string;
 
   @IsString()
@@ -41,7 +43,10 @@ export class RegisterRetailerRequest {
   type!: UserTypeEnum;
 
   @IsString()
-  @MinLength(3)
+  @MinLength(2, { message: 'Company name must be at least 2 characters long' })
+  @MaxLength(100, {
+    message: 'Company name must be less than 100 characters long',
+  })
   @IsUnique('company', 'name', {
     message: 'Company with this name already exists',
   })

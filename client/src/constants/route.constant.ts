@@ -1,0 +1,21 @@
+const S3_URL = process.env.NEXT_PUBLIC_S3_URL;
+
+export const ROUTES = {
+  PLACEHOLDER: '#',
+
+	S3: (url: string) => `${S3_URL}/furniture-wholesale-bucket/${url}`,
+
+  GITHUB: {
+    ORGANIZATION: 'https://github.com/Gyp6',
+    PROJECT: 'https://github.com/Gyp6/furniture.wholesale',
+  },
+
+  AUTH: {
+    LOGIN: 'login',
+    REGISTER: 'register',
+    FORGOT_PASSWORD: 'forgot-password',
+    RESET_PASSWORD: 'reset-password',
+  },
+
+  PROFILE: (id: string) => `profile/${id}`,
+};

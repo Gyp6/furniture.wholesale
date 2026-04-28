@@ -55,65 +55,43 @@ export class AuthHook {
   }
 
   @AfterHook('/sign-up/email')
-  async afterSignUp(context: AuthHookContext) {
+  afterSignUp(context: AuthHookContext) {
     const { body } = context;
 
-    this.logger.debug('=== AFTER HOOK DEBUG ===');
-    this.logger.debug('Body:', body);
+    const email = body.email as string;
 
-    if (!body.email) {
-      this.logger.warn('AfterHook: No email in body');
-      return;
-    }
-    this.logger.debug('CompanyName:', body.companyName);
-    this.logger.debug('TaxId:', body.taxId);
-    this.logger.debug('User Type:', body.type);
+    if (!email || !body.companyName || !body.taxId) return;
 
-    this.logger.debug('AfterHook body:', body);
+    this.handlePostRegistration(email, body).catch(err =>
+      this.logger.error(`Background task failed: ${err.message}`),
+    );
 
-    const user = await this.userRepository.findByEmail(body.email as string);
+    this.logger.log(`Registration handoff successful for ${email}`);
+  }
 
-    if (!user) {
-      this.logger.warn('AfterHook: Missing user');
-      return;
-    }
-    if (!body.companyName) {
-      this.logger.warn('AfterHook: Missing company name');
-      return;
-    }
-    if (!body.taxId) {
-      this.logger.warn('AfterHook: Missing tax ID');
-      return;
-    }
+  private async handlePostRegistration(email: string, body: any) {
+    const user = await this.userRepository.findByEmail(email);
+    if (!user) return;
 
-    try {
-      await this.prisma.$transaction(async tx => {
-        const company = await this.companyRepository.create(
-          {
-            name: body.companyName,
-            taxId: body.taxId,
-          },
-          tx,
-        );
-
-        await this.userRepository.updateById(
-          user.id,
-          {
-            company: { connect: { id: company.id } },
-            role: body.type || 'RETAILER',
-          },
-          tx,
-        );
-
-        await this.otp.sendCode(user.email);
-      });
-
-      this.logger.log(
-        `[Success] User ${user.email} registered and linked to company ${body.taxId}`,
+    await this.prisma.$transaction(async tx => {
+      const company = await this.companyRepository.create(
+        {
+          name: body.companyName,
+          taxId: body.taxId,
+        },
+        tx,
       );
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      this.logger.error(`[AfterHook Error] ${message}`);
-    }
+
+      await this.userRepository.updateById(
+        user.id,
+        {
+          company: { connect: { id: company.id } },
+          role: body.type || 'RETAILER',
+        },
+        tx,
+      );
+
+      await this.otp.sendCode(user.email);
+    });
   }
 }

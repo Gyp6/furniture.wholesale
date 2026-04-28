@@ -1,17 +1,24 @@
 import type { NextConfig } from 'next';
-import path from 'path';
 
 const BACKEND_URL = process.env.BACKEND_URL;
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '4566',
+        pathname: '/furniture-wholesale-bucket/**',
+      },
+    ],
   },
   turbopack: {
     root: process.cwd(),
   },
   reactCompiler: true,
   cacheComponents: true,
+  transpilePackages: ['lucide-react'],
   async rewrites() {
     return [
       {
