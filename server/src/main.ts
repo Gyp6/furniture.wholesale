@@ -10,6 +10,7 @@ import { useContainer } from 'class-validator';
 
 import { AppModule } from './core/app.module';
 import { getFastifyCorsConfig, getValidationPipeConfig } from './core/config';
+import { getExcludedRoutesConfig } from './core/config/excluded-routing.config';
 import { LoggingInterceptor } from './core/interceptors';
 
 async function bootstrap() {
@@ -33,6 +34,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new LoggingInterceptor());
   app.enableCors(getFastifyCorsConfig(config));
 
+  getExcludedRoutesConfig(app);
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('@Gyp6.sale - Furniture.Wholesale API')
     .setDescription('API Backend for Furniture.Wholesale')
@@ -41,7 +44,7 @@ async function bootstrap() {
     .build();
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, swaggerDocument, {
+  SwaggerModule.setup('docs', app, swaggerDocument, {
     jsonDocumentUrl: 'swagger.json',
     yamlDocumentUrl: '/openapi.yaml',
   });
@@ -52,7 +55,7 @@ async function bootstrap() {
   await app.listen(port);
 
   logger.log(`Backend started: ${host}/api`);
-  logger.log(`Swagger: ${host}api/docs`);
+  logger.log(`Swagger: ${host}/docs`);
 }
 
 bootstrap().catch(err => {

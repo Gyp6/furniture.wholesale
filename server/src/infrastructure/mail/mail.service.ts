@@ -1,14 +1,14 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Resend } from 'resend';
 
-import type { MailOptions } from '@/shared/interfaces/mail-options.interface';
+import type { IMailOptions } from '@/shared/types';
 
 @Injectable()
 export class MailService {
   private resend: Resend;
   private readonly logger = new Logger(MailService.name);
 
-  constructor(@Inject('MAIL_OPTIONS') private options: MailOptions) {
+  constructor(@Inject('MAIL_OPTIONS') private options: IMailOptions) {
     this.resend = new Resend(options.apiKey);
   }
 

@@ -20,7 +20,7 @@ export const loginSchema = z.object({
 export const baseSchema = loginSchema.extend({
   name: nameSchema,
   role: roleSchema,
-  passwordConfirm: passwordSchema,
+  passwordConfirm: z.string(),
 });
 
 export const registerSchema = z

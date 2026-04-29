@@ -10,14 +10,26 @@ export class UserRepository {
   async findById(id: string): Promise<User | null> {
     return await this.prismaService.user.findUnique({
       where: { id },
-      include: { company: true },
+      include: {
+        profile: {
+          include: {
+            company: true,
+          },
+        },
+      },
     });
   }
 
   async findByEmail(email: string): Promise<User | null> {
     return await this.prismaService.user.findUnique({
       where: { email },
-      include: { company: true },
+      include: {
+        profile: {
+          include: {
+            company: true,
+          },
+        },
+      },
     });
   }
 
@@ -30,6 +42,13 @@ export class UserRepository {
     return client.user.update({
       where: { id },
       data,
+      include: {
+        profile: {
+          include: {
+            company: true,
+          },
+        },
+      },
     });
   }
 
@@ -42,6 +61,13 @@ export class UserRepository {
     return client.user.update({
       where: { email },
       data,
+      include: {
+        profile: {
+          include: {
+            company: true,
+          },
+        },
+      },
     });
   }
 }

@@ -11,4 +11,9 @@ export class CompanyRepository {
     const client = tx ?? this.prismaService;
     return client.company.create({ data });
   }
+
+  async findByTaxId(taxId: string, tx?: Prisma.TransactionClient) {
+    const client = tx ?? this.prismaService;
+    return client.company.findUnique({ where: { taxId } });
+  }
 }

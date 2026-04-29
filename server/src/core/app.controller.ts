@@ -1,10 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 
 import { AppService } from './app.service';
 import { HealthResponse, HelloResponse } from './dto/responses';
 
+@ApiTags('Core')
 @Controller()
 @AllowAnonymous()
 export class AppController {
@@ -23,7 +24,7 @@ export class AppController {
   }
 
   @ApiOperation({
-    summary: 'Health check',
+    summary: 'Health check endpoint',
     description: 'Checks if the Backend is running.',
   })
   @ApiOkResponse({

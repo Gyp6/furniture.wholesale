@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 
-import { IsUniqueConstraint } from '@/core/validators/is-unique.validator';
+import { IsUniqueConstraint } from '@/shared/validators/is-unique.validator';
 
 import { PrismaService } from './prisma.service';
 

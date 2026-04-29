@@ -20,12 +20,12 @@ export default function Home() {
     return (
       <div className={'container mx-auto px-4 py-8'}>
         <div className={'max-w-md mx-auto text-center'}>
-          <h1 className='text-3xl font-bold mb-4'>Welcome!</h1>
-          <p className='mb-4'>You are signed in as: {session.user.name}</p>
+          <h1 className={"text-3xl font-bold mb-4"}>Welcome!</h1>
+          <p className={"mb-4"}>You are signed in as: {session.user.name}</p>
 
           <button
             onClick={() => authClient.signOut()}
-            className='bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700'
+            className={"bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700"}
           >
             Sign Out
           </button>
@@ -35,9 +35,9 @@ export default function Home() {
   }
 
   return (
-    <div className='container mx-auto px-4 py-8'>
-      <div className='flex justify-center mb-8'>
-        <div className='bg-gray-100 p-1 rounded-lg'>
+    <div className={"container mx-auto px-4 py-8"}>
+      <div className={"flex justify-center mb-8"}>
+        <div className={"bg-gray-100 p-1 rounded-lg"}>
           <button
             onClick={() => setActiveForm('signin')}
             className={`py-2 px-4 rounded-md ${

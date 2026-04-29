@@ -1,4 +1,4 @@
-export interface MailOptions {
+export interface IMailOptions {
   apiKey: string;
   from?: string;
 }

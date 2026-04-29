@@ -211,7 +211,7 @@ export function RegisterForm() {
                         onBlur={field.handleBlur}
                         onChange={e => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
-                        placeholder={'e.g. name@company.com'}
+                        placeholder={'e.g. name@mail.com'}
                         autoComplete={field.name}
                       />
                       {isInvalid && (

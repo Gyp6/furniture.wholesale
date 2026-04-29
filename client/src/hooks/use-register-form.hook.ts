@@ -1,11 +1,10 @@
 'use client';
 
-import { useForm, useStore } from '@tanstack/react-form-nextjs';
+import { useForm } from '@tanstack/react-form-nextjs';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { ROUTES } from '@/constants';
 import { authClient } from '@/lib';
 import { getRegisterFormOpts } from '@/shared/form-options';
 import { IUser, THoReCa, TRole } from '@/shared/types';
@@ -91,12 +90,6 @@ export function useRegisterForm() {
   const handleRoleChange = (newRole: TRole) => {
     setRole(newRole);
   };
-
-  // const fieldMeta = useStore(form.store, s => s.fieldMeta);
-  // console.log(
-  //   'Invalid fields:',
-  //   Object.keys(fieldMeta).filter(k => fieldMeta[k].errors.length > 0),
-  // );
 
   return {
     form,

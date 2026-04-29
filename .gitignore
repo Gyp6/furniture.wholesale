@@ -2,4 +2,5 @@
 
 deploy/out
 /out
+/.trash
 .env

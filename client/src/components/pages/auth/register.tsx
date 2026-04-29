@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import { RegisterForm } from '@/components/forms/auth';
-import { RolePicker, SubmitButton } from '@/components/sections/auth';
+import { SubmitButton } from '@/components/sections/auth';
 import {
   CardContent,
   CardDescription,
@@ -15,7 +15,7 @@ import { ROUTES } from '@/constants';
 export function RegisterPage() {
   return (
     <>
-      <CardHeader>
+      <CardHeader className={'pt-4'}>
         <CardTitle>Registration</CardTitle>
         <CardDescription>
           Join the architectural procurement network.
@@ -24,7 +24,7 @@ export function RegisterPage() {
       <CardContent>
         <RegisterForm />
       </CardContent>
-      <CardFooter className={'flex flex-col gap-4 border-none bg-transparent'}>
+      <CardFooter className={'flex flex-col gap-4 border-none bg-transparent pb-4'}>
         <Field>
           <SubmitButton
             forForm={'auth-register-form'}

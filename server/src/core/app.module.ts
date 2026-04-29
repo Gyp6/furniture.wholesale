@@ -1,4 +1,4 @@
-import { BullModule } from '@nestjs/bullmq';
+import { BullModule, getQueueToken } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -6,6 +6,7 @@ import {
   AuthGuard as BetterAuthGuard,
   AuthModule as BetterAuthModule,
 } from '@thallesp/nestjs-better-auth';
+import { Queue } from 'bullmq';
 
 import { CaslModule } from '@/infrastructure/casl/casl.module';
 import { MailModule } from '@/infrastructure/mail/mail.module';
@@ -33,10 +34,10 @@ import { createAuth } from './lib';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         connection: {
-          host: config.get('REDIS_HOST'),
-          port: config.get('REDIS_PORT'),
-          password: config.get('REDIS_PASSWORD'),
-          username: config.get('REDIS_USER'),
+          host: config.getOrThrow('REDIS_HOST'),
+          port: config.getOrThrow('REDIS_PORT'),
+          password: config.getOrThrow('REDIS_PASSWORD'),
+          username: config.getOrThrow('REDIS_USER'),
         },
       }),
     }),
@@ -48,12 +49,20 @@ import { createAuth } from './lib';
       }),
     }),
     BetterAuthModule.forRootAsync({
-      imports: [PrismaModule, ConfigModule],
-      useFactory: (prisma: PrismaService) => ({
-        auth: createAuth(prisma),
+      imports: [
+        PrismaModule,
+        ConfigModule,
+        BullModule.registerQueue({ name: 'mail_queue' }),
+      ],
+      useFactory: (
+        prismaService: PrismaService,
+        configService: ConfigService,
+        mailQueue: Queue,
+      ) => ({
+        auth: createAuth(prismaService, configService, mailQueue),
         disableTrustedOriginsCors: true,
       }),
-      inject: [PrismaService, ConfigService],
+      inject: [PrismaService, ConfigService, getQueueToken('mail_queue')],
     }),
     AuthModule,
     CaslModule,

@@ -1,9 +1,11 @@
+const UI_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
 const S3_URL = process.env.NEXT_PUBLIC_S3_URL;
 
 export const ROUTES = {
   PLACEHOLDER: '#',
 
-	S3: (url: string) => `${S3_URL}/furniture-wholesale-bucket/${url}`,
+  UI: (url: string) => `${UI_URL}/${url}`,
+  S3: (url: string) => `${S3_URL}/furniture-wholesale-bucket/${url}`,
 
   GITHUB: {
     ORGANIZATION: 'https://github.com/Gyp6',
@@ -18,4 +20,5 @@ export const ROUTES = {
   },
 
   PROFILE: (id: string) => `profile/${id}`,
+  DASHBOARD: 'dashboard',
 };

@@ -1,6 +1,0 @@
-export enum UserTypeEnum {
-  RETAILER = 'RETAILER',
-  DESIGNER = 'DESIGNER',
-  HORECA = 'HORECA',
-  SUPPLIER = 'SUPPLIER',
-}

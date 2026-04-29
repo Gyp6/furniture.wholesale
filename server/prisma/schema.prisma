@@ -52,21 +52,18 @@ model User {
   email         String  @unique
   emailVerified Boolean @default(false) @map("email_verified")
   image         String?
-  role          Role    @default(RETAILER)
+  role          Role
 
   banned     Boolean?  @default(false)
   banReason  String?   @map("ban_reason")
   banExpires DateTime? @map("ban_expires")
 
-  companyId String?  @map("company_id")
-  company   Company? @relation(fields: [companyId], references: [id])
-
-  supplierProfile SupplierProfile?
-  products        Product[]
-  orders          Order[]
-  bundles         Bundle[]
-  cart            Cart?
-  notifications   Notification[]
+  products      Product[]
+  orders        Order[]
+  bundles       Bundle[]
+  cart          Cart?
+  profile       Profile?
+  notifications Notification[]
 
   sessions Session[]
   accounts Account[]
@@ -133,27 +130,27 @@ model Company {
   id                 String             @id @default(nanoid())
   name               String
   taxId              String             @unique @map("tax_id")
+  description        String?            @db.Text
   verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
-  users              User[]
+  profiles           Profile[]
   createdAt          DateTime           @default(now()) @map("created_at")
+  logoUrl            String?            @map("logo_url")
+  terms              String?            @map("terms") @db.Text
+  ratingAvg          Decimal            @default(0) @map("rating_avg") @db.Decimal(3, 2)
+  ratingCount        Int                @default(0) @map("rating_count")
 
   @@map("company")
 }
 
-model SupplierProfile {
-  id              String  @id @default(nanoid())
-  userId          String  @unique @map("user_id")
-  user            User    @relation(fields: [userId], references: [id])
-  companyName     String  @map("company_name")
-  description     String? @db.Text
-  logoUrl         String? @map("logo_url")
-  minQuantity     Int     @default(1) @map("min_quantity")
-  deliveryTerms   String? @map("delivery_terms") @db.Text
-  specializations Json?
-  ratingAvg       Decimal @default(0) @map("rating_avg") @db.Decimal(3, 2)
-  ratingCount     Int     @default(0) @map("rating_count")
+model Profile {
+  id              String   @id @default(nanoid())
+  userId          String   @unique @map("user_id")
+  user            User     @relation(fields: [userId], references: [id])
+  companyId       String?  @map("company_id")
+  company         Company? @relation(fields: [companyId], references: [id])
+  specializations String[]
 
-  @@map("supplier_profile")
+  @@map("profile")
 }
 
 model Category {

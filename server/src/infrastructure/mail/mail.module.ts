@@ -1,6 +1,6 @@
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 
-import { MailOptions } from '@/shared/interfaces/mail-options.interface';
+import { IMailOptions } from '@/shared/types';
 
 import { MailProcessor } from './mail.processor';
 import { MailService } from './mail.service';
@@ -9,7 +9,7 @@ import { MailService } from './mail.service';
 @Module({})
 export class MailModule {
   static forRootAsync(options: {
-    useFactory: (...args: any[]) => Promise<MailOptions> | MailOptions;
+    useFactory: (...args: any[]) => Promise<IMailOptions> | IMailOptions;
     inject?: any[];
   }): DynamicModule {
     const optionsProvider: Provider = {

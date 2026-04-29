@@ -1,71 +1,86 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
-import { Role } from '@prisma/client';
-import { AuthService } from '@thallesp/nestjs-better-auth';
+import { Injectable, Logger } from '@nestjs/common';
+import { type AuthHookContext } from '@thallesp/nestjs-better-auth';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 
-import type { Auth } from '@/core/lib/auth.instance';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 import { CompanyRepository } from '@/modules/company/company.repository';
-import { UserRepository } from '@/modules/user/user.repository';
+import { OtpService } from '@/modules/otp/otp.service';
 
-import { OtpService } from '../../otp/otp.service';
-import { RegisterRetailerRequest } from '../dto/requests';
+import { RegisterRequest } from '../dto/requests';
 
 @Injectable()
 export class RegisterService {
+  private readonly logger = new Logger(RegisterService.name);
+
   constructor(
-    private readonly authService: AuthService<Auth>,
-    private readonly prisma: PrismaService,
-    private readonly userRepository: UserRepository,
+    private readonly prismaService: PrismaService,
+    private readonly otpService: OtpService,
     private readonly companyRepository: CompanyRepository,
-    private readonly otp: OtpService,
   ) {}
 
-  async registerRetailer(dto: RegisterRetailerRequest) {
-    if (!dto.companyName || !dto.taxId) {
-      throw new BadRequestException('Invalid credentials');
+  async beforeSignUp(context: AuthHookContext) {
+    const body = (context.body ?? {}) as RegisterRequest;
+
+    const registrationDto = plainToInstance(RegisterRequest, body as object);
+    const errors = await validate(registrationDto, {
+      whitelist: true,
+      forbidNonWhitelisted: false,
+    });
+
+    if (errors.length > 0) {
+      const messages = errors
+        .map(err => Object.values(err.constraints || {}))
+        .flat();
+      this.logger.warn(
+        `Validation failed for ${body.email}: ${messages.join(', ')}`,
+      );
+      throw context.error(400, {
+        error: 'Bad Request',
+        message: messages.join(', '),
+        statusCode: 400,
+      });
     }
 
-    return await this.prisma.$transaction(async tx => {
-      const company = await this.companyRepository.create(
-        {
-          name: dto.companyName,
-          taxId: dto.taxId,
-        },
-        tx,
-      );
+    this.logger.debug(`BeforeHook passed for ${body.email}`);
+  }
 
-      const result = await (this.authService.api as any).signUpEmail({
-        body: {
-          email: dto.email,
-          password: dto.password,
-          name: dto.name,
-        },
-      });
+  afterSignUp(context: AuthHookContext) {
+    const body = context.body as RegisterRequest;
+    const user = (context.context as any)?.newSession?.user;
 
-      if (!result?.user) {
-        throw new InternalServerErrorException(
-          'Better Auth registration failed',
+    if (!user) {
+      this.logger.warn('afterSignUp: user not found in context');
+      return;
+    }
+
+    this.handleBackgroundRegisterTask(user, body).catch(err =>
+      this.logger.error(`Background task failed: ${err.message}`),
+    );
+
+    this.logger.log(`Registration handoff successful for ${user.email}`);
+  }
+
+  private async handleBackgroundRegisterTask(user: any, body: RegisterRequest) {
+    await this.prismaService.$transaction(async tx => {
+      let company = await this.companyRepository.findByTaxId(body.taxId, tx);
+
+      if (!company) {
+        company = await this.companyRepository.create(
+          { name: body.companyName, taxId: body.taxId },
+          tx,
         );
       }
 
-      const updatedUser = await this.userRepository.updateById(
-        result.user.id as string,
-        {
-          role: dto.type as Role,
-          company: {
-            connect: { id: company.id },
-          },
+      await tx.profile.create({
+        data: {
+          user: { connect: { id: user.id } },
+          company: { connect: { id: company.id } },
+          specializations: body.specialisations,
         },
-        tx,
-      );
-
-      await this.otp.sendCode(dto.email);
-
-      return updatedUser;
+      });
     });
+
+    await this.otpService.sendCode(user.email as string);
   }
 }

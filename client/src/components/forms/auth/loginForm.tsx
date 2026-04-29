@@ -44,7 +44,7 @@ export function LoginForm() {
                   onBlur={field.handleBlur}
                   onChange={e => field.handleChange(e.target.value)}
                   aria-invalid={isInvalid}
-                  placeholder={'name@company.com'}
+                  placeholder={'name@mail.com'}
                   autoComplete={field.name}
                 />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
