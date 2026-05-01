@@ -1,10 +1,11 @@
 'use client';
 
-import { useForm, useStore } from '@tanstack/react-form-nextjs';
+import { useForm } from '@tanstack/react-form-nextjs';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
+import { ROUTES } from '@/constants';
 import { authClient } from '@/lib';
 import { registerFormOpts } from '@/shared/form-options';
 import { IUser, TRole } from '@/shared/types';
@@ -15,7 +16,7 @@ type SignUpOptions = Parameters<typeof authClient.signUp.email>[0];
 export function useRegisterForm() {
   const router = useRouter();
 
-  const { setUser } = useUserStore();
+  const { user, setUser } = useUserStore();
   const {
     role,
     setRole,
@@ -26,6 +27,9 @@ export function useRegisterForm() {
     reset,
   } = useAuthFormStore();
 
+  const [registeredEmail, setRegisteredEmail] = useState('');
+
+  const [showOtpModal, setShowOtpModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -61,13 +65,11 @@ export function useRegisterForm() {
           const user = data.user as unknown as IUser;
 
           setUser(user);
+          setRegisteredEmail(value.email);
+          setShowOtpModal(true);
+          reset();
 
-          // setTimeout(() => {
-          //   router.push(ROUTES.PROFILE(user.id));
-          //   router.refresh();
-          // }, 1000);
-
-          return `Welcome, ${user.name}!`;
+          return `Welcome, ${user.name}! Please verify your email.`;
         },
         error: err => err.message,
         position: 'top-center',
@@ -78,6 +80,10 @@ export function useRegisterForm() {
   useEffect(() => {
     console.log('DEBUG: role', role);
   }, [role, form]);
+  
+  useEffect(() => {
+    console.log('DEBUG: user', user);
+  }, [user]);
 
   const STEP1_FIELDS = [
     'name',
@@ -108,11 +114,16 @@ export function useRegisterForm() {
     setValidatedGoNext(goNext);
   }, []); // eslint-disable-line
 
-  const fieldMeta = useStore(form.store, s => s.fieldMeta);
-  console.log(
-    'Invalid fields:',
-    Object.keys(fieldMeta).filter(k => fieldMeta[k].errors.length > 0),
-  );
+  const onOtpSuccess = () => {
+    setShowOtpModal(false);
+    router.push(ROUTES.PROFILE(user?.id || ''));
+  };
+
+  // const fieldMeta = useStore(form.store, s => s.fieldMeta);
+  // console.log(
+  //   'Invalid fields:',
+  //   Object.keys(fieldMeta).filter(k => fieldMeta[k].errors.length > 0),
+  // );
 
   return {
     form,
@@ -127,5 +138,8 @@ export function useRegisterForm() {
     togglePassword,
     toggleConfirm,
     router,
+    showOtpModal,
+    registeredEmail,
+    onOtpSuccess,
   };
 }

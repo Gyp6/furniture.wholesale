@@ -21,4 +21,16 @@ export const ROUTES = {
 
   PROFILE: (id: string) => `profile/${id}`,
   DASHBOARD: 'dashboard',
-};
+
+  API: {
+    CORE: {
+      WELCOME: '/',
+      HEALTH: '/health',
+    },
+    USER: {
+      ME: '/user/me',
+      VERIFY_EMAIL: '/user/verify-email',
+      RESEND_OTP: '/user/resend-otp',
+    }
+  }
+} as const;

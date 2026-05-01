@@ -5,6 +5,7 @@ import {
   RoleButton,
   RolePicker,
 } from '@/components/sections/auth';
+import { OtpModal } from '@/components/sections/auth/otp-modal'
 import { ComboboxSelect, Icon } from '@/components/ui';
 import {
   Field,
@@ -28,6 +29,9 @@ export function RegisterForm() {
     toggleConfirm,
     role,
     handleRoleChange,
+    showOtpModal,
+    registeredEmail,
+    onOtpSuccess,
   } = useRegisterForm();
 
   return (
@@ -178,7 +182,7 @@ export function RegisterForm() {
                     onChange: ({ value, fieldApi }) => {
                       const password = fieldApi.form.getFieldValue('password');
                       return value !== password
-                        ? "Passwords don't match"
+                        ? { message: "Passwords don't match" }
                         : undefined;
                     },
                   }}
@@ -343,6 +347,13 @@ export function RegisterForm() {
         </form>
       )}
       {!role && <RolePicker />}
+      {showOtpModal && (
+        <OtpModal
+          email={registeredEmail}
+          isOpen={showOtpModal}
+          onSuccess={onOtpSuccess}
+        />
+      )}
     </>
   );
 }
