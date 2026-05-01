@@ -1,3 +1,4 @@
 export * from './role.constant';
 export * from './horeca.constant';
 export * from './route.constant';
+export * from './error.constant';

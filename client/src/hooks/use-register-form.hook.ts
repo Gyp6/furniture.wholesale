@@ -1,13 +1,13 @@
 'use client';
 
-import { useForm } from '@tanstack/react-form-nextjs';
+import { useForm, useStore } from '@tanstack/react-form-nextjs';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { authClient } from '@/lib';
-import { getRegisterFormOpts } from '@/shared/form-options';
-import { IUser, THoReCa, TRole } from '@/shared/types';
+import { registerFormOpts } from '@/shared/form-options';
+import { IUser, TRole } from '@/shared/types';
 import { useAuthFormStore, useUserStore } from '@/store';
 
 type SignUpOptions = Parameters<typeof authClient.signUp.email>[0];
@@ -16,7 +16,15 @@ export function useRegisterForm() {
   const router = useRouter();
 
   const { setUser } = useUserStore();
-  const { role, setRole } = useAuthFormStore();
+  const {
+    role,
+    setRole,
+    step,
+    goNext: storeGoNext,
+    goBack,
+    setValidatedGoNext,
+    reset,
+  } = useAuthFormStore();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -24,37 +32,21 @@ export function useRegisterForm() {
   const togglePassword = () => setShowPassword(prev => !prev);
   const toggleConfirm = () => setShowConfirm(prev => !prev);
 
-  const options = useMemo(() => getRegisterFormOpts(role!), [role]);
-
   const form = useForm({
-    ...options,
+    ...registerFormOpts,
     onSubmit: async ({ value }) => {
+      console.log('hui');
       const { passwordConfirm, ...cleanValue } = value;
-
-      let requestValue;
-      if (role === 'DESIGNER') {
-        const { horecaType, companyName, taxId, ...data } = cleanValue;
-        requestValue = data;
-      }
-      if (role === 'HORECA') {
-        const { specialisation, companyName, taxId, ...data } = cleanValue;
-        requestValue = data;
-      }
-      if (role === 'RETAILER' || role === 'SUPPLIER') {
-        const { specialisation, horecaType, ...data } = cleanValue;
-        requestValue = data;
-      }
 
       const registerPromise = authClient.signUp
         .email({
           type: role,
-          ...requestValue,
+          ...cleanValue,
         } as SignUpOptions & {
           type: TRole;
-          specialisation?: string;
-          horecaType?: THoReCa;
-          companyName?: string;
-          taxId?: string;
+          specialisations: string[];
+          companyName: string;
+          taxId: string;
         })
         .then(result => {
           if (result.error) {
@@ -87,15 +79,49 @@ export function useRegisterForm() {
     console.log('DEBUG: role', role);
   }, [role, form]);
 
-  const handleRoleChange = (newRole: TRole) => {
-    setRole(newRole);
+  const STEP1_FIELDS = [
+    'name',
+    'email',
+    'password',
+    'passwordConfirm',
+  ] as const;
+
+  const goNext = async () => {
+    STEP1_FIELDS.forEach(f =>
+      form.setFieldMeta(f, meta => ({
+        ...meta,
+        isTouched: true,
+      })),
+    );
+    await form.validate('submit');
+
+    const hasErrors = STEP1_FIELDS.some(
+      f => (form.state.fieldMeta[f]?.errors?.length ?? 0) > 0,
+    );
+
+    console.log('hasErrors:', hasErrors, form.state.fieldMeta);
+
+    if (!hasErrors) storeGoNext();
   };
+
+  useEffect(() => {
+    setValidatedGoNext(goNext);
+  }, []); // eslint-disable-line
+
+  const fieldMeta = useStore(form.store, s => s.fieldMeta);
+  console.log(
+    'Invalid fields:',
+    Object.keys(fieldMeta).filter(k => fieldMeta[k].errors.length > 0),
+  );
 
   return {
     form,
+    step,
+    goNext,
+    goBack,
     role,
     setRole,
-    handleRoleChange,
+    handleRoleChange: (r: TRole) => setRole(r),
     showPassword,
     showConfirm,
     togglePassword,

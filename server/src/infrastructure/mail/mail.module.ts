@@ -1,3 +1,4 @@
+import { BullModule } from '@nestjs/bullmq';
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 
 import { IMailOptions } from '@/shared/types';
@@ -20,6 +21,7 @@ export class MailModule {
 
     return {
       module: MailModule,
+      imports: [BullModule.registerQueue({ name: 'mail_queue' })],
       providers: [optionsProvider, MailService, MailProcessor],
       exports: [MailService],
     };

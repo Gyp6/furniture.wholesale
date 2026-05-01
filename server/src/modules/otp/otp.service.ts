@@ -1,28 +1,22 @@
-import { InjectQueue } from '@nestjs/bullmq';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Queue } from 'bullmq';
 import { createHash } from 'node:crypto';
 import { generateCode } from 'patcode';
 
+import { MailService } from '@/infrastructure/mail/mail.service';
 import { RedisService } from '@/infrastructure/redis/redis.service';
 
 @Injectable()
 export class OtpService {
   constructor(
     private readonly redisService: RedisService,
-    @InjectQueue('mail_queue') private mailQueue: Queue,
+    private readonly mailService: MailService,
   ) {}
 
   async sendCode(email: string) {
     const { code, hash } = this.generateCode();
 
     await this.redisService.set(`otp:${email}`, hash, 'EX', 300);
-
-    await this.mailQueue.add('send_mail', {
-      to: email,
-      subject: 'Verification Code',
-      html: `<h1>Your code: ${code}</h1>`,
-    });
+    await this.mailService.sendVerifyEmail(email, code);
   }
 
   async verify(email: string, code: string) {

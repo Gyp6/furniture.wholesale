@@ -1,16 +1,16 @@
 import z from 'zod';
 
+import { ROLES } from '@/constants';
+
 import {
   companyNameSchema,
   emailSchema,
   horecaTypeSchema,
   nameSchema,
   passwordSchema,
-  roleSchema,
-  specialisationSchema,
+  specialisationsSchema,
   taxIdSchema,
 } from './common.schema';
-import { ROLES } from '@/constants'
 
 export const loginSchema = z.object({
   email: emailSchema,
@@ -19,15 +19,21 @@ export const loginSchema = z.object({
 
 export const baseSchema = loginSchema.extend({
   name: nameSchema,
-  role: roleSchema,
   passwordConfirm: z.string(),
 });
 
-export const registerSchema = z
+export const registerSchema = baseSchema
+  .extend({
+    specialisations: specialisationsSchema,
+    companyName: companyNameSchema,
+    taxId: taxIdSchema,
+  })
+
+export const dynamicRegisterSchema = z
   .discriminatedUnion('role', [
     baseSchema.extend({
       role: z.literal(ROLES.DESIGNER),
-      specialisation: specialisationSchema,
+      specialisation: specialisationsSchema,
     }),
     baseSchema.extend({
       role: z.literal(ROLES.HORECA),

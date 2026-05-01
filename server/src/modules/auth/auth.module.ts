@@ -1,7 +1,4 @@
-import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
 
 import { CompanyModule } from '../company/company.module';
 import { OtpModule } from '../otp/otp.module';
@@ -12,21 +9,7 @@ import { AuthHook } from './auth.hook';
 import { LoginService, RecoveryService, RegisterService } from './services';
 
 @Module({
-  imports: [
-    UserModule,
-    CompanyModule,
-    OtpModule,
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.getOrThrow('JWT_SECRET'),
-        signOptions: { expiresIn: '15m' },
-      }),
-    }),
-    BullModule.registerQueue({
-      name: 'mail_queue',
-    }),
-  ],
+  imports: [UserModule, CompanyModule, OtpModule],
   controllers: [AuthController],
   providers: [AuthHook, RegisterService, LoginService, RecoveryService],
 })

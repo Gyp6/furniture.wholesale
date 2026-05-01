@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -51,7 +52,25 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Reset user password endpoint' })
   @ApiOkResponse({ type: ResetPasswordResponse })
-  @ApiValidationErrorResponse()
+  @ApiBadRequestResponse({
+    examples: {
+      invalid_and_expired_token: {
+        summary: 'Invalid or expired token',
+        value: {
+          message: 'Invalid token',
+          code: 'INVALID_TOKEN',
+        },
+      },
+      validation: {
+        summary: 'Validation error',
+        value: {
+          error: 'Bad Request',
+          message: 'Password must be at least 8 characters long',
+          statusCode: 400,
+        },
+      },
+    },
+  })
   @Post('reset-password')
   resetPassword(@Body() _body: ResetPasswordRequest): void {}
 }

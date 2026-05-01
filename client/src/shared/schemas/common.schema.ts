@@ -18,11 +18,16 @@ export const passwordSchema = z
     message: 'Password must contain at least one uppercase letter',
   })
   .regex(/[0-9]/, { message: 'Password must contain at least one number' });
-export const specialisationSchema = z
-  .string()
-  .min(2, { message: 'Specialisation must be at least 2 characters long' })
-  .max(100, {
-    message: 'Specialisation must be less than 100 characters long',
+export const specialisationsSchema = z
+  .array(
+    z
+      .string({ message: 'Each specialisation must be a string' })
+      .min(2, 'Each specialisation must be at least 2 characters long')
+      .max(100, 'Each specialisation must be less than 100 characters long'),
+  )
+  .nonempty('Specialisations must be an array of strings')
+  .refine(arr => arr.every(s => s.trim().length >= 2), {
+    message: 'Each specialisation must be at least 2 characters long',
   });
 export const companyNameSchema = z
   .string()

@@ -3,10 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsBool } from '@/shared/validators';
 
 export class ForgetPasswordResponse {
-  // 	{
-  //   "status": true,
-  //   "message": "If this email exists in our system, check your email for the reset link"
-  // }
   @IsBool({ title: 'Status' })
   status!: boolean;
 

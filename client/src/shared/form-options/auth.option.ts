@@ -1,18 +1,11 @@
 import { formOptions } from '@tanstack/react-form-nextjs';
 
-
-
-import { loginSchema, registerSchema } from '@/shared/schemas';
+import {
+  dynamicRegisterSchema,
+  loginSchema,
+  registerSchema,
+} from '@/shared/schemas';
 import { THoReCa, TRole } from '@/shared/types';
-
-
-
-
-
-
-
-
-
 
 export const loginFormOpts = formOptions({
   defaultValues: {
@@ -24,6 +17,31 @@ export const loginFormOpts = formOptions({
   },
 });
 
+export const registerFormOpts = formOptions({
+  defaultValues: {
+    name: '',
+    email: '',
+    specialisations: [] as string[],
+    companyName: '',
+    taxId: '',
+    password: '',
+    passwordConfirm: '',
+  },
+  validators: {
+    onSubmit: registerSchema,
+  },
+});
+
+export const forgotPasswordFormOpts = formOptions({
+  defaultValues: {
+    email: '',
+    password: '',
+  },
+  // validators: {
+  //   onChange: loginSchema,
+  // },
+});
+
 export const getRegisterFormOpts = (role: TRole) =>
   formOptions({
     defaultValues: {
@@ -31,14 +49,14 @@ export const getRegisterFormOpts = (role: TRole) =>
       email: '',
       password: '',
       passwordConfirm: '',
-      specialisation: '',
+      specialisations: [''],
       horecaType: '' as THoReCa,
       companyName: '',
       taxId: '',
     },
     validators: {
       onChange: ({ value }) => {
-        const result = registerSchema.safeParse({ ...value, role });
+        const result = dynamicRegisterSchema.safeParse({ ...value, role });
 
         if (!result.success) {
           return {

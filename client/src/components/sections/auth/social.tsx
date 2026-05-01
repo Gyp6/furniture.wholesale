@@ -1,17 +1,34 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
+
 import { Icon } from '@/components/ui';
 import { Button } from '@/components/ui/shadcn/button';
 import { Field } from '@/components/ui/shadcn/field';
-import { ROUTES } from '@/constants';
+import { OAUTH_ERRORS, ROUTES } from '@/constants';
 import { authClient } from '@/lib';
 
 export function Social() {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error) {
+      toast.error(
+        OAUTH_ERRORS[error] ??
+          'Authentication error. Please try again.',
+        { position: 'top-center' },
+      );
+    }
+  }, [searchParams]);
+
   const handleGoogleLogin = () => {
     authClient.signIn.social({
       provider: 'google',
       callbackURL: ROUTES.UI(ROUTES.DASHBOARD),
-      errorCallbackURL: ROUTES.UI(ROUTES.AUTH.LOGIN + '?error=oauth_error'),
+      errorCallbackURL: ROUTES.UI(ROUTES.AUTH.LOGIN + '?'),
     });
   };
   // const handleAppleLogin = () => {

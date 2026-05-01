@@ -1,6 +1,7 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 
-import { LoginForm } from '@/components/forms/auth/loginForm';
+import { LoginForm } from '@/components/forms/auth/login-form';
 import { Social, SubmitButton } from '@/components/sections/auth';
 import {
   CardContent,
@@ -35,7 +36,9 @@ export function LoginPage() {
         <FieldSeparator className={'w-full'}>Or continue with</FieldSeparator>
 
         <div className={'flex flex-col gap-6 w-full'}>
-          <Social />
+          <Suspense>
+            <Social />
+          </Suspense>
 
           <p className={'text-center text-xs text-muted-foreground'}>
             Don&apos;t have an account?{' '}

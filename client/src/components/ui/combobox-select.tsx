@@ -11,8 +11,8 @@ import {
 interface Props extends Omit<ComboboxInputProps, 'value'> {
   className?: string;
   items: string[];
-  value?: string | null;
-  onValueChange?: (value: string | null) => void;
+  value?: string[] | null;
+  onValueChange?: (value: string[] | null) => void;
 }
 
 export function ComboboxSelect({
@@ -22,11 +22,17 @@ export function ComboboxSelect({
   onValueChange,
   ...props
 }: Props) {
+  const single = value?.[0] ?? null;
+
+  const handleChange = (val: string | null) => {
+    onValueChange?.(val ? [val] : null);
+  };
+
   return (
     <Combobox
       items={items}
-      value={value}
-      onValueChange={onValueChange}
+      value={single}
+      onValueChange={handleChange}
     >
       <ComboboxInput
         className={className}

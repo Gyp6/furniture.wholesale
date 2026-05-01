@@ -16,6 +16,6 @@ export class MailProcessor extends WorkerHost {
     this.logger.log(`Processing job ${job.id}`);
 
     const { data } = job;
-    await this.mailService.send(data.to, data.subject, data.html);
+    await this.mailService._dispatch(data.to, data.subject, data.html);
   }
 }
