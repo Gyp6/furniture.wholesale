@@ -19,18 +19,18 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   cacheComponents: true,
   transpilePackages: ['lucide-react'],
-  async rewrites() {
-    return [
-      {
-        source: '/api/auth/:path*',
-        destination: `${BACKEND_URL}/api/auth/:path*`,
-      },
-      {
-        source: '/api/:path*',
-        destination: `${BACKEND_URL}/api/:path*`,
-      },
-    ];
-  },
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: '/api/auth/:path*',
+  //       destination: `${BACKEND_URL}/api/auth/:path*`,
+  //     },
+  //     {
+  //       source: '/api/:path*',
+  //       destination: `${BACKEND_URL}/api/:path*`,
+  //     },
+  //   ];
+  // },
   output: 'standalone',
 };
 

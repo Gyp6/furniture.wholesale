@@ -19,8 +19,17 @@ export const ROUTES = {
     RESET_PASSWORD: 'reset-password',
   },
 
+  HOME: '/',
+  CATALOG: '/catalog',
+
   PROFILE: (id: string) => `profile/${id}`,
   DASHBOARD: 'dashboard',
+
+  NAV: [
+    { label: 'Marketplace', href: '/catalog' },
+    { label: 'Bundles', href: '/bundles' },
+    { label: 'Dashboards', href: '/dashboard' },
+  ],
 
   API: {
     CORE: {
@@ -31,6 +40,6 @@ export const ROUTES = {
       ME: '/user/me',
       VERIFY_EMAIL: '/user/verify-email',
       RESEND_OTP: '/user/resend-otp',
-    }
-  }
+    },
+  },
 } as const;
