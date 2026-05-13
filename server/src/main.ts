@@ -1,4 +1,4 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import {
@@ -15,7 +15,22 @@ import { LoggingInterceptor } from './core/interceptors';
 
 async function bootstrap() {
   const adapter = new FastifyAdapter({
-    logger: true,
+    logger: {
+      level: 'info',
+      transport:
+        process.env.NODE_ENV !== 'production'
+          ? { target: 'pino-pretty', options: { colorize: true } }
+          : undefined,
+      serializers: {
+        req(request) {
+          return {
+            method: request.method,
+            url: request.url,
+            hostname: request.hostname,
+          };
+        },
+      },
+    },
   });
 
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -36,6 +51,11 @@ async function bootstrap() {
 
   getExcludedRoutesConfig(app);
 
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('@Gyp6.sale - Furniture.Wholesale API')
     .setDescription('API Backend for Furniture.Wholesale')
@@ -45,8 +65,8 @@ async function bootstrap() {
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, swaggerDocument, {
-    jsonDocumentUrl: 'swagger.json',
-    yamlDocumentUrl: '/openapi.yaml',
+    jsonDocumentUrl: '/docs/swagger.json',
+    yamlDocumentUrl: '/docs/openapi.yaml',
   });
 
   const port = config.getOrThrow<number>('HTTP_PORT');

@@ -1,4 +1,4 @@
-import { IsOtpCode } from '@/shared/validators';
+import { IsOtpCode } from '@/common/validators';
 
 export class EmailVerifyRequest {
   @IsOtpCode()

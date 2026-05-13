@@ -1,23 +1,28 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/": {
+    "/api": {
       "get": {
         "description": "Returns a simple API welcome message.",
         "operationId": "AppController_getHello",
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HelloResponse"
+                }
+              }
+            }
           }
         },
         "summary": "Welcome endpoint",
-        "tags": [
-          "App"
-        ]
+        "tags": ["Core"]
       }
     },
-    "/health": {
+    "/api/health": {
       "get": {
         "description": "Checks if the Backend is running.",
         "operationId": "AppController_health",
@@ -34,10 +39,333 @@
             }
           }
         },
-        "summary": "Health check",
-        "tags": [
-          "App"
-        ]
+        "summary": "Health check endpoint",
+        "tags": ["Core"]
+      }
+    },
+    "/api/auth/sign-up/email": {
+      "post": {
+        "operationId": "AuthController_signUp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Register a new user endpoint",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/auth/sign-in/email": {
+      "post": {
+        "operationId": "AuthController_signIn",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid email or password or user not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Invalid email or password",
+                  "code": "INVALID_EMAIL_OR_PASSWORD"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Login user endpoint",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/auth/request-password-reset": {
+      "post": {
+        "operationId": "AuthController_forgetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgetPasswordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Forgot user password endpoint",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "invalid_and_expired_token": {
+                    "summary": "Invalid or expired token",
+                    "value": {
+                      "message": "Invalid token",
+                      "code": "INVALID_TOKEN"
+                    }
+                  },
+                  "validation": {
+                    "summary": "Validation error",
+                    "value": {
+                      "error": "Bad Request",
+                      "message": "Password must be at least 8 characters long",
+                      "statusCode": 400
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Reset user password endpoint",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/user/me": {
+      "get": {
+        "operationId": "UserController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden | Casl ability check failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Return user object endpoint",
+        "tags": ["User"]
+      }
+    },
+    "/api/user/resend-otp": {
+      "get": {
+        "operationId": "UserController_resendOtp",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "OTP sent successfully"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden | Casl ability check failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Return user object endpoint",
+        "tags": ["User"]
+      }
+    },
+    "/api/user/verify-email": {
+      "post": {
+        "operationId": "UserController_verifyEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailVerifyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifiedUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden | Casl ability check failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Verify email endpoint",
+        "tags": ["User"]
       }
     }
   },
@@ -58,6 +386,16 @@
       }
     },
     "schemas": {
+      "HelloResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Welcome to @Gyp6.sale - Furniture.Wholesale API"
+          }
+        },
+        "required": ["message"]
+      },
       "HealthResponse": {
         "type": "object",
         "properties": {
@@ -70,10 +408,455 @@
             "example": "2026-03-21T21:30:00.000Z"
           }
         },
+        "required": ["status", "timestamp"]
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["DESIGNER", "RETAILER", "HORECA", "SUPPLIER"],
+            "example": "DESIGNER"
+          },
+          "name": {
+            "type": "string",
+            "example": "Peter"
+          },
+          "email": {
+            "type": "string",
+            "example": "name@company.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "Password123"
+          },
+          "specialisations": {
+            "example": ["Interior Design", "Architecture"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "companyName": {
+            "type": "string",
+            "example": "Apple Inc"
+          },
+          "taxId": {
+            "type": "string",
+            "example": "12345678",
+            "description": "EDRPOU: 8 or 10 digits"
+          }
+        },
         "required": [
-          "status",
-          "timestamp"
+          "type",
+          "name",
+          "email",
+          "password",
+          "specialisations",
+          "companyName",
+          "taxId"
         ]
+      },
+      "BA_UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "n4JGynlh1xgvTxfCG8PNCFhdqi84Z0mL"
+          },
+          "name": {
+            "type": "string",
+            "example": "Peter"
+          },
+          "email": {
+            "type": "string",
+            "example": "name@company.com"
+          },
+          "emailVerified": {
+            "type": "boolean",
+            "example": true
+          },
+          "image": {
+            "type": "object",
+            "example": "user/<user-id>/profile.png",
+            "nullable": true,
+            "default": null
+          },
+          "role": {
+            "type": "string",
+            "enum": ["DESIGNER", "RETAILER", "HORECA", "SUPPLIER"],
+            "example": "DESIGNER"
+          },
+          "banned": {
+            "type": "boolean",
+            "example": true
+          },
+          "banReason": {
+            "type": "object",
+            "example": "Cause you've been used hate-speach",
+            "nullable": true,
+            "default": null
+          },
+          "banExpires": {
+            "type": "object",
+            "example": "2026-03-21T21:30:00.000Z",
+            "nullable": true,
+            "default": null
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-03-21T21:30:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-03-21T21:30:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "emailVerified",
+          "image",
+          "role",
+          "banned",
+          "banReason",
+          "banExpires",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "RegisterResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "n4JGynlh1xgvTxfCG8PNCFhdqi84Z0mL"
+          },
+          "user": {
+            "$ref": "#/components/schemas/BA_UserResponse"
+          }
+        },
+        "required": ["token", "user"]
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          },
+          "message": {
+            "type": "string",
+            "example": "Name must be at least 2 characters long, Invalid establishment type"
+          },
+          "statusCode": {
+            "type": "number",
+            "example": 400
+          }
+        },
+        "required": ["error", "message", "statusCode"]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "name@company.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "Password123"
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "redirect": {
+            "type": "boolean",
+            "example": false
+          },
+          "token": {
+            "type": "string",
+            "example": "n4JGynlh1xgvTxfCG8PNCFhdqi84Z0mL"
+          },
+          "user": {
+            "$ref": "#/components/schemas/BA_UserResponse"
+          }
+        },
+        "required": ["redirect", "token", "user"]
+      },
+      "ForgetPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "name@company.com"
+          },
+          "redirectTo": {
+            "type": "string",
+            "example": "http://localhost:3000/auth/reset-password"
+          }
+        },
+        "required": ["email", "redirectTo"]
+      },
+      "ForgetPasswordResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "If this email exists in our system, check your email for the reset link"
+          }
+        },
+        "required": ["status", "message"]
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "newPassword": {
+            "type": "string",
+            "example": "Password123"
+          },
+          "token": {
+            "type": "string",
+            "example": "n4JGynlh1xgvTxfCG8PNCFhdqi84Z0mL"
+          }
+        },
+        "required": ["newPassword", "token"]
+      },
+      "ResetPasswordResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": ["status"]
+      },
+      "CompanyResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "n4JGynlh1xgvTxfCG8PNCFhdqi84Z0mL"
+          },
+          "name": {
+            "type": "string",
+            "example": "Apple Inc"
+          },
+          "taxId": {
+            "type": "string",
+            "example": "12345678",
+            "description": "EDRPOU: 8 or 10 digits"
+          },
+          "description": {
+            "type": "object",
+            "example": "We sell furniture",
+            "nullable": true,
+            "default": null
+          },
+          "verificationStatus": {
+            "type": "string",
+            "enum": ["PENDING", "VERIFIED", "REJECTED"],
+            "example": "PENDING"
+          },
+          "logoUrl": {
+            "type": "object",
+            "example": "company/<company-id>/logo.png",
+            "nullable": true,
+            "default": null
+          },
+          "terms": {
+            "type": "object",
+            "example": "Our terms...",
+            "nullable": true,
+            "default": null
+          },
+          "ratingAvg": {
+            "type": "string",
+            "example": "4.50"
+          },
+          "ratingCount": {
+            "type": "number",
+            "example": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-03-21T21:30:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "taxId",
+          "verificationStatus",
+          "ratingAvg",
+          "ratingCount",
+          "createdAt"
+        ]
+      },
+      "ProfileResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "n4JGynlh1xgvTxfCG8PNCFhdqi84Z0mL"
+          },
+          "userId": {
+            "type": "string",
+            "example": "n4JGynlh1xgvTxfCG8PNCFhdqi84Z0mL"
+          },
+          "companyId": {
+            "type": "string",
+            "example": "n4JGynlh1xgvTxfCG8PNCFhdqi84Z0mL"
+          },
+          "specializations": {
+            "example": ["Interior Design", "Architecture"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "company": {
+            "$ref": "#/components/schemas/CompanyResponse"
+          }
+        },
+        "required": ["id", "userId", "companyId", "specializations", "company"]
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "n4JGynlh1xgvTxfCG8PNCFhdqi84Z0mL"
+          },
+          "name": {
+            "type": "string",
+            "example": "Peter"
+          },
+          "email": {
+            "type": "string",
+            "example": "name@company.com"
+          },
+          "emailVerified": {
+            "type": "boolean",
+            "example": true
+          },
+          "image": {
+            "type": "object",
+            "example": "user/<user-id>/profile.png",
+            "nullable": true,
+            "default": null
+          },
+          "role": {
+            "type": "string",
+            "enum": ["DESIGNER", "RETAILER", "HORECA", "SUPPLIER"],
+            "example": "DESIGNER"
+          },
+          "banned": {
+            "type": "boolean",
+            "example": true
+          },
+          "banReason": {
+            "type": "object",
+            "example": "Cause you've been used hate-speach",
+            "nullable": true,
+            "default": null
+          },
+          "banExpires": {
+            "type": "object",
+            "example": "2026-03-21T21:30:00.000Z",
+            "nullable": true,
+            "default": null
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-03-21T21:30:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-03-21T21:30:00.000Z"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ProfileResponse"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "emailVerified",
+          "image",
+          "role",
+          "banned",
+          "banReason",
+          "banExpires",
+          "createdAt",
+          "updatedAt",
+          "profile"
+        ]
+      },
+      "UnauthorizedErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "UNAUTHORIZED"
+          },
+          "message": {
+            "type": "string",
+            "example": "Unauthorized"
+          }
+        },
+        "required": ["code", "message"]
+      },
+      "ForbiddenErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Forbidden"
+          },
+          "message": {
+            "type": "string",
+            "example": "You do not have permission to access this ..."
+          },
+          "statusCode": {
+            "type": "number",
+            "example": 403
+          }
+        },
+        "required": ["error", "message", "statusCode"]
+      },
+      "EmailVerifyRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "123456"
+          }
+        },
+        "required": ["code"]
+      },
+      "VerifiedUserResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Email verified successfully"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "required": ["message", "user"]
       }
     }
   }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiOkResponse,
@@ -7,7 +7,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { ApiValidationErrorResponse } from '@/shared/validators';
+import { ApiValidationErrorResponse } from '@/common/validators';
 
 import {
   ForgetPasswordRequest,

@@ -6,8 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { ECalsAction } from '@/common/enums';
 import { AppAbility } from '@/infrastructure/casl/casl.ability-factory';
-import { ECalsAction } from '@/shared/enums';
 
 import { OtpService } from '../otp/otp.service';
 

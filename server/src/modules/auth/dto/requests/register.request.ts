@@ -1,4 +1,4 @@
-import type { TRole } from '@/shared/types';
+import type { TRole } from '@/common/types';
 import {
   IsCompanyName,
   IsName,
@@ -7,7 +7,7 @@ import {
   IsSpecialisations,
   IsTaxId,
   IsUniqueEmail,
-} from '@/shared/validators';
+} from '@/common/validators';
 
 export class RegisterRequest {
   @IsRole()

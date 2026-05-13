@@ -1,4 +1,4 @@
-import { IsEmail, IsPassword } from '@/shared/validators';
+import { IsEmail, IsPassword } from '@/common/validators';
 
 export class LoginRequest {
   @IsEmail()

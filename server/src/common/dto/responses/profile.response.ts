@@ -1,4 +1,4 @@
-import { IsEmbedded, IsHash, IsSpecialisations } from '@/shared/validators';
+import { IsEmbedded, IsHash, IsSpecialisations } from '@/common/validators';
 
 import { CompanyResponse } from './company.response';
 

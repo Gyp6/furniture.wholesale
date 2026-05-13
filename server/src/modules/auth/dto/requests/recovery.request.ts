@@ -1,4 +1,4 @@
-import { IsEmail, IsHash, IsLink, IsPassword } from '@/shared/validators';
+import { IsEmail, IsHash, IsLink, IsPassword } from '@/common/validators';
 
 export class ForgetPasswordRequest {
   @IsEmail()

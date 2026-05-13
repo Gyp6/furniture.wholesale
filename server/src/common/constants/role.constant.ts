@@ -1,4 +1,4 @@
-import { ERole } from '@/shared/enums';
+import { ERole } from '@/common/enums';
 
 export const ROLES = {
   DESIGNER: ERole.DESIGNER.toUpperCase(),
