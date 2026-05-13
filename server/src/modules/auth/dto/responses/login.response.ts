@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { BA_UserResponse } from '@/shared/dto/responses/user.response';
+import { BA_UserResponse } from '@/common/dto/responses';
 
 export class LoginResponse {
   @ApiProperty({

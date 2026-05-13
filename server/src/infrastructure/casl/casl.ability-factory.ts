@@ -1,17 +1,11 @@
-import {
-  AbilityBuilder,
-  ExtractSubjectType,
-  InferSubjects,
-  PureAbility,
-} from '@casl/ability';
+import { AbilityBuilder, InferSubjects, PureAbility } from '@casl/ability';
 import { createPrismaAbility, PrismaQuery } from '@casl/prisma';
 import { Injectable } from '@nestjs/common';
 import { Company, Profile, Role, User } from '@prisma/client';
 
-import { ECalsAction } from '@/shared/enums';
+import { ECalsAction } from '@/common/enums';
 
 type AppSubjects =
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   | InferSubjects<User | Company | Profile>
   | 'User'
   | 'Company'
@@ -23,7 +17,6 @@ export type AppAbility = PureAbility<[ECalsAction, AppSubjects], PrismaQuery>;
 @Injectable()
 export class CaslAbilityFactory {
   createForUser(
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     user: User & { profile?: (Profile & { company?: Company }) | null },
   ) {
     const { can, cannot, build } = new AbilityBuilder<AppAbility>(
@@ -36,7 +29,6 @@ export class CaslAbilityFactory {
       can(ECalsAction.Manage, 'all');
     }
 
-    // Об'єднуємо ролі з однаковими правами
     const isBusiness =
       user.role === Role.RETAILER || user.role === Role.SUPPLIER;
     const isPublic = user.role === Role.DESIGNER || user.role === Role.HORECA;
@@ -62,10 +54,6 @@ export class CaslAbilityFactory {
       cannot(ECalsAction.Delete, 'Company');
     }
 
-    // return build({
-    //   detectSubjectType: item =>
-    //     (item as any).constructor.name as ExtractSubjectType<AppSubjects>,
-    // });
     return build({
       detectSubjectType: item =>
         (item as any).__caslSubjectType__ ?? (item as any).constructor.name,

@@ -1,4 +1,4 @@
-import { EHoReCaType } from '@/shared/enums';
+import { EHoReCaType } from '@/common/enums';
 
 export const HORECA_TYPE = {
   HOTEL: EHoReCaType.HOTEL.toUpperCase(),

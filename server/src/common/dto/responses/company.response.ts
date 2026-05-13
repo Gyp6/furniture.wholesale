@@ -11,7 +11,7 @@ import {
   IsDate,
   IsHash,
   IsTaxId,
-} from '@/shared/validators';
+} from '@/common/validators';
 
 export class CompanyResponse {
   @IsHash({ title: 'Id' })

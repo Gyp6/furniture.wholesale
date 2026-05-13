@@ -3,7 +3,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { Resend } from 'resend';
 
-import type { IMailOptions } from '@/shared/types';
+import type { IMailOptions } from '@/common/types';
 
 import { resetPasswordTemplate, verifyEmailTemplate } from './templates';
 

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import type { TRole } from '@/shared/types';
+import type { TRole } from '@/common/types';
 import {
   IsBanExpires,
   IsBanReason,
@@ -12,7 +12,7 @@ import {
   IsName,
   IsRole,
   IsUserImage,
-} from '@/shared/validators';
+} from '@/common/validators';
 
 import { ProfileResponse } from './profile.response';
 

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { IsBool } from '@/shared/validators';
+import { IsBool } from '@/common/validators';
 
 export class ForgetPasswordResponse {
   @IsBool({ title: 'Status' })

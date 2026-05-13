@@ -1,12 +1,12 @@
-// apps/backend/src/app/auth/auth.instance.ts
+// apps/backend/src/core/lib/auth.instance.ts
 import { ConfigService } from '@nestjs/config';
 import { APIError, betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
 
+import { AUTH_LIMITS, ROLES } from '@/common/constants';
 import { MailService } from '@/infrastructure/mail/mail.service';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
-import { AUTH_LIMITS, ROLES } from '@/shared/constants';
 
 export const createAuth = (
   prismaService: PrismaService,
@@ -18,6 +18,7 @@ export const createAuth = (
       provider: 'postgresql',
     }),
     baseURL: configService.getOrThrow('BACKEND_URL'),
+    basePath: '/api/v1/auth',
     trustedOrigins: [configService.getOrThrow('FRONTEND_URL')],
     trustedProxies: true,
     hooks: {},

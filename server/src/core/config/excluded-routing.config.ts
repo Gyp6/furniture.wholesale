@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 
-import { EXCLUDED_ROUTES } from '@/shared/constants/excluded-route.constant';
+import { EXCLUDED_ROUTES } from '@/common/constants';
 
 export function getExcludedRoutesConfig(app: INestApplication) {
   EXCLUDED_ROUTES.forEach(route => {

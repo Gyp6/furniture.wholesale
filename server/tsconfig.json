@@ -10,9 +10,10 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2023",
+    "target": "ESNext",
     "sourceMap": true,
     "strict": true,
+    "rootDir": "./",
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
@@ -23,7 +24,8 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@/*": ["./src/*"],
-      "@root/*": ["./"],
+      "@root/*": ["./"]
     },
+    "types": ["node", "jest", "bun"]
   }
 }

@@ -1,25 +1,27 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthService } from '@thallesp/nestjs-better-auth';
 
-import { CurrentAbility } from '@/core/decorators';
-import { type AppAbility } from '@/infrastructure/casl/casl.ability-factory';
-import {
-  UserResponse,
-  VerifiedUserResponse,
-} from '@/shared/dto/responses/user.response';
-import { IReqUser } from '@/shared/types';
+import { UserResponse, VerifiedUserResponse } from '@/common/dto/responses';
+import { IReqUser } from '@/common/types';
 import {
   ApiAuthenticationErrorResponse,
   ApiValidationErrorResponse,
-} from '@/shared/validators';
+} from '@/common/validators';
+import { CurrentAbility } from '@/core/decorators';
+import type { Auth } from '@/core/lib';
+import { type AppAbility } from '@/infrastructure/casl/casl.ability-factory';
 
-import { EmailVerifyRequest } from './dto/requests/email-verify.request';
+import { EmailVerifyRequest } from './dto/requests';
 import { UserService } from './user.service';
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly authService: AuthService<Auth>,
+  ) {}
 
   @ApiOperation({ summary: 'Return user object endpoint' })
   @ApiOkResponse({ type: UserResponse })
@@ -30,6 +32,11 @@ export class UserController {
     @CurrentAbility() ability: AppAbility,
   ) {
     return await this.userService.getProfile(id, ability);
+  }
+
+  @Get('check-session')
+  async checkSession(@Req() req: Request) {
+    return await this.authService.api.getSession({ headers: req.headers });
   }
 
   @ApiOperation({ summary: 'Return user object endpoint' })

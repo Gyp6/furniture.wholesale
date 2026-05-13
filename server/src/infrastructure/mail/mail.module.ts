@@ -1,7 +1,7 @@
 import { BullModule } from '@nestjs/bullmq';
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 
-import { IMailOptions } from '@/shared/types';
+import { IMailOptions } from '@/common/types';
 
 import { MailProcessor } from './mail.processor';
 import { MailService } from './mail.service';
