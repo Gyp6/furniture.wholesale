@@ -48,24 +48,24 @@ export function Header() {
           </div>
         </div>
       ) : (
-        <div className="flex items-center gap-2">
-          <Button
-  variant="outline"
-  size="sm"
-  className="rounded-full border-neutral-500 text-white bg-transparent hover:bg-white/10"
-  onClick={() => router.push(ROUTES.AUTH.LOGIN)}
->
-            Login
-          </Button>
-         <Button
-  variant="outline"
-  size="sm"
-  className="rounded-full border-neutral-500 text-white bg-transparent hover:bg-white/10"
-  onClick={() => router.push(ROUTES.AUTH.LOGIN)}
->
-            Sign Up
-          </Button>
-        </div>
+       <div className="flex items-center gap-2">
+  <Button
+    variant="outline"
+    size="sm"
+    className="rounded-full border-neutral-500 text-white bg-transparent hover:bg-white/10"
+    onClick={() => router.push(ROUTES.AUTH.LOGIN)}
+  >
+    Login
+  </Button>
+  <Button
+    variant="outline"
+    size="sm"
+    className="rounded-full border-neutral-500 text-white bg-transparent hover:bg-white/10"
+    onClick={() => router.push(ROUTES.AUTH.REGISTER)}
+  >
+    Sign Up
+  </Button>
+</div>
       )}
     </header>
   );
