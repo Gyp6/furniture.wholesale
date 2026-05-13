@@ -13,17 +13,17 @@ export const ROUTES = {
   },
 
   AUTH: {
-    LOGIN: 'login',
-    REGISTER: 'register',
-    FORGOT_PASSWORD: 'forgot-password',
-    RESET_PASSWORD: 'reset-password',
+    LOGIN: '/login',
+    REGISTER: '/register',
+    FORGOT_PASSWORD: '/forgot-password',
+    RESET_PASSWORD: '/reset-password',
   },
 
   HOME: '/',
   CATALOG: '/catalog',
+  DASHBOARD: '/dashboard',
 
-  PROFILE: (id: string) => `profile/${id}`,
-  DASHBOARD: 'dashboard',
+  PROFILE: (id: string) => `/profile/${id}`,
 
   NAV: [
     { label: 'Marketplace', href: '/catalog' },
