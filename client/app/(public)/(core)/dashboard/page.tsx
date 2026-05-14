@@ -1,7 +1,7 @@
 'use client';
 
-import { HoRecaDashboardPage } from '@/components/sections/dashboard/horeca.dashboards';
+import { DesignerDashboardPage } from '@/components/sections/core/dashboard/designer';
 
 export default function Dashboard() {
-  return <HoRecaDashboardPage />;
+  return <DesignerDashboardPage />;
 }

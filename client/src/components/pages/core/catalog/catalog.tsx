@@ -1,9 +1,10 @@
 'use client';
 
 import { authClient } from '@/lib';
-import { ProductCard, HeroBg } from "@/components/sections/core/catalog";
+import { ProductCard } from "@/components/sections/core/catalog";
+import { HeroBg } from '@/components/layout';
 import { CatalogSidebar } from "@/components/layout/sidebar";
-import { ProductCardData } from '@/shared/data/core/catalog/product-card.data';
+import { ProductCardData } from '@/shared/data/core/catalog/catalog.data';
 import { Input } from "@/components/ui/shadcn/input";
 import { Button } from "@/components/ui/shadcn/button";
 import { Badge } from "@/components/ui/shadcn/badge";
