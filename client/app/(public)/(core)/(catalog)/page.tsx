@@ -1,11 +1,11 @@
-'use client';
+import { Metadata } from 'next';
 
-import dynamic from 'next/dynamic';
+import { CatalogPage } from '@/components/pages/core/catalog';
 
-const CatalogPage = dynamic(
-  () => import('@/components/pages/core/catalog/catalog').then(m => ({ default: m.CatalogPage })),
-  { ssr: false }
-);
+export const metadata: Metadata = {
+  title: 'Catalog',
+};
+
 export default function Catalog() {
   return <CatalogPage />;
 }

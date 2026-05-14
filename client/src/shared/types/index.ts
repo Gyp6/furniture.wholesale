@@ -4,4 +4,6 @@ export * from './role.type';
 export * from './horeca.type';
 export * from './role-button.type';
 export * from './role-card.type';
-export * from './user.interface'
+export * from './user.interface';
+export * from './product.interface';
+export * from './menu-item.type';

@@ -1,4 +1,3 @@
-// apps/backend/src/core/lib/auth.instance.ts
 import { ConfigService } from '@nestjs/config';
 import { APIError, betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';

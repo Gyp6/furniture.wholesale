@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '@thallesp/nestjs-better-auth';
 
@@ -34,6 +34,18 @@ export class UserController {
     return await this.userService.getProfile(id, ability);
   }
 
+  @ApiOperation({ summary: 'Check session endpoint' })
+  @ApiOkResponse({
+    description: 'Returns the current session and user data',
+    schema: {
+      type: 'object',
+      properties: {
+        user: { type: 'object' },
+        session: { type: 'object' },
+      },
+    },
+  })
+  @ApiAuthenticationErrorResponse()
   @Get('check-session')
   async checkSession(@Req() req: Request) {
     return await this.authService.api.getSession({ headers: req.headers });

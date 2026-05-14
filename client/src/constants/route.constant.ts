@@ -21,15 +21,10 @@ export const ROUTES = {
 
   HOME: '/',
   CATALOG: '/catalog',
+  BUNDLES: '/bundles',
   DASHBOARD: '/dashboard',
 
   PROFILE: (id: string) => `/profile/${id}`,
-
-  NAV: [
-    { label: 'Marketplace', href: '/catalog' },
-    { label: 'Bundles', href: '/bundles' },
-    { label: 'Dashboards', href: '/dashboard' },
-  ],
 
   API: {
     CORE: {

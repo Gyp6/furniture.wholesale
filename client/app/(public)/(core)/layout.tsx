@@ -9,7 +9,7 @@ export default function CoreLayout({
   return (
     <> 
       <Header />
-      <main>{children}</main>
+      {children}
     </>
   );
 }

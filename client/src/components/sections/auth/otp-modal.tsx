@@ -41,10 +41,10 @@ export function OtpModal({ email, isOpen, onSuccess }: OtpModalProps) {
 				setIsLoading(false);
         return 'Email verified successfully!';
       },
-      error: (err: any) => {
+      error: (err: Error) => {
 				setOtp('');
 				setIsLoading(false);
-        return err.response?.data?.message || 'Invalid activation code';
+        return err.message || 'Invalid activation code';
       },
     });
   };
@@ -52,8 +52,8 @@ export function OtpModal({ email, isOpen, onSuccess }: OtpModalProps) {
   const handleResend = () => {
     resendOtp(undefined, {
       onSuccess: () => toast.success('New code sent to your email!'),
-      onError: (err: any) =>
-        toast.error(err.response?.data?.message || 'Failed to resend code'),
+      onError: (err: Error) =>
+        toast.error(err.message || 'Failed to resend code'),
     });
   };
 
