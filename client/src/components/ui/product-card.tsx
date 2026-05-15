@@ -64,7 +64,7 @@ export function ProductCard({ isLoggedIn, product }: Props) {
                 min. {product.minPieces} pieces
               </p>
               <span className={'text-base font-bold'}>
-                ${product.price?.toLocaleString()}
+                ${new Intl.NumberFormat('en-US').format(product.price)}
               </span>
             </div>
             <Button

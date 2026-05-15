@@ -7,35 +7,45 @@ import {
   DropdownMenuTrigger,
 } from '@shadcn/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+
+const sortOptions = [
+  'Curated Popularity',
+  'Price: Low to High',
+  'Price: High to Low',
+  'Newest Arrivals',
+];
 
 export function Sort() {
+  const [selected, setSelected] = useState(sortOptions[0]);
+
   return (
-    <div
-      className={
-        'flex items-center gap-1.5 text-xs text-muted-foreground shrink-0'
-      }
-    >
-      Sort by:
-      <DropdownMenu>
-        <DropdownMenuTrigger
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className={'flex items-center gap-1 text-base font-medium outline-none'}
+      >
+        <div
           className={
-            'flex items-center gap-1 text-xs font-medium text-foreground outline-none'
+            'flex items-center gap-1.5 py-1.5 px-5 text-sm text-primary/80 shrink-0 border border-input rounded-full'
           }
         >
-          Curated Popularity <ChevronDown className={'w-3 h-3'} />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align={'end'}>
-          <DropdownMenuItem className={'text-xs'}>
-            Curated Popularity
+          Sort by:
+          <span className={'text-secondary'}>{selected}</span>
+          <ChevronDown className={'size-4'} />
+        </div>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align={'end'}>
+        {sortOptions.map(option => (
+          <DropdownMenuItem
+            key={option}
+            className={'text-xs'}
+            onClick={() => setSelected(option)}
+          >
+            {option}
           </DropdownMenuItem>
-          <DropdownMenuItem className={'text-xs'}>
-            Price: Low to High
-          </DropdownMenuItem>
-          <DropdownMenuItem className={'text-xs'}>
-            Price: High to Low
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

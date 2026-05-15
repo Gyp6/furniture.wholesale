@@ -1,12 +1,10 @@
+'use client';
+
+// src/components/sections/catalog/product-grid.tsx
 import { ProductCard } from '@/components/ui';
-import { Skeleton } from '@/components/ui/shadcn/skeleton';
-import { getServerSession } from '@/services';
 import { productCardData } from '@/shared/data/core/catalog';
 
-export async function ProductGrid() {
-  const { session } = (await getServerSession()) || {};
-  const isAuthorized = !!session;
-
+export function ProductGrid({ isAuthorized }: { isAuthorized: boolean }) {
   return (
     <div
       className={
@@ -21,13 +19,5 @@ export async function ProductGrid() {
         />
       ))}
     </div>
-  );
-}
-
-export function ProductGridSkeleton() {
-  return (
-    <>
-      <Skeleton />
-    </>
   );
 }

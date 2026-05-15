@@ -7,3 +7,4 @@ export * from './role-card.type';
 export * from './user.interface';
 export * from './product.interface';
 export * from './menu-item.type';
+export * from './session.interface';

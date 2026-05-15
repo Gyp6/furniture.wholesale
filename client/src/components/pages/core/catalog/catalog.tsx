@@ -1,15 +1,17 @@
-import { Suspense } from 'react';
-
+// src/components/pages/catalog/catalog.tsx
 import { CatalogSidebar } from '@/components/layout';
 import {
+  CatalogContent,
   CatalogHeader,
   FilterBadgeGrid,
-  ProductGrid,
-  ProductGridSkeleton,
   Sort,
 } from '@/components/sections/core/catalog';
+import { getServerSession } from '@/services';
 
-export function CatalogPage() {
+export async function CatalogPage() {
+  const { session } = (await getServerSession()) || {};
+  const isAuthorized = !!session;
+
   return (
     <>
       <CatalogHeader />
@@ -25,33 +27,7 @@ export function CatalogPage() {
             <Sort />
           </div>
 
-          <Suspense fallback={<ProductGridSkeleton />}>
-            <ProductGrid />
-          </Suspense>
-
-          <div
-            className={
-              'flex items-center justify-between mt-12 text-xs text-muted-foreground'
-            }
-          >
-            <span>Page 01 — 24</span>
-            <div className={'flex items-center gap-2'}>
-              <button
-                className={
-                  'w-8 h-8 rounded-full border border-neutral-200 flex items-center justify-center hover:bg-neutral-100'
-                }
-              >
-                ‹
-              </button>
-              <button
-                className={
-                  'w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center'
-                }
-              >
-                ›
-              </button>
-            </div>
-          </div>
+          <CatalogContent isAuthorized={isAuthorized} />
         </div>
       </div>
     </>

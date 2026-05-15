@@ -24,9 +24,7 @@ export async function HeaderContent() {
             <Button
               variant={'outline'}
               size={'sm'}
-              className={
-                'rounded-full border-neutral-500 text-white bg-transparent hover:bg-white/10'
-              }
+              className={'hover:bg-white/80'}
             >
               Login
             </Button>
@@ -36,7 +34,7 @@ export async function HeaderContent() {
               variant={'outline'}
               size={'sm'}
               className={
-                'rounded-full border-neutral-500 text-white bg-transparent hover:bg-white/10'
+                'border-neutral-500 text-white bg-transparent hover:bg-white/10 hover:text-white'
               }
             >
               Sign Up
