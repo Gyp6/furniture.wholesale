@@ -35,7 +35,7 @@ export function ProductRelatedCard({
           alt={name}
           className="w-full aspect-square object-cover"
         />
-        <Badge className="absolute top-3 left-3 bg-white text-black text-[11px] font-medium px-3 py-1 rounded-full shadow-sm border-0">
+        <Badge className="absolute top-3 left-3 bg-white text-black text-[15px] font-medium px-3 py-1 rounded-full shadow-sm border-0">
           {category}
         </Badge>
       </div>

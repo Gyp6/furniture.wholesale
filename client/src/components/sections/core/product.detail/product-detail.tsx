@@ -23,7 +23,7 @@ export function ProductDetail() {
         </div>
 
        
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           {ProductData.gallery.map((img, i) => (
             <button
               key={i}
@@ -96,7 +96,7 @@ export function ProductDetail() {
           
           <div
             className="rounded-2xl border border-neutral-100 p-6 flex flex-col shadow-[0_8px_40px_rgba(0,0,0,0.08)]"
-            style={{ width: '438px', height: '230px' }}
+            style={{ width: '438px', height: '208px' }}
           >
             <p className="text-[12px] font-bold uppercase tracking-widest text-muted-foreground mb-6">
               Technical Specifications
@@ -124,11 +124,11 @@ export function ProductDetail() {
           
           <div
             className="rounded-2xl border border-neutral-100 p-5 flex items-center gap-4 shadow-[0_8px_40px_rgba(0,0,0,0.08)]"
-            style={{ width: '438px', height: '230px' }}
+            style={{ width: '438px', height: '208px' }}
           >
             <div
               className="rounded-2xl overflow-hidden shrink-0"
-              style={{ width: '150px', height: '210px' }}
+              style={{ width: '150px', height: '180px' }}
             >
               <img
                 src={ProductData.supplier.image}
@@ -157,8 +157,8 @@ export function ProductDetail() {
                 <span className="text-neutral-300">|</span>
                 {ProductData.supplier.verified && (
                   <div className="flex items-center gap-1">
-                    <ICONS.Verified size={12} color="#5b6cf8" />
-                    <span className="text-xs text-secondary">Verified Supplier</span>
+                    <ICONS.Verified size={12} color="#47464C" />
+                    <span className="text-xs text-muted-foreground">Verified Supplier</span>
                   </div>
                 )}
               </div>

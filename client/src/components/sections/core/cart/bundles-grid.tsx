@@ -67,8 +67,8 @@ export function PrebuiltBundleSection({
                 +
               </button>
             </div>
-            <button className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors">
-              <ICONS.TrashFigma size={14} color="currentColor" className="text-red-500" />
+            <button className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors">
+              <ICONS.TrashFigma size={18} color="currentColor" className="text-red-500" />
             </button>
           </div>
         </div>

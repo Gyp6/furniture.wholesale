@@ -1,7 +1,7 @@
 'use client';
 
-import { DesignerDashboardPage } from '@/components/sections/core/dashboard/designer';
+import { SupplierDashboardPage } from '@/components/sections/core/dashboard/supplier';
 
 export default function Dashboard() {
-  return <DesignerDashboardPage />;
+  return <SupplierDashboardPage />;
 }

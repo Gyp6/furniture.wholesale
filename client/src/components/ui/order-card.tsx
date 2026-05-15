@@ -40,14 +40,14 @@ export function OrderCard({
           alt={name}
           className="w-full aspect-square object-cover"
         />
-        <Badge className="absolute top-3 left-3 bg-white text-black text-[11px] font-medium px-3 py-1 rounded-full shadow-sm border-0">
+        <Badge className="absolute top-3 left-3 bg-white text-black text-[15px] font-medium px-3 py-1 rounded-full shadow-sm border-0">
           {category}
         </Badge>
         <button
           onClick={onDelete}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors"
+          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors"
         >
-          <ICONS.TrashFigma size={14} color="currentColor" className="text-red-500" />
+          <ICONS.TrashFigma size={18} color="currentColor" className="text-red-500" />
         </button>
       </div>
 

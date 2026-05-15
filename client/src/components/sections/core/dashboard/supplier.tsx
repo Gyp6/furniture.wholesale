@@ -25,9 +25,9 @@ export function SupplierDashboardPage() {
       <div className="w-full bg-transparent px-8 py-5 flex items-center justify-between shrink-0">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-            Curator Overview
+            Supplier Overview
           </p>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-5xl font-bold tracking-tight">
             Welcome back, {name}!
           </h1>
         </div>
@@ -38,16 +38,18 @@ export function SupplierDashboardPage() {
       </div>
 
       
-      <div className="container mx-auto px-6 py-4 flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
-
+      <div className="w-full px-10 py-4 flex flex-col lg:flex-row gap-[30px] flex-1 min-h-0">
         
-        <div className="flex-1 min-w-0 flex flex-col min-h-0">
-          <h2 className="text-lg font-semibold mb-3">Orders</h2>
+        <div className="flex flex-col min-h-0">
+          <h2 className="text-2xl font-semibold mb-3">Orders</h2>
 
-          <div className="rounded-2xl border border-neutral-100 overflow-hidden flex flex-col min-h-0 flex-1 bg-white">
-            <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_0.8fr] px-5 py-3 border-b border-neutral-100 shrink-0">
+          <div
+            className="rounded-4xl border border-neutral-100 overflow-hidden flex flex-col bg-white"
+            style={{ width: '1100px', height: '768px' }}
+          >
+            <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr] px-5 py-3 border-b border-neutral-100 shrink-0">
               {['ORDER ID', 'ITEMS', 'DATE', 'STATUS', 'TOTAL', ''].map((col) => (
-                <span key={col} className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                <span key={col} className="text-[14px] font-bold uppercase tracking-widest text-muted-foreground">
                   {col}
                 </span>
               ))}
@@ -57,9 +59,9 @@ export function SupplierDashboardPage() {
               {OrdersData.map((order, i) => (
                 <div
                   key={i}
-                  className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_0.8fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors"
+                  className="grid grid-cols-[0.8fr_0.8fr_1fr_1fr_0.8fr_1fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors"
                 >
-                  <span className="text-xs font-medium">{order.id}</span>
+                  <span className="text-14 font-medium">{order.id}</span>
 
                   <div className="flex items-center gap-1">
                     <div className="flex -space-x-2">
@@ -67,27 +69,23 @@ export function SupplierDashboardPage() {
                       <div className="w-6 h-6 rounded-full bg-neutral-400 border-2 border-white" />
                     </div>
                     {order.items > 0 && (
-                      <span className="text-[10px] text-muted-foreground ml-0.5">+{order.items}</span>
+                      <span className="text-[14px] text-muted-foreground ml-0.5">+{order.items}</span>
                     )}
                   </div>
 
-                  <span className="text-xs text-muted-foreground">{order.date}</span>
+                  <span className="text-14 text-muted-foreground">{order.date}</span>
 
-                  <span className={`inline-flex w-fit px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status as EOrderStatus]}`}>
+                  <span className={`inline-flex w-fit px-2.5 py-0.5 rounded-full text-[14px] font-bold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status as EOrderStatus]}`}>
                     {order.status}
                   </span>
 
-                  <span className="text-xs font-semibold">
-                    ${order.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </span>
-
                   {order.status === EOrderStatus.PENDING ? (
-                    <div className="flex items-center gap-1.5">
-                      <button className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center hover:bg-green-200 transition-colors">
-                        <Check className="w-4 h-4 text-green-600" />
+                    <div className="flex items-center gap-2">
+                      <button className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center hover:bg-green-200 transition-colors">
+                        <Check className="w-6 h-6 text-green-600" />
                       </button>
-                      <button className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors">
-                        <X className="w-4 h-4 text-red-500" />
+                      <button className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors">
+                        <X className="w-6 h-6 text-red-500" />
                       </button>
                     </div>
                   ) : (
@@ -100,17 +98,16 @@ export function SupplierDashboardPage() {
         </div>
 
         
-        <div className="w-full lg:w-[560px] shrink-0 flex flex-col gap-4 min-h-0 overflow-hidden">
-
+         <div className="w-[700px] shrink-0 flex flex-col gap-6">
          
           <div className="rounded-2xl bg-white overflow-hidden flex flex-col h-[45%] shrink-0">
             <div className="px-5 py-4 shrink-0">
-              <h2 className="text-base font-semibold">Active Inventory</h2>
+              <h2 className="text-2xl font-semibold">Active Inventory</h2>
             </div>
 
             <div className="grid grid-cols-[2fr_1fr_0.8fr_0.8fr_0.6fr] px-5 py-2 border-y border-neutral-50 shrink-0">
               {['PRODUCT NAME', 'CATEGORY', 'STOCK LEVEL', 'STATUS', 'ACTION'].map((col) => (
-                <span key={col} className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                <span key={col} className="text-[14px] font-bold uppercase tracking-widest text-muted-foreground">
                   {col}
                 </span>
               ))}
@@ -124,26 +121,26 @@ export function SupplierDashboardPage() {
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-lg bg-neutral-100 shrink-0" />
-                    <span className="text-xs font-medium leading-tight">{item.name}</span>
+                    <span className="text-14 font-medium leading-tight">{item.name}</span>
                   </div>
 
-                  <span className={`inline-flex w-fit px-2 py-0.5 rounded-full text-[9px] font-semibold ${CATEGORY_STYLES[item.category] ?? 'bg-neutral-100 text-neutral-600'}`}>
+                  <span className={`inline-flex w-fit px-2 py-0.5 rounded-full text-[14px] font-semibold ${CATEGORY_STYLES[item.category] ?? 'bg-neutral-100 text-neutral-600'}`}>
                     {item.category}
                   </span>
 
-                  <span className="text-xs text-muted-foreground">{item.stock} units</span>
+                  <span className="text-14 text-muted-foreground">{item.stock} units</span>
 
                   <div className="flex items-center gap-1">
                     <div className={`w-1.5 h-1.5 rounded-full ${item.status === EInventoryStatus.ACTIVE ? 'bg-green-500' : 'bg-neutral-300'}`} />
-                    <span className={`text-xs ${INVENTORY_STATUS_STYLES[item.status]}`}>{item.status}</span>
+                    <span className={`text-14 ${INVENTORY_STATUS_STYLES[item.status]}`}>{item.status}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <button className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors">
-                      <ICONS.PenFigma size={14} color="currentColor" className="text-secondary" />
+                    <button className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors">
+                      <ICONS.PenFigma size={16} color="currentColor" className="text-secondary" />
                     </button>
-                    <button className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors">
-                      <ICONS.TrashFigma size={14} color="currentColor" className="text-red-500" />
+                    <button className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors">
+                      <ICONS.TrashFigma size={16} color="currentColor" className="text-red-500" />
                     </button>
                   </div>
                 </div>
@@ -152,11 +149,11 @@ export function SupplierDashboardPage() {
           </div>
 
           
-          <div className="grid grid-cols-3 gap-3 shrink-0">
+            <div className="grid grid-cols-3 gap-4">
             {SupplierStatsData.map((stat) => (
               <div key={stat.label} className="relative rounded-2xl border border-neutral-100 p-5 bg-white min-h-[130px]">
                 {stat.badge && (
-                  <span className={`absolute top-2.5 right-2.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${stat.badgeColor}`}>
+                  <span className={`absolute top-2.5 right-2.5 text-[14px] font-semibold px-1.5 py-0.5 rounded-full ${stat.badgeColor}`}>
                     {stat.badge}
                   </span>
                 )}
@@ -164,7 +161,7 @@ export function SupplierDashboardPage() {
                   {ICON_MAP[stat.icon]}
                 </div>
                 <p className="text-3xl font-bold tracking-tight">{stat.value}</p>
-                <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-1">{stat.label}</p>
+                <p className="text-[14px] uppercase tracking-widest text-muted-foreground mt-1">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -172,11 +169,11 @@ export function SupplierDashboardPage() {
       
           <div className="rounded-2xl border border-neutral-100 bg-white p-5 flex items-center justify-between shrink-0">
             <div>
-              <p className="text-sm font-semibold">Profile Completeness</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Increase visibility by finishing your setup.</p>
+              <p className="text-xl font-semibold">Profile Completeness</p>
+              <p className="text-s text-muted-foreground mt-0.5">Increase visibility by finishing your setup.</p>
             </div>
-            <button className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center shrink-0 hover:bg-foreground/80 transition-colors">
-              <ArrowUpRight className="w-4 h-4 text-background" />
+            <button className="w-13 h-13 rounded-full bg-foreground flex items-center justify-center shrink-0 hover:bg-foreground/80 transition-colors">
+              <ArrowUpRight className="w-6 h-6 text-background" />
             </button>
           </div>
 
