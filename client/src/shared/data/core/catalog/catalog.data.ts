@@ -35,12 +35,12 @@ export const ProductData = {
   pricePerUnit: 342.00,
   description: 'Designed for high-traffic boutique hospitality environments. The Nordic Arc combines structural Scandinavian oak with a reinforced internal steel frame, ensuring longevity without sacrificing its featherlight aesthetic. Upholstered in Grade A flame-retardant textile.',
   quantity: 8,
-  image: ROUTES.S3('products/chair-main.png'),
+  image: ROUTES.S3('marketplace/chair-1.png'),
   gallery: [
-    ROUTES.S3('products/chair-1.png'),
-    ROUTES.S3('products/chair-2.png'),
-    ROUTES.S3('products/chair-3.png'),
-    ROUTES.S3('products/chair-4.png'),
+    ROUTES.S3('marketplace/chair-1.png'),
+    ROUTES.S3('marketplace/chair-1.png'),
+    ROUTES.S3('marketplace/chair-1.png'),
+    ROUTES.S3('marketplace/chair-1.png'),
   ],
   totalGalleryCount: 12,
   specs: {
@@ -54,6 +54,6 @@ export const ProductData = {
     specialization: 'Boutique Hotels & Modern Workspaces',
     rating: 4.9,
     verified: true,
-    image: ROUTES.S3('suppliers/stellar.png'),
+    image: ROUTES.S3('marketplace/chair-1.png'),
   },
 };
