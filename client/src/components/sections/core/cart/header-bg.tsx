@@ -32,14 +32,12 @@ export function ProjectHeader({
       )}
       <button
         onClick={() => setIsEditing(true)}
-        className={
-          'w-7 h-7 rounded-lg bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors border-0'
-        }
+        className={"w-10 h-10 rounded-4xl bg-white flex items-center justify-center hover:bg-neutral-50 transition-colors border-0 shadow-sm"}
       >
         <ICONS.PenFigma
-          size={16}
-          color={'currentColor'}
-          className={'text-secondary'}
+          size={20}
+          color={"currentColor"}
+          className={"text-secondary"}
         />
       </button>
     </div>
