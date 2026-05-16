@@ -1,4 +1,4 @@
-import { ROUTES } from "@/constants";
+import { ROUTES } from '@/constants';
 
 export const NavConfig = [
   { label: 'Marketplace', href: ROUTES.HOME },

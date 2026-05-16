@@ -85,7 +85,6 @@ export function LoginForm() {
                     autoComplete={'current-password'}
                     placeholder={'••••••••'}
                     className={'pr-11'}
-                    
                   />
                   <button
                     type={'button'}

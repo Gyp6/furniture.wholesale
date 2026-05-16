@@ -1,10 +1,11 @@
 'use client';
 
-import { Checkbox as CheckboxPrimitive } from 'radix-ui'
-import * as React from 'react'
+import { Checkbox as CheckboxPrimitive } from 'radix-ui';
+import * as React from 'react';
 
-import { cn } from '@/lib/cn'
-import { Icon } from '../icon'
+import { cn } from '@/lib/cn';
+
+import { Icon } from '../icon';
 
 function Checkbox({
   className,
@@ -21,14 +22,15 @@ function Checkbox({
     >
       <CheckboxPrimitive.Indicator
         data-slot={'checkbox-indicator'}
-        className={
-          'grid place-content-center text-current transition-none'
-        }
+        className={'grid place-content-center text-current transition-none'}
       >
-        <Icon name={'Check'} size={'14'} />
+        <Icon
+          name={'Check'}
+          size={'14'}
+        />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );
 }
 
-export { Checkbox }
+export { Checkbox };

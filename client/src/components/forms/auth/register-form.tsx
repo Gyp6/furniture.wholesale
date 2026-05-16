@@ -5,7 +5,7 @@ import {
   RoleButton,
   RolePicker,
 } from '@/components/sections/auth';
-import { OtpModal } from '@/components/sections/auth/otp-modal'
+import { OtpModal } from '@/components/sections/auth/otp-modal';
 import { ComboboxSelect, Icon } from '@/components/ui';
 import {
   Field,

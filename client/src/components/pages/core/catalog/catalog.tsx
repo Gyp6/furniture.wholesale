@@ -1,5 +1,4 @@
-// src/components/pages/catalog/catalog.tsx
-import { CatalogSidebar } from '@/components/layout';
+import { CatalogSidebar } from '@/components/layout/sidebar';
 import {
   CatalogContent,
   CatalogHeader,

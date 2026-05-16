@@ -1,4 +1,4 @@
-import { CatalogSearch } from "./search";
+import { CatalogSearch } from './search';
 
 export function CatalogHeader() {
   return (
@@ -11,7 +11,7 @@ export function CatalogHeader() {
         Catalog with Items
       </h2>
 
-			<CatalogSearch />
+      <CatalogSearch />
     </div>
   );
 }

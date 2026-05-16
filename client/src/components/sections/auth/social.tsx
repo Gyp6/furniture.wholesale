@@ -17,8 +17,7 @@ export function Social() {
     const error = searchParams.get('error');
     if (error) {
       toast.error(
-        OAUTH_ERRORS[error] ??
-          'Authentication error. Please try again.',
+        OAUTH_ERRORS[error] ?? 'Authentication error. Please try again.',
         { position: 'top-center' },
       );
     }

@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { Icon } from '@/components/ui'
+import { Icon } from '@/components/ui';
 import { Button } from '@/components/ui/shadcn/button';
 import { cn } from '@/lib/cn';
 import { useAuthFormStore } from '@/store';

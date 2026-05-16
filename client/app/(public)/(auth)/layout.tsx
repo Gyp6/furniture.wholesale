@@ -142,7 +142,9 @@ export default function PublicLayout({
             </aside>
 
             <Card
-              className={'flex flex-col justify-center px-8 rounded-none gap-8 overflow-scroll'}
+              className={
+                'flex flex-col justify-center px-8 rounded-none gap-8 overflow-scroll'
+              }
             >
               {children}
             </Card>

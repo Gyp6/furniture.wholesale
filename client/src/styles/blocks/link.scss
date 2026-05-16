@@ -7,10 +7,10 @@
 
 .link {
   position: relative;
-  text-decoration: none;;
+  text-decoration: none;
 
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     left: 0;
     bottom: -2px;
@@ -20,7 +20,7 @@
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  &:hover, 
+  &:hover,
   .group:hover & {
     color: inherit !important;
     &::after {

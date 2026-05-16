@@ -80,7 +80,7 @@ export function useRegisterForm() {
   useEffect(() => {
     console.log('DEBUG: role', role);
   }, [role, form]);
-  
+
   useEffect(() => {
     console.log('DEBUG: user', user);
   }, [user]);
