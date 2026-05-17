@@ -1,10 +1,13 @@
 'use client';
 
-// src/components/sections/catalog/product-grid.tsx
 import { ProductCard } from '@/components/ui';
 import { productCardData } from '@/shared/data/core/catalog';
 
-export function ProductGrid({ isAuthorized }: { isAuthorized: boolean }) {
+interface Props {
+  isAuthorized: boolean;
+}
+
+export function ProductGrid({ isAuthorized }: Props) {
   return (
     <div
       className={
@@ -14,7 +17,7 @@ export function ProductGrid({ isAuthorized }: { isAuthorized: boolean }) {
       {[...Array(20)].map((_, i) => (
         <ProductCard
           key={i}
-          isLoggedIn={isAuthorized}
+          isAuthorized={isAuthorized}
           product={{ ...productCardData, id: i.toString() }}
         />
       ))}

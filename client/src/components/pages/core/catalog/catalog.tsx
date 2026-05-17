@@ -13,7 +13,7 @@ export async function CatalogPage() {
 
   return (
     <>
-      <CatalogHeader />
+      <CatalogHeader title={'Catalog with Items'} />
 
       <div className={'flex flex-col lg:flex-row gap-10 w-full'}>
         <CatalogSidebar />

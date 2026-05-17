@@ -15,11 +15,11 @@ import { ROUTES } from '@/constants';
 import { IProduct } from '@/shared/types';
 
 interface Props {
-  isLoggedIn: boolean;
+  isAuthorized: boolean;
   product: IProduct;
 }
 
-export function ProductCard({ isLoggedIn, product }: Props) {
+export function ProductCard({ isAuthorized, product }: Props) {
   return (
     <Card
       className={
@@ -57,7 +57,7 @@ export function ProductCard({ isLoggedIn, product }: Props) {
       </CardHeader>
 
       <CardContent className={'p-0'}>
-        {isLoggedIn ? (
+        {isAuthorized ? (
           <div className={'flex flex-col gap-2'}>
             <div className={'flex items-center justify-between'}>
               <p className={'text-xs text-muted-foreground'}>
@@ -69,7 +69,7 @@ export function ProductCard({ isLoggedIn, product }: Props) {
             </div>
             <Button
               className={
-                'w-full h-10 rounded-2xl text-sm font-bold bg-blue-100 text-blue-700'
+                'w-full h-10 rounded-full text-sm font-bold bg-blue-100 text-blue-700'
               }
               variant={'default'}
             >

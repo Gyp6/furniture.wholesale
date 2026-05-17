@@ -4,11 +4,11 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
-import { Icon } from '@/components/ui';
 import { Button } from '@/components/ui/shadcn/button';
 import { Field } from '@/components/ui/shadcn/field';
 import { OAUTH_ERRORS, ROUTES } from '@/constants';
 import { authClient } from '@/lib';
+import { BRANDS_MONOCHROME } from '@/shared/data/icons';
 
 export function Social() {
   const searchParams = useSearchParams();
@@ -53,7 +53,9 @@ export function Social() {
         disabled
         // onClick={handleAppleLogin}
       >
-        <Icon name={'AppleMonochrome'} />
+        <BRANDS_MONOCHROME.AppleMonochrome
+          // size={20}
+        />
         <span className={'sr-only'}>Login with Apple</span>
       </Button>
       <Button
@@ -62,7 +64,9 @@ export function Social() {
         type={'button'}
         onClick={handleGoogleLogin}
       >
-        <Icon name={'GoogleMonochrome'} />
+        <BRANDS_MONOCHROME.GoogleMonochrome
+          // size={20}
+        />
         <span className={'sr-only'}>Login with Google</span>
       </Button>
       <Button
@@ -71,7 +75,9 @@ export function Social() {
         type={'button'}
         onClick={handleFacebookLogin}
       >
-        <Icon name={'MetaMonochrome'} />
+        <BRANDS_MONOCHROME.MetaMonochrome
+          // size={20}
+        />
         <span className={'sr-only'}>Login with Meta</span>
       </Button>
     </Field>

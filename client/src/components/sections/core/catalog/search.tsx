@@ -8,8 +8,12 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from '@/components/ui/shadcn/input-group';
+import { CatalogTypes } from '@/constants';
+import { useCatalogTypeStore } from '@/store/use-catalog-type.store';
 
 export function CatalogSearch() {
+  const { type, setType } = useCatalogTypeStore(state => state);
+
   return (
     <div className={'flex items-center gap-3'}>
       <InputGroup className={'h-10'}>
@@ -25,8 +29,17 @@ export function CatalogSearch() {
         size={'sm'}
         className={'px-6 h-10'}
         variant={'default'}
+        onClick={() =>
+          setType(
+            type === CatalogTypes.catalog
+              ? CatalogTypes.bundles
+              : CatalogTypes.catalog,
+          )
+        }
       >
-        View prebuilt Bundles
+        {type === CatalogTypes.catalog
+          ? 'View prebuilt Bundles'
+          : 'View single Items'}
       </Button>
     </div>
   );

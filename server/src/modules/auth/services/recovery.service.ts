@@ -30,22 +30,6 @@ export class RecoveryService {
 
     const url = `${this.configService.getOrThrow('FRONTEND_URL')}/auth/reset-password?token=${verificationData.value}`;
 
-    // this.mailQueue
-    //   .add('send_mail', {
-    //     to: email,
-    //     subject: 'Reset Your Password',
-    //     html: `
-    //   <h1>Password Reset</h1>
-    //   <p>Click the link below to reset your password:</p>
-    //   <a href="${this.configService.getOrThrow('FRONTEND_URL')}/auth/reset-password?token=${verificationData.value}">
-    //     Reset Password
-    //   </a>
-    // `,
-    //   })
-    //   .catch(err =>
-    //     this.logger.error(`Failed to queue reset email: ${err.message}`),
-    //   );
-
     await this.mailService.sendResetPassword(email as string, url);
 
     this.logger.log(`Password reset link sent to ${email}`);

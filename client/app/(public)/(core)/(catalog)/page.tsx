@@ -1,4 +1,3 @@
-// app/catalog/page.ts
 import { Metadata } from 'next';
 
 import { CatalogPage } from '@/components/pages/core/catalog';

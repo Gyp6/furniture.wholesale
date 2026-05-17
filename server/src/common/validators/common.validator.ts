@@ -3,20 +3,26 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { VerificationStatus } from '@prisma/client';
 import { Type as TransformType } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsEmail as IsEmailValidator,
   IsEnum,
+  IsInt,
+  IsNumber,
   IsNumberString,
+  IsOptional,
   IsString,
   IsUrl,
   Matches,
   MaxLength,
+  Min,
   MinLength,
   ValidateNested,
 } from 'class-validator';
 
-import { ROLES } from '../constants';
+import { ROLES, SPACE_TYPES } from '../constants';
 
 import { IsUnique } from './is-unique.validator';
 
@@ -68,6 +74,96 @@ export const IsName = () =>
     }),
     MinLength(2, { message: 'Name must be at least 2 characters long' }),
     MaxLength(50, { message: 'Name must be less than 50 characters long' }),
+  );
+
+export const IsTitle = () =>
+  applyDecorators(
+    ApiProperty({
+      example: 'Freedom Miro dining table',
+    }),
+    MinLength(2, { message: 'Title must be at least 2 characters long' }),
+    MaxLength(60, { message: 'Title must be less than 60 characters long' }),
+  );
+
+export const IsPrice = () =>
+  applyDecorators(
+    ApiProperty({
+      example: 1999.99,
+      description: 'Price in UAH',
+    }),
+    IsNumber({}, { message: 'Price must be a number' }),
+    Min(0.01, { message: 'Price must be greater than 0' }),
+  );
+
+export const IsMinSellQuantity = () =>
+  applyDecorators(
+    ApiPropertyOptional({
+      example: 10,
+      nullable: true,
+      default: null,
+      description: 'Minimum sell quantity',
+    }),
+    IsOptional(),
+    IsInt({ message: 'Min sell quantity must be an integer' }),
+    Min(1, { message: 'Min sell quantity must be at least 1' }),
+  );
+
+export const IsImages = () =>
+  applyDecorators(
+    ApiProperty({
+      example: ['products/abc/image1.png', 'products/abc/image2.png'],
+      type: [String],
+    }),
+    IsArray({ message: 'Images must be an array' }),
+    ArrayMinSize(1, { message: 'At least one image is required' }),
+    ArrayMaxSize(10, { message: 'Maximum 10 images allowed' }),
+    IsString({ each: true, message: 'Each image must be a string' }),
+  );
+
+// catalog/application/dto/requests/create-product.request.ts
+export const IsProductTags = () =>
+  applyDecorators(
+    ApiProperty({
+      example: ['Nordic', 'Scandinavian'],
+      type: [String],
+      description: 'Tag titles — will be created automatically if not exist',
+    }),
+    IsArray({ message: 'Tags must be an array' }),
+    ArrayMinSize(1, { message: 'At least one tag is required' }),
+    IsString({ each: true, message: 'Each tag must be a string' }),
+    MinLength(2, {
+      each: true,
+      message: 'Each tag must be at least 2 characters',
+    }),
+    MaxLength(50, {
+      each: true,
+      message: 'Each tag must be less than 50 characters',
+    }),
+  );
+
+export const IsCategoryId = () =>
+  applyDecorators(
+    ApiProperty({
+      example: 'abc123',
+      description: 'Category ID',
+    }),
+    IsString({ message: 'Category ID must be a string' }),
+  );
+
+export const IsVendor = () =>
+  applyDecorators(
+    ApiProperty({
+      example: 'Noble Furniture Co.',
+    }),
+  );
+
+export const IsSpaceType = () =>
+  applyDecorators(
+    ApiProperty({
+      enum: SPACE_TYPES,
+      example: SPACE_TYPES.APARTMENT,
+    }),
+    IsEnum(SPACE_TYPES, { message: 'Invalid space type' }),
   );
 
 export const isUniqueName = () =>
@@ -239,7 +335,7 @@ export const IsCompanyTerms = () =>
 export const IsCompanyRatingAvg = () =>
   applyDecorators(
     ApiProperty({
-      example: '4.50',
+      example: 4.5,
     }),
   );
 
@@ -274,5 +370,21 @@ export const IsLink = () =>
     // note: in prod change to real domen, not localhost
     Matches(/^(http:\/\/localhost:3000|https:\/\/your-app\.com)/, {
       message: 'Redirect URL is not allowed',
+    }),
+  );
+
+export const IsNullableString = ({
+  example,
+  description,
+}: {
+  example: string;
+  description?: string;
+}) =>
+  applyDecorators(
+    ApiProperty({
+      example,
+      description,
+      nullable: true,
+      default: null,
     }),
   );

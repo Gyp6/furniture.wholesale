@@ -1,7 +1,6 @@
 'use client';
 
 import { FormStateSync } from '@/components/sections/auth';
-import { Icon } from '@/components/ui';
 import {
   Field,
   FieldError,
@@ -11,6 +10,7 @@ import {
 import { Input } from '@/components/ui/shadcn/input';
 import { useForgotPasswordForm } from '@/hooks';
 import { emailSchema, passwordSchema } from '@/shared/schemas';
+import { Eye, EyeOff } from 'lucide-react';
 
 export function ForgotPasswordForm() {
   const { form, isResetMode, showPassword, togglePassword } =
@@ -86,10 +86,7 @@ export function ForgotPasswordForm() {
                         'absolute inset-y-0 right-4 flex items-center text-muted-foreground hover:text-primary'
                       }
                     >
-                      <Icon
-                        name={showPassword ? 'Eye' : 'EyeOff'}
-                        size={18}
-                      />
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}

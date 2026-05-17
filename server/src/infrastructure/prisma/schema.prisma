@@ -138,6 +138,7 @@ model Company {
   terms              String?            @map("terms") @db.Text
   ratingAvg          Decimal            @default(0) @map("rating_avg") @db.Decimal(3, 2)
   ratingCount        Int                @default(0) @map("rating_count")
+  products           Product[]
 
   @@map("company")
 }
@@ -156,9 +157,6 @@ model Profile {
 model Category {
   id        String          @id @default(nanoid())
   name      String
-  parentId  String?         @map("parent_id")
-  parent    Category?       @relation("SubCategories", fields: [parentId], references: [id])
-  children  Category[]      @relation("SubCategories")
   products  Product[]
   templates SpaceTemplate[]
 
@@ -166,43 +164,36 @@ model Category {
 }
 
 model Product {
-  id          String           @id @default(nanoid())
-  supplierId  String           @map("supplier_id")
-  supplier    User             @relation(fields: [supplierId], references: [id])
-  categoryId  String           @map("category_id")
-  category    Category         @relation(fields: [categoryId], references: [id])
-  name        String
-  description String?          @db.Text
-  images      Json?
-  status      ProductStatus    @default(DRAFT)
-  variants    ProductVariant[]
-  tags        ProductTagMap[]
-  createdAt   DateTime         @default(now()) @map("created_at")
+  id String @id @default(nanoid())
+
+  title  String
+  images String[]
+  status ProductStatus @default(DRAFT)
+
+  price           Decimal @db.Decimal(10, 2)
+  minSellQuantity Int?    @map("min_sell_quantity")
+
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  supplierId String @map("supplier_id")
+  supplier   User   @relation(fields: [supplierId], references: [id])
+
+  vendorId String  @map("vendor_id")
+  vendor   Company @relation(fields: [vendorId], references: [id])
+
+  tags      ProductTagMap[]
+  spaceType SpaceType @map("space_type")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("product")
 }
 
-model ProductVariant {
-  id          String  @id @default(nanoid())
-  productId   String  @map("product_id")
-  product     Product @relation(fields: [productId], references: [id])
-  sku         String  @unique
-  material    String?
-  color       String?
-  dimensions  String?
-  price       Decimal @db.Decimal(10, 2)
-  minQuantity Int?    @map("min_quantity")
-
-  cartItems   CartItem[]
-  orderItems  OrderItem[]
-  bundleItems BundleItem[]
-
-  @@map("product_variant")
-}
-
 model ProductTag {
   id       String          @id @default(nanoid())
-  name     String
+  title    String
   slug     String          @unique
   products ProductTagMap[]
 
@@ -212,8 +203,8 @@ model ProductTag {
 model ProductTagMap {
   productId String     @map("product_id")
   tagId     String     @map("tag_id")
-  product   Product    @relation(fields: [productId], references: [id])
-  tag       ProductTag @relation(fields: [tagId], references: [id])
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag       ProductTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([productId, tagId])
   @@map("product_tag_map")
@@ -229,13 +220,11 @@ model Cart {
 }
 
 model CartItem {
-  id               String         @id @default(nanoid())
-  cartId           String         @map("cart_id")
-  cart             Cart           @relation(fields: [cartId], references: [id])
-  productVariantId String         @map("product_variant_id")
-  variant          ProductVariant @relation(fields: [productVariantId], references: [id])
-  quantity         Int
-  addedAt          DateTime       @default(now()) @map("added_at")
+  id       String   @id @default(nanoid())
+  cartId   String   @map("cart_id")
+  cart     Cart     @relation(fields: [cartId], references: [id])
+  quantity Int
+  addedAt  DateTime @default(now()) @map("added_at")
 
   @@map("cart_item")
 }
@@ -255,14 +244,12 @@ model Order {
 }
 
 model OrderItem {
-  id               String         @id @default(nanoid())
-  orderId          String         @map("order_id")
-  order            Order          @relation(fields: [orderId], references: [id])
-  productVariantId String         @map("product_variant_id")
-  variant          ProductVariant @relation(fields: [productVariantId], references: [id])
-  supplierId       String         @map("supplier_id")
-  quantity         Int
-  priceSnapshot    Decimal        @map("price_snapshot") @db.Decimal(10, 2)
+  id            String  @id @default(nanoid())
+  orderId       String  @map("order_id")
+  order         Order   @relation(fields: [orderId], references: [id])
+  supplierId    String  @map("supplier_id")
+  quantity      Int
+  priceSnapshot Decimal @map("price_snapshot") @db.Decimal(10, 2)
 
   @@map("order_item")
 }
@@ -280,13 +267,11 @@ model Bundle {
 }
 
 model BundleItem {
-  id               String         @id @default(nanoid())
-  bundleId         String         @map("bundle_id")
-  bundle           Bundle         @relation(fields: [bundleId], references: [id])
-  productVariantId String         @map("product_variant_id")
-  variant          ProductVariant @relation(fields: [productVariantId], references: [id])
-  quantity         Int
-  priceSnapshot    Decimal        @map("price_snapshot") @db.Decimal(10, 2)
+  id            String  @id @default(nanoid())
+  bundleId      String  @map("bundle_id")
+  bundle        Bundle  @relation(fields: [bundleId], references: [id])
+  quantity      Int
+  priceSnapshot Decimal @map("price_snapshot") @db.Decimal(10, 2)
 
   @@map("bundle_item")
 }

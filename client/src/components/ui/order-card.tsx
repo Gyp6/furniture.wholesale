@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/shadcn/card';
 import { ICONS } from '@/shared/data/icons';
+import Image from 'next/image';
 
 type TOrderCardProps = {
   name: string;
@@ -40,10 +41,13 @@ export function OrderCard({
   return (
     <Card className={"flex flex-col ring-0 border border-neutral-100 gap-0 p-[10px] rounded-[40px] shadow-[0_8px_40px_rgba(0,0,0,0.08)]"}>
       <div className={"relative rounded-[30px] overflow-hidden"}>
-        <img
+        <Image
           src={image}
           alt={name}
           className={"w-full aspect-square object-cover"}
+          width={300}
+          height={300}
+          unoptimized
         />
         <Badge className={"absolute top-3 left-3 bg-white text-black text-[15px] font-medium px-3 py-1 rounded-full shadow-sm border-0"}>
           {category}
@@ -75,7 +79,7 @@ export function OrderCard({
         <div className={"flex items-center justify-between text-s"}>
           <span className={"text-muted-foreground"}>min. {minPieces} pieces</span>
           <span className={"text-muted-foreground"}>
-            ${pricePerUnit.toLocaleString()} per unit
+            ${new Intl.NumberFormat('en-US').format(pricePerUnit)} per unit
           </span>
         </div>
 

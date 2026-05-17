@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/shadcn/button';
+import { ArrowLeft } from 'lucide-react';
 
 export default function NotFound() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function NotFound() {
         onClick={() => router.back()}
         className={'gap-2'}
       >
-        {/*<Icon name="arrowLeft" size={18} />*/}
+        <ArrowLeft size={18} />
         Back
       </Button>
     </main>

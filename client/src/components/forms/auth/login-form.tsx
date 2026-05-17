@@ -1,7 +1,6 @@
 'use client';
 
 import { FormStateSync } from '@/components/sections/auth';
-import { Icon } from '@/components/ui';
 import { Checkbox } from '@/components/ui/shadcn/checkbox';
 import {
   Field,
@@ -13,6 +12,7 @@ import { Input } from '@/components/ui/shadcn/input';
 import { Label } from '@/components/ui/shadcn/label';
 import { ROUTES } from '@/constants';
 import { useLoginForm } from '@/hooks';
+import { Eye, EyeOff } from 'lucide-react';
 
 export function LoginForm() {
   const { form, showPassword, togglePassword, remember, setRemember, router } =
@@ -93,10 +93,7 @@ export function LoginForm() {
                       'absolute inset-y-0 right-4 flex items-center text-muted-foreground hover:text-primary'
                     }
                   >
-                    <Icon
-                      name={showPassword ? 'Eye' : 'EyeOff'}
-                      size={18}
-                    />
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}

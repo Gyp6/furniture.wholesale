@@ -2,7 +2,6 @@ import {
   BaseIconName,
   BrandMonochromeIconName,
   LogoIconName,
-  LucideIconName,
   RoleIconName,
 } from '@/shared/data/icons';
 
@@ -15,7 +14,6 @@ export type TIconProps = {
 export type TBrandProps = Omit<TIconProps, 'color'>;
 
 export type IconName =
-  | LucideIconName
   | BaseIconName
   | BrandMonochromeIconName
   | RoleIconName

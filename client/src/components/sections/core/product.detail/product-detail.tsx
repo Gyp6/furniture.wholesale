@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/shadcn/button';
 import { ProductData } from '@/shared/data/core/catalog/catalog.data';
 import { ICONS } from '@/shared/data/icons';
+import Image from 'next/image';
 
 export function ProductDetail() {
   const [quantity, setQuantity] = useState(ProductData.quantity);
@@ -17,9 +18,12 @@ export function ProductDetail() {
           className={"rounded-[30px] overflow-hidden"}
           style={{ width: '900px', height: '475px' }}
         >
-          <img
+          <Image
             src={selectedImage}
             alt={ProductData.name}
+            width={300}
+            height={300}
+            unoptimized
             className={"w-full h-full object-cover"}
           />
         </div>
@@ -32,9 +36,12 @@ export function ProductDetail() {
               className={"rounded-2xl overflow-hidden shrink-0 opacity-80 hover:opacity-100 transition-opacity"}
               style={{ width: '167px', height: '146px' }}
             >
-              <img
+              <Image
                 src={img}
                 alt={`thumb ${i}`}
+                width={300}
+                height={300}
+                unoptimized
                 className={"w-full h-full object-cover"}
               />
             </button>
@@ -63,7 +70,7 @@ export function ProductDetail() {
 
         <div className={"py-[30px] border-b border-neutral-100"}>
           <p className={"text-[12px] font-bold uppercase tracking-widest text-muted-foreground mb-2"}>
-            Curator's Description
+            Curator&#39s Description
           </p>
           <p className={"text-sm text-muted-foreground leading-relaxed"}>
             {ProductData.description}
@@ -152,9 +159,12 @@ export function ProductDetail() {
               className={"rounded-2xl overflow-hidden shrink-0"}
               style={{ width: '150px', height: '180px' }}
             >
-              <img
+              <Image
                 src={ProductData.supplier.image}
                 alt={ProductData.supplier.name}
+                width={300}
+                height={300}
+                unoptimized
                 className={"w-full h-full object-cover"}
               />
             </div>

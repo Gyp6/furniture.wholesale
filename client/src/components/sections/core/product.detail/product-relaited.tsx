@@ -1,7 +1,7 @@
 'use client';
 
-import { ProductRelatedCard } from '@/components/ui/product-card';
-import { ProductCardData } from '@/shared/data/core/catalog/catalog.data';
+import { ProductRelatedCard } from '@/components/ui';
+import { productCardData } from '@/shared/data/core/catalog';
 
 export function ProductRelated() {
   return (
@@ -15,12 +15,7 @@ export function ProductRelated() {
         {[...Array(6)].map((_, i) => (
           <ProductRelatedCard
             key={i}
-            name={ProductCardData.name}
-            vendor={ProductCardData.vendor}
-            category={ProductCardData.category}
-            minPieces={ProductCardData.minPieces}
-            price={ProductCardData.price}
-            image={ProductCardData.image}
+            product={{ ...productCardData, id: i.toString() }}
           />
         ))}
       </div>

@@ -1,9 +1,9 @@
 // components/role-card.tsx
 import Image from 'next/image';
 
-import { Icon } from '@/components/ui/icon';
 import { cn } from '@/lib/cn';
 import type { TRoleCard } from '@/shared/types';
+import { CircleCheck } from 'lucide-react';
 
 interface Props extends TRoleCard {
   onClick?: (value: TRoleCard['value']) => void;
@@ -50,8 +50,7 @@ export const RoleCard = ({
               key={item}
               className={'flex items-center gap-2 text-xs text-white/90'}
             >
-              <Icon
-                name={'CircleCheck'}
+              <CircleCheck
                 size={16}
                 color={'currentColor'}
                 className={'shrink-0'}

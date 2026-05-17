@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import { cn } from '@/lib/cn';
 
-import { Icon } from '../icon';
+import { Check } from 'lucide-react';
 
 function Checkbox({
   className,
@@ -24,8 +24,7 @@ function Checkbox({
         data-slot={'checkbox-indicator'}
         className={'grid place-content-center text-current transition-none'}
       >
-        <Icon
-          name={'Check'}
+        <Check
           size={'14'}
         />
       </CheckboxPrimitive.Indicator>

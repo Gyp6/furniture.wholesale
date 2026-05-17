@@ -6,10 +6,9 @@ import { Button } from '@/components/ui/shadcn/button';
 import { ROUTES } from '@/constants';
 import { getServerSession } from '@/services';
 
-import { Icon } from '../ui';
-
 import { HeaderNav } from './header-nav';
 import { HeaderSearch } from './header-search';
+import { LOGO } from '@/shared/data/icons';
 
 export async function HeaderContent() {
   const { user, session } = (await getServerSession()) || {};
@@ -65,8 +64,7 @@ export function Header() {
         href={ROUTES.HOME}
         className={'flex items-center gap-2'}
       >
-        <Icon
-          name={'LogoProject'}
+        <LOGO.LogoProject
           color={'white'}
           size={40}
         />
