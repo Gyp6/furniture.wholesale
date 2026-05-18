@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
   },
   reactCompiler: true,
   // cacheComponents: true,
-  transpilePackages: ['lucide-react'],
+  // transpilePackages: ['lucide-react'],
   async rewrites() {
     return [
       {

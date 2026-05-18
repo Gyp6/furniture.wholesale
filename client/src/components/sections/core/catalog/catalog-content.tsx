@@ -30,7 +30,7 @@ export function CatalogContent({ isAuthorized }: Props) {
     maxPrice: Number(searchParams.get('maxPrice')) || undefined,
     sort: searchParams.get('sort') || undefined,
     page: Number(searchParams.get('page')) || 1,
-    limit: 10,
+    limit: 30,
   };
 
   const { data: response } = useGetProducts(params);
