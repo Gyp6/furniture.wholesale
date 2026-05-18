@@ -15,61 +15,63 @@ import { ROUTES } from '@/constants';
 import { IProduct } from '@/shared/types';
 
 interface Props {
-  isLoggedIn: boolean;
+  isAuthorized: boolean;
   product: IProduct;
 }
 
-export function ProductCard({ isLoggedIn, product }: Props) {
+export function ProductCard({ isAuthorized, product }: Props) {
   return (
     <Card
       className={
-        'bg-white p-2.5 rounded-3xl border-transparent ring-transparent shadow-xl'
+        'bg-white p-2.5 rounded-4xl border-transparent ring-transparent shadow-xl gap-2'
       }
     >
-      <div className={'relative'}>
-        <Image
-          src={product.image}
-          alt={product.title}
-          className={'w-full aspect-square object-cover rounded-2xl'}
-          width={300}
-          height={300}
-          unoptimized
-        />
-        <Badge
-          className={
-            'absolute top-3 left-3 bg-white text-muted-foreground text-xs font-medium p-3 shadow-sm border-0'
-          }
-        >
-          {product.space}
-        </Badge>
-      </div>
+      <Link href={ROUTES.PRODUCT(product.id)}>
+        <div className={'relative'}>
+          <Image
+            src={product.images[0]}
+            alt={product.title}
+            className={'w-full aspect-square object-cover rounded-3xl'}
+            width={300}
+            height={300}
+            unoptimized
+          />
+          <Badge
+            className={
+              'absolute top-3 left-3 bg-white text-muted-foreground text-xs font-medium p-3 shadow-sm border-0'
+            }
+          >
+            {product.spaceType}
+          </Badge>
+        </div>
 
-      <CardHeader className={'pt-3 px-0 pb-0 gap-0.5'}>
-        <CardTitle
-          variant={'default'}
-          className={'text-xl font-bold leading-tight'}
-        >
-          {product.title}
-        </CardTitle>
-        <CardDescription className={'text-sm text-primary'}>
-          {product.vendor}
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className={'p-0'}>
-        {isLoggedIn ? (
+        <CardHeader className={'pt-2 px-0 pb-0 gap-0.5'}>
+          <CardTitle
+            variant={'default'}
+            className={'text-xl font-bold leading-tight'}
+          >
+            {product.title}
+          </CardTitle>
+          <CardDescription className={'text-sm text-primary'}>
+            {product.vendor}
+          </CardDescription>
+        </CardHeader>
+      </Link>
+      
+      <CardContent className={'p-0 mt-auto'}>
+        {isAuthorized ? (
           <div className={'flex flex-col gap-2'}>
             <div className={'flex items-center justify-between'}>
-              <p className={'text-xs text-muted-foreground'}>
-                min. {product.minPieces} pieces
+              <p className={'text-sm text-muted-foreground'}>
+                min. {product.minSellQuantity} pieces
               </p>
-              <span className={'text-base font-bold'}>
+              <span className={'text-2xl font-bold'}>
                 ${new Intl.NumberFormat('en-US').format(product.price)}
               </span>
             </div>
             <Button
               className={
-                'w-full h-10 rounded-2xl text-sm font-bold bg-blue-100 text-blue-700'
+                'w-full h-10 rounded-full text-sm font-bold bg-blue-100 text-blue-700'
               }
               variant={'default'}
             >

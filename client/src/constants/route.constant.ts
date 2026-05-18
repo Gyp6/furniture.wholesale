@@ -23,7 +23,7 @@ export const ROUTES = {
   CATALOG: '/catalog',
   BUNDLES: '/bundles',
   DASHBOARD: '/dashboard',
-
+  PRODUCT: (id: string) => `/product/${id}`,
   PROFILE: (id: string) => `/profile/${id}`,
 
   API: {
@@ -35,6 +35,18 @@ export const ROUTES = {
       ME: '/user/me',
       VERIFY_EMAIL: '/user/verify-email',
       RESEND_OTP: '/user/resend-otp',
+    },
+    CATALOG: {
+      PRODUCT: {
+        GET_ALL: '/products',
+        GET_ONE: (id: string) => `/products/${id}`
+      },
+      CATEGORY: {
+        GET_ALL: '/categories',
+      },
+      TAGS: {
+        GET_ALL: '/tags',
+      },
     },
   },
 } as const;

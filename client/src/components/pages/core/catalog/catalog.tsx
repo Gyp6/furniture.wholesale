@@ -1,12 +1,11 @@
-// src/components/pages/catalog/catalog.tsx
-import { CatalogSidebar } from '@/components/layout';
+import { CatalogSidebar } from '@/components/layout/sidebar';
 import {
   CatalogContent,
   CatalogHeader,
   FilterBadgeGrid,
   Sort,
 } from '@/components/sections/core/catalog';
-import { getServerSession } from '@/services';
+import { getServerSession } from '@/services/session.service';
 
 export async function CatalogPage() {
   const { session } = (await getServerSession()) || {};
@@ -14,7 +13,7 @@ export async function CatalogPage() {
 
   return (
     <>
-      <CatalogHeader />
+      <CatalogHeader title={'Catalog with Items'} />
 
       <div className={'flex flex-col lg:flex-row gap-10 w-full'}>
         <CatalogSidebar />
@@ -24,6 +23,7 @@ export async function CatalogPage() {
             className={'flex items-center justify-between mb-6 gap-4 flex-wrap'}
           >
             <FilterBadgeGrid />
+            <div></div>
             <Sort />
           </div>
 

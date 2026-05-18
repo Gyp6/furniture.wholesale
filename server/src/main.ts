@@ -72,7 +72,7 @@ async function bootstrap() {
   const port = config.getOrThrow<number>('HTTP_PORT');
   const host = config.getOrThrow<string>('HTTP_HOST');
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   logger.log(`Backend started: ${host}/api`);
   logger.log(`Swagger: ${host}/docs`);

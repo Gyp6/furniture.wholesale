@@ -5,9 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { ROUTES } from '@/constants';
 import { authClient } from '@/lib';
 import { forgotPasswordFormOpts } from '@/shared/form-options';
-import { ROUTES } from '@/constants'
 
 export function useForgotPasswordForm() {
   const searchParams = useSearchParams();
@@ -43,8 +43,8 @@ export function useForgotPasswordForm() {
           }
           return 'Recovery link sent! Check your email.';
         },
-				error: err => err.message,
-				position: 'top-center',
+        error: err => err.message,
+        position: 'top-center',
       });
     },
   });

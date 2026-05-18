@@ -1,2 +1,2 @@
-export * from './auth.option'
-export * from './common.option'
+export * from './auth.option';
+export * from './common.option';

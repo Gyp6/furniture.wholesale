@@ -1,6 +1,10 @@
-import { CatalogSearch } from "./search";
+import { CatalogSearch } from './search';
 
-export function CatalogHeader() {
+interface Props {
+  title: string;
+}
+
+export function CatalogHeader({ title }: Props) {
   return (
     <div className={'flex items-center justify-between w-full'}>
       <h2
@@ -8,10 +12,10 @@ export function CatalogHeader() {
           'text-4xl font-bold tracking-tight text-primary whitespace-nowrap'
         }
       >
-        Catalog with Items
+        {title}
       </h2>
 
-			<CatalogSearch />
+      <CatalogSearch />
     </div>
   );
 }

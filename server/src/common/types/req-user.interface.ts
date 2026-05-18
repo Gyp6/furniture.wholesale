@@ -1,4 +1,4 @@
-import { TRole } from './role.type';
+import { Role } from '@prisma/client';
 
 export interface IReqUser {
   id: string;
@@ -6,7 +6,7 @@ export interface IReqUser {
   email: string;
   emailVerified: boolean;
   image: null | string;
-  role: TRole;
+  role: Role;
   banExpires: null | string;
   banReason: null | string;
   banned: boolean;

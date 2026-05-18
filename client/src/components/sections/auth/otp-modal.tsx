@@ -32,18 +32,18 @@ export function OtpModal({ email, isOpen, onSuccess }: OtpModalProps) {
   const { mutateAsync: verifyEmail } = useVerifyEmail();
   const { mutate: resendOtp } = useResendOtp();
 
-	const handleVerify = async (code: string) => {
-		setIsLoading(true);
+  const handleVerify = async (code: string) => {
+    setIsLoading(true);
     toast.promise(verifyEmail(code), {
       loading: 'Verifying your account...',
       success: () => {
-				onSuccess();
-				setIsLoading(false);
+        onSuccess();
+        setIsLoading(false);
         return 'Email verified successfully!';
       },
       error: (err: Error) => {
-				setOtp('');
-				setIsLoading(false);
+        setOtp('');
+        setIsLoading(false);
         return err.message || 'Invalid activation code';
       },
     });

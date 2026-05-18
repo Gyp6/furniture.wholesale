@@ -30,7 +30,7 @@ const initialState = {
   isSubmitting: false,
   validatedGoNext: null,
 };
-const { role,...resetInitialState } = initialState
+const { role, ...resetInitialState } = initialState;
 
 export const useAuthFormStore = create<AuthFormState & AuthFormAction>(set => ({
   ...initialState,

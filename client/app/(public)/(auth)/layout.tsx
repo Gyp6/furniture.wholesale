@@ -1,8 +1,8 @@
 import Link from 'next/link';
 
-import { Icon } from '@/components/ui';
 import { Card } from '@/components/ui/shadcn/card';
 import { ROUTES } from '@/constants';
+import { LOGO } from '@/shared/data/icons';
 
 export default function PublicLayout({
   children,
@@ -25,8 +25,7 @@ export default function PublicLayout({
                 'flex size-10 items-center justify-center text-primary-foreground'
               }
             >
-              <Icon
-                name={'LogoGyp6'}
+              <LOGO.LogoGyp6
                 size={50}
               />
             </div>
@@ -74,8 +73,7 @@ export default function PublicLayout({
                     'flex size-8 items-center justify-center rounded-full bg-white text-primary'
                   }
                 >
-                  <Icon
-                    name={'LogoProject'}
+                  <LOGO.LogoProject
                     size={28}
                   />
                 </div>
@@ -142,7 +140,9 @@ export default function PublicLayout({
             </aside>
 
             <Card
-              className={'flex flex-col justify-center px-8 rounded-none gap-8 overflow-scroll'}
+              className={
+                'flex flex-col justify-center px-8 rounded-none gap-8 overflow-scroll'
+              }
             >
               {children}
             </Card>

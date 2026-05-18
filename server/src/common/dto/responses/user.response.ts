@@ -56,7 +56,7 @@ export class UserResponse extends BA_UserResponse {
   profile!: ProfileResponse;
 }
 
-export class VerifiedUserResponse {
+export class VerifiedFullUserResponse {
   @ApiProperty({
     example: 'Email verified successfully',
   })

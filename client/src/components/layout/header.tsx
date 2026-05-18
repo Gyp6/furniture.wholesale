@@ -4,9 +4,8 @@ import { Suspense } from 'react';
 
 import { Button } from '@/components/ui/shadcn/button';
 import { ROUTES } from '@/constants';
-import { getServerSession } from '@/services';
-
-import { Icon } from '../ui';
+import { getServerSession } from '@/services/session.service';
+import { LOGO } from '@/shared/data/icons';
 
 import { HeaderNav } from './header-nav';
 import { HeaderSearch } from './header-search';
@@ -17,7 +16,9 @@ export async function HeaderContent() {
   return (
     <div className={'flex items-center justify-end gap-2 min-w-80'}>
       {session ? (
-        <HeaderSearch user={user} />
+        <Suspense fallback={(<div>hui</div>)}>
+          <HeaderSearch user={user || null} />
+        </Suspense>
       ) : (
         <>
           <Link href={ROUTES.AUTH.LOGIN}>
@@ -65,8 +66,7 @@ export function Header() {
         href={ROUTES.HOME}
         className={'flex items-center gap-2'}
       >
-        <Icon
-          name={'LogoProject'}
+        <LOGO.LogoProject
           color={'white'}
           size={40}
         />

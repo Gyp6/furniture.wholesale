@@ -7,7 +7,8 @@ import {
   DropdownMenuTrigger,
 } from '@shadcn/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback } from 'react';
 
 const sortOptions = [
   'Curated Popularity',
@@ -17,7 +18,24 @@ const sortOptions = [
 ];
 
 export function Sort() {
-  const [selected, setSelected] = useState(sortOptions[0]);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const selected = searchParams.get('sort') || sortOptions[0];
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(name, value);
+      return params.toString();
+    },
+    [searchParams]
+  );
+
+  const handleSortChange = (option: string) => {
+    router.push(`${pathname}?${createQueryString('sort', option)}`, { scroll: false });
+  };
 
   return (
     <DropdownMenu>
@@ -40,7 +58,7 @@ export function Sort() {
           <DropdownMenuItem
             key={option}
             className={'text-xs'}
-            onClick={() => setSelected(option)}
+            onClick={() => handleSortChange(option)}
           >
             {option}
           </DropdownMenuItem>

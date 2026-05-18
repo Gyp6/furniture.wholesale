@@ -4,8 +4,8 @@ import { usePathname } from 'next/navigation';
 import { match } from 'path-to-regexp';
 
 import { MenuItem } from '@/components/ui/menu-item';
-import { cn } from '@/lib/cn';
 import { NavConfig } from '@/config/nav.config';
+import { cn } from '@/lib/cn';
 
 interface Props {
   className?: string;

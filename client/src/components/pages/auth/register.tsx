@@ -4,7 +4,6 @@ import Link from 'next/link';
 
 import { RegisterForm } from '@/components/forms/auth';
 import { SubmitButton } from '@/components/sections/auth';
-import { Icon } from '@/components/ui';
 import { Button } from '@/components/ui/shadcn/button';
 import {
   CardContent,
@@ -16,6 +15,7 @@ import {
 import { Field } from '@/components/ui/shadcn/field';
 import { ROUTES } from '@/constants';
 import { useAuthFormStore } from '@/store';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 export function RegisterPage() {
   const { step, validatedGoNext, goBack } = useAuthFormStore();
@@ -41,7 +41,8 @@ export function RegisterPage() {
               onClick={goBack}
               type={'button'}
             >
-              <Icon name={'ArrowLeft'} /> Back
+              <ArrowLeft size={18} />{' '}
+              Back
             </Button>
           )}
 
@@ -52,8 +53,7 @@ export function RegisterPage() {
               type={'button'}
             >
               Continue
-              <Icon
-                name={'ArrowRight'}
+              <ArrowRight size={18}
                 className={'transition-transform group-hover:translate-x-2'}
               />
             </Button>

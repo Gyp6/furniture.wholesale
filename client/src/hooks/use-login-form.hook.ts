@@ -43,7 +43,7 @@ export function useLoginForm() {
           setUser(user);
 
           setTimeout(() => {
-            router.push(ROUTES.PROFILE(user.id));
+            router.push(ROUTES.DASHBOARD);
           }, 1000);
 
           return `Welcome back, ${user.name}!`;

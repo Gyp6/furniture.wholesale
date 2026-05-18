@@ -80,7 +80,7 @@ export function useRegisterForm() {
   useEffect(() => {
     console.log('DEBUG: role', role);
   }, [role, form]);
-  
+
   useEffect(() => {
     console.log('DEBUG: user', user);
   }, [user]);
@@ -112,11 +112,11 @@ export function useRegisterForm() {
 
   useEffect(() => {
     setValidatedGoNext(goNext);
-  }, []); // eslint-disable-line
+  }, []);
 
   const onOtpSuccess = () => {
     setShowOtpModal(false);
-    router.push(ROUTES.PROFILE(user?.id || ''));
+    router.push(ROUTES.DASHBOARD);
   };
 
   // const fieldMeta = useStore(form.store, s => s.fieldMeta);

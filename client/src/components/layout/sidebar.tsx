@@ -5,11 +5,13 @@ import { Label } from '@shadcn/label';
 import { Separator } from '@shadcn/separator';
 import { Slider } from '@shadcn/slider';
 import { ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useState } from 'react';
 
-import { CATEGORIES, SPACE_TYPES, STYLES } from '@/constants';
+import { SPACE_TYPES } from '@/constants';
+import { useGetCategories, useGetTags } from '@/hooks/queries';
 import { cn } from '@/lib/cn';
-import { ESpaceType } from '@/shared/enums';
+import { IFilter } from '@/shared/types';
 
 export function AccordionSection({
   title,
@@ -52,10 +54,16 @@ export function CheckboxFilterGroup({
   title,
   defaultOpen = true,
   items,
+  selectedItems,
+  onItemChange,
+  isLoading,
 }: Readonly<{
   title: string;
   defaultOpen?: boolean;
-  items: string[];
+  items: IFilter[];
+  selectedItems: string[];
+  onItemChange: (id: string, checked: boolean) => void;
+  isLoading?: boolean;
 }>) {
   return (
     <AccordionSection
@@ -63,27 +71,96 @@ export function CheckboxFilterGroup({
       defaultOpen={defaultOpen}
     >
       <div className={'space-y-2.5'}>
-        {items.map(item => (
-          <div
-            key={item}
-            className={'flex items-center space-x-2.5'}
-          >
-            <Checkbox id={item} />
-            <Label
-              htmlFor={item}
-              className={'text-sm text-muted-foreground cursor-pointer'}
+        {isLoading ? (
+          <div className={'text-sm text-muted-foreground'}>Loading...</div>
+        ) : (
+          items.map(item => (
+            <div
+              key={item.id}
+              id={item.slug}
+              className={'flex items-center space-x-2.5'}
             >
-              {item}
-            </Label>
-          </div>
-        ))}
+              <Checkbox
+                id={item.id}
+                checked={selectedItems.includes(item.id)}
+                onCheckedChange={checked => onItemChange(item.id, !!checked)}
+              />
+              <Label
+                htmlFor={item.id}
+                className={'text-sm text-muted-foreground cursor-pointer'}
+              >
+                {item.title}
+              </Label>
+            </div>
+          ))
+        )}
       </div>
     </AccordionSection>
   );
 }
 
 export function CatalogSidebar() {
-  const [priceRange, setPriceRange] = useState([2000, 18000]);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [priceRange, setPriceRange] = useState([4000, 16000]);
+
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useGetCategories();
+  const { data: tags, isLoading: isTagsLoading } = useGetTags();
+
+  const selectedSpaces =
+    searchParams.get('spaces')?.split(',').filter(Boolean) || [];
+  const selectedCategories =
+    searchParams.get('categories')?.split(',').filter(Boolean) || [];
+  const selectedTags =
+    searchParams.get('tags')?.split(',').filter(Boolean) || [];
+  const minPrice = Number(searchParams.get('minPrice')) || 0;
+  const maxPrice = Number(searchParams.get('maxPrice')) || 50000;
+
+  const createQueryString = useCallback(
+    (params: Record<string, string | null>) => {
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+
+      for (const [key, value] of Object.entries(params)) {
+        if (value === null) {
+          newSearchParams.delete(key);
+        } else {
+          newSearchParams.set(key, value);
+        }
+      }
+      // Reset page on filter change
+      if (!params.page) newSearchParams.delete('page');
+
+      return newSearchParams.toString();
+    },
+    [searchParams],
+  );
+
+  const handleFilterChange = (
+    key: string,
+    selected: string[],
+    item: string,
+    checked: boolean,
+  ) => {
+    const newSelected = checked
+      ? [...selected, item]
+      : selected.filter(s => s !== item);
+
+    router.push(
+      `${pathname}?${createQueryString({ [key]: newSelected.length ? newSelected.join(',') : null })}`,
+      { scroll: false },
+    );
+  };
+
+  const handlePriceChange = (values: number[]) => {
+    router.push(
+      `${pathname}?${createQueryString({ minPrice: values[0].toString(), maxPrice: values[1].toString() })}`,
+      { scroll: false },
+    );
+  };
+
   return (
     <aside className={'w-full lg:w-60 shrink-0 space-y-4'}>
       <h4
@@ -94,46 +171,43 @@ export function CatalogSidebar() {
         Filters
       </h4>
 
-      <CheckboxFilterGroup
-        title={'Category'}
-        items={CATEGORIES}
-      />
+      <div className={'space-y-6'}>
+        <CheckboxFilterGroup
+          title={'Category'}
+          items={categories || []}
+          selectedItems={selectedCategories}
+          onItemChange={(id, checked) =>
+            handleFilterChange('categories', selectedCategories, id, checked)
+          }
+          isLoading={isCategoriesLoading}
+        />
 
-      <Separator />
+        <Separator />
 
-      <CheckboxFilterGroup
-        title={'Style'}
-        items={STYLES}
-      />
+        <CheckboxFilterGroup
+          title={'Style'}
+          items={tags || []}
+          selectedItems={selectedTags}
+          onItemChange={(id, checked) =>
+            handleFilterChange('tags', selectedTags, id, checked)
+          }
+          isLoading={isTagsLoading}
+        />
 
-      <Separator />
+        <Separator />
 
-      <AccordionSection title={'Space type'}>
-        <div className={'space-y-2.5'}>
-          {SPACE_TYPES.map(space => (
-            <div
-              key={space}
-              className={'flex items-center space-x-2.5'}
-            >
-              <Checkbox
-                id={space}
-                defaultChecked={space === ESpaceType.RESTAURANT}
-              />
-              <Label
-                htmlFor={space}
-                className={`text-xs cursor-pointer ${space === ESpaceType.RESTAURANT ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}
-              >
-                {space}
-              </Label>
-            </div>
-          ))}
-        </div>
-      </AccordionSection>
+        <CheckboxFilterGroup
+          title={'Space Type'}
+          items={SPACE_TYPES.map(s => ({ id: s, title: s, slug: s }))}
+          selectedItems={selectedSpaces}
+          onItemChange={(id, checked) =>
+            handleFilterChange('spaces', selectedSpaces, id, checked)
+          }
+        />
 
-      <Separator />
+        <Separator />
 
-      <AccordionSection title={'Price'}>
-        <div>
+        <AccordionSection title={'Price'}>
           <div
             className={
               'flex justify-between text-xs text-muted-foreground mb-2'
@@ -146,16 +220,26 @@ export function CatalogSidebar() {
               ${priceRange[1]}
             </Label>
           </div>
-          <Slider
-            value={priceRange}
-            onValueChange={setPriceRange}
-            min={100}
-            max={20000}
-            step={5}
-            className={'mx-auto w-full max-w-xs h-4'}
-          />
-        </div>
-      </AccordionSection>
+          <div className={'space-y-4 py-4 px-1'}>
+            <Slider
+              value={priceRange}
+              onValueChange={setPriceRange}
+              defaultValue={[minPrice, maxPrice]}
+              max={20000}
+              step={100}
+              onValueCommit={handlePriceChange}
+            />
+            <div
+              className={
+                'items-center justify-between text-sm text-muted-foreground hidden'
+              }
+            >
+              <span>${minPrice}</span>
+              <span>${maxPrice}</span>
+            </div>
+          </div>
+        </AccordionSection>
+      </div>
     </aside>
   );
 }

@@ -8,3 +8,5 @@ export * from './user.interface';
 export * from './product.interface';
 export * from './menu-item.type';
 export * from './session.interface';
+export * from './bundle.interface';
+export * from './category.interface';

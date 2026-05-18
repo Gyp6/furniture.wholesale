@@ -22,12 +22,11 @@ export const baseSchema = loginSchema.extend({
   passwordConfirm: z.string(),
 });
 
-export const registerSchema = baseSchema
-  .extend({
-    specialisations: specialisationsSchema,
-    companyName: companyNameSchema,
-    taxId: taxIdSchema,
-  })
+export const registerSchema = baseSchema.extend({
+  specialisations: specialisationsSchema,
+  companyName: companyNameSchema,
+  taxId: taxIdSchema,
+});
 
 export const dynamicRegisterSchema = z
   .discriminatedUnion('role', [

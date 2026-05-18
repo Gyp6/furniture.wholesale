@@ -24,7 +24,15 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@/*": ["./src/*"],
-      "@root/*": ["./"]
+      "@root/*": ["./"],
+      "@catalog/*": [
+        "./src/modules/catalog/*",
+        "./src/modules/catalog/*/index.ts"
+      ],
+      "@identity/*": [
+        "./src/modules/identity/*",
+        "./src/modules/identity/*/index.ts"
+      ]
     },
     "types": ["node", "jest", "bun"]
   }

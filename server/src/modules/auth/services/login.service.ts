@@ -1,9 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  type IUserRepository,
+  USER_REPOSITORY,
+} from '@identity/domain/contracts';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AuthHookContext } from '@thallesp/nestjs-better-auth';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-
-import { UserRepository } from '@/modules/user/user.repository';
 
 import { LoginRequest } from '../dto/requests';
 
@@ -11,7 +13,10 @@ import { LoginRequest } from '../dto/requests';
 export class LoginService {
   private readonly logger = new Logger(LoginService.name);
 
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    @Inject(USER_REPOSITORY)
+    private readonly userRepository: IUserRepository,
+  ) {}
 
   async beforeSignIn(context: AuthHookContext) {
     const body = (context.body ?? {}) as LoginRequest;

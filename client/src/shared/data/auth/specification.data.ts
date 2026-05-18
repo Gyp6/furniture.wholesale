@@ -1,5 +1,1 @@
-export const specifications = [
-	'hui',
-	'pizda',
-	'Mock data'
-]
+export const specifications = ['hui', 'pizda', 'Mock data'];

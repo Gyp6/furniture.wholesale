@@ -5,8 +5,8 @@ import {
   RoleButton,
   RolePicker,
 } from '@/components/sections/auth';
-import { OtpModal } from '@/components/sections/auth/otp-modal'
-import { ComboboxSelect, Icon } from '@/components/ui';
+import { OtpModal } from '@/components/sections/auth/otp-modal';
+import { ComboboxSelect } from '@/components/ui';
 import {
   Field,
   FieldError,
@@ -18,6 +18,7 @@ import { RoleButtonsConfig } from '@/config';
 import { useRegisterForm } from '@/hooks';
 import { cn } from '@/lib/cn';
 import { horecaType, specifications } from '@/shared/data/auth';
+import { Eye, EyeOff } from 'lucide-react';
 
 export function RegisterForm() {
   const {
@@ -161,10 +162,7 @@ export function RegisterForm() {
                               'absolute inset-y-0 right-4 flex items-center text-muted-foreground hover:text-primary'
                             }
                           >
-                            <Icon
-                              name={showPassword ? 'Eye' : 'EyeOff'}
-                              size={18}
-                            />
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                           </button>
                         </div>
                         {isInvalid && (
@@ -218,10 +216,7 @@ export function RegisterForm() {
                               'absolute inset-y-0 right-4 flex items-center text-muted-foreground hover:text-primary'
                             }
                           >
-                            <Icon
-                              name={showConfirm ? 'Eye' : 'EyeOff'}
-                              size={18}
-                            />
+                            {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
                           </button>
                         </div>
                         {isInvalid && (

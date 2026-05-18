@@ -1,10 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { type AuthHookContext } from '@thallesp/nestjs-better-auth';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
-import { CompanyRepository } from '@/modules/company/company.repository';
+import {
+  COMPANY_REPOSITORY,
+  type ICompanyRepository,
+  type IProfileRepository,
+  PROFILE_REPOSITORY,
+} from '@/modules/identity/domain/contracts';
 import { OtpService } from '@/modules/otp/otp.service';
 
 import { RegisterRequest } from '../dto/requests';
@@ -16,7 +21,10 @@ export class RegisterService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly otpService: OtpService,
-    private readonly companyRepository: CompanyRepository,
+    @Inject(COMPANY_REPOSITORY)
+    private readonly companyRepository: ICompanyRepository,
+    @Inject(PROFILE_REPOSITORY)
+    private readonly profileRepository: IProfileRepository,
   ) {}
 
   async beforeSignUp(context: AuthHookContext) {
@@ -61,7 +69,10 @@ export class RegisterService {
     this.logger.log(`Registration handoff successful for ${user.email}`);
   }
 
-  private async handleBackgroundRegisterTask(user: any, body: RegisterRequest) {
+  private async handleBackgroundRegisterTask(
+    user: { id: string; email: string },
+    body: RegisterRequest,
+  ) {
     await this.prismaService.$transaction(async tx => {
       let company = await this.companyRepository.findByTaxId(body.taxId, tx);
 
@@ -72,15 +83,16 @@ export class RegisterService {
         );
       }
 
-      await tx.profile.create({
-        data: {
+      await this.profileRepository.create(
+        {
           user: { connect: { id: user.id } },
           company: { connect: { id: company.id } },
           specializations: body.specialisations,
         },
-      });
+        tx,
+      );
     });
 
-    await this.otpService.sendCode(user.email as string);
+    await this.otpService.sendCode(user.email);
   }
 }

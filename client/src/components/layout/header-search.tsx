@@ -7,13 +7,68 @@ import {
   InputGroupInput,
 } from '@shadcn/input-group';
 import type { User } from 'better-auth';
-import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { LogOut, Search } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
+import { ROUTES } from '@/constants';
+import { authClient } from '@/lib';
 import { cn } from '@/lib/cn';
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/shadcn/dropdown-menu';
+
 export function HeaderSearch({ user }: { user: User | null }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [showInput, setShowInput] = useState(false);
+  const [searchValue, setSearchValue] = useState(
+    searchParams.get('search') || '',
+  );
+
+  useEffect(() => {
+    setSearchValue(searchParams.get('search') || '');
+  }, [searchParams]);
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value) {
+        params.set(name, value);
+      } else {
+        params.delete(name);
+      }
+      return params.toString();
+    },
+    [searchParams],
+  );
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      router.push(`${pathname}?${createQueryString('search', searchValue)}`, {
+        scroll: false,
+      });
+    }
+  };
+
+  const handleSignOut = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push(ROUTES.AUTH.LOGIN);
+          router.refresh();
+        },
+      },
+    });
+  };
 
   return (
     <>
@@ -35,6 +90,9 @@ export function HeaderSearch({ user }: { user: User | null }) {
         <InputGroupInput
           id={'header-search-url'}
           placeholder={'Search...'}
+          value={searchValue}
+          onChange={e => setSearchValue(e.target.value)}
+          onKeyDown={handleSearch}
           className={cn(
             'text-white placeholder:text-white/60 transition-all duration-300',
             showInput
@@ -43,13 +101,49 @@ export function HeaderSearch({ user }: { user: User | null }) {
           )}
         />
       </InputGroup>
-      <Avatar className={'w-10 h-10'}>
-        <AvatarImage
-          src={user?.image || 'https://github.com/shadcn.png'}
-          alt={user?.name || 'avatar'}
-        />
-        <AvatarFallback />
-      </Avatar>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger className={'focus:outline-none cursor-pointer'}>
+          <Avatar className={'w-10 h-10'}>
+            <AvatarImage
+              src={user?.image || 'https://github.com/shadcn.png'}
+              alt={user?.name || 'avatar'}
+            />
+            <AvatarFallback>
+              {user?.name?.slice(0, 2).toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent
+          align={'end'}
+          className={'w-56'}
+        >
+          {user && (
+            <>
+              <DropdownMenuLabel className={'font-normal'}>
+                <div className={'flex flex-col space-y-1'}>
+                  <p className={'text-sm font-medium leading-none'}>
+                    {user.name}
+                  </p>
+                  <p className={'text-xs leading-none text-muted-foreground'}>
+                    {user.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+            </>
+          )}
+
+          <DropdownMenuItem
+            onClick={handleSignOut}
+            className={'text-destructive focus:text-destructive cursor-pointer'}
+          >
+            <LogOut className={'mr-2 size-4'} />
+            <span>Вийти</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
   );
 }

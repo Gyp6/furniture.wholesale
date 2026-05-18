@@ -1,23 +1,5 @@
 import { TBrandProps, TIconProps } from '@/shared/types';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const BRANDS = {
   Google: (props: TBrandProps) => (
     <svg

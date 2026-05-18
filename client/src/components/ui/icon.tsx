@@ -1,5 +1,3 @@
-'use client';
-
 import { Suspense, useMemo } from 'react';
 
 import { cn } from '@/lib/cn';
