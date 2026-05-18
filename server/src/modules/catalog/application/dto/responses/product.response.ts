@@ -7,16 +7,17 @@ import {
   IsImages,
   IsMinSellQuantity,
   IsPrice,
+  IsSlug,
   IsSpaceType,
   IsTitle,
   IsVendor,
 } from '@/common/validators';
 
 export class ProductTagResponse {
-  @ApiProperty({ example: 'Nordic' })
+  @IsTitle()
   title!: string;
 
-  @ApiProperty({ example: 'nordic' })
+  @IsSlug()
   slug!: string;
 }
 

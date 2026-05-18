@@ -1,9 +1,16 @@
+export interface ITag {
+  title: string;
+  slug: string;
+}
+
 export interface IProduct {
   id: string;
   title: string;
+  images: string[];
   vendor: string;
-  minPieces: number;
   price: number;
-  image: string;
-  space: string;
+  minSellQuantity: number;
+  categoryId: string;
+  tags: ITag[];
+  spaceType: string;
 }

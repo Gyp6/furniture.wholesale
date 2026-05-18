@@ -6,16 +6,33 @@ import { admin } from 'better-auth/plugins';
 import { AUTH_LIMITS, ROLES } from '@/common/constants';
 import { MailService } from '@/infrastructure/mail/mail.service';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
+import { RedisService } from '@/infrastructure/redis/redis.service';
 
 export const createAuth = (
   prismaService: PrismaService,
   configService: ConfigService,
   mailService: MailService,
+  redisService: RedisService,
 ) => {
   return betterAuth({
     database: prismaAdapter(prismaService, {
       provider: 'postgresql',
     }),
+    secondaryStorage: {
+      get: async key => {
+        return await redisService.get(key);
+      },
+      set: async (key, value, ttl) => {
+        if (ttl) {
+          await redisService.set(key, value, 'EX', ttl);
+        } else {
+          await redisService.set(key, value);
+        }
+      },
+      delete: async key => {
+        await redisService.del(key);
+      },
+    },
     baseURL: configService.getOrThrow('BACKEND_URL'),
     basePath: '/api/v1/auth',
     trustedOrigins: [configService.getOrThrow('FRONTEND_URL')],

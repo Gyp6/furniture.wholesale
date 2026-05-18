@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'localhost',
+        hostname: '127.0.0.1',
         port: '4566',
         pathname: '/furniture-wholesale-bucket/**',
       },
@@ -17,21 +17,21 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
   reactCompiler: true,
-  cacheComponents: true,
+  // cacheComponents: true,
   transpilePackages: ['lucide-react'],
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: '/api/v1/auth/:path*',
-  //       destination: `${BACKEND_URL}/api/v1/auth/:path*`,
-  //     },
-  //     {
-  //       source: '/api/v1/:path*',
-  //       destination: `${BACKEND_URL}/api/v1/:path*`,
-  //     },
-  //   ];
-  // },
-  output: 'standalone',
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/auth/:path*',
+        destination: `${BACKEND_URL}/api/v1/auth/:path*`,
+      },
+      {
+        source: '/api/v1/:path*',
+        destination: `${BACKEND_URL}/api/v1/:path*`,
+      },
+    ];
+  },
+  // output: 'standalone',
 };
 
 export default nextConfig;

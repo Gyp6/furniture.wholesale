@@ -156,10 +156,12 @@ model Profile {
 
 model Category {
   id        String          @id @default(nanoid())
-  name      String
+  title     String
+  slug      String          @unique
   products  Product[]
   templates SpaceTemplate[]
 
+  @@index([slug])
   @@map("category")
 }
 
@@ -183,7 +185,7 @@ model Product {
   vendor   Company @relation(fields: [vendorId], references: [id])
 
   tags      ProductTagMap[]
-  spaceType SpaceType @map("space_type")
+  spaceType SpaceType       @map("space_type")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -197,6 +199,7 @@ model ProductTag {
   slug     String          @unique
   products ProductTagMap[]
 
+  @@index([slug])
   @@map("product_tag")
 }
 

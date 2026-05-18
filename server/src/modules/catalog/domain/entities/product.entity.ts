@@ -1,6 +1,6 @@
 import { TProductStatusValues, TSpaceTypeValues } from '@/common/types';
 
-export interface ProductTag {
+export interface IProductTag {
   title: string;
   slug: string;
 }
@@ -16,7 +16,7 @@ export class Product {
     public readonly vendorId: string,
     public readonly vendorName: string,
     public readonly supplierId: string,
-    public readonly tags: ProductTag[],
+    public readonly tags: IProductTag[],
     public readonly spaceType: TSpaceTypeValues,
     public readonly status: TProductStatusValues,
     public readonly createdAt: Date,

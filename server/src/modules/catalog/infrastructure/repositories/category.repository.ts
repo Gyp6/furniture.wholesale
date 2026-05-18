@@ -3,6 +3,7 @@ import { ICategoryRepository } from '@catalog/domain/contracts';
 import { Category } from '@catalog/domain/entities';
 import { Injectable } from '@nestjs/common';
 
+import { generateSlug } from '@/core/lib';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 
 @Injectable()
@@ -19,8 +20,14 @@ export class CategoryRepository implements ICategoryRepository {
     return raw ? CategoryMapper.toDomain(raw) : null;
   }
 
-  async create(name: string): Promise<Category> {
-    const raw = await this.prisma.category.create({ data: { name } });
+  async create(title: string): Promise<Category> {
+    const raw = await this.prisma.category.create({
+      data: { title, slug: this.buildSlug(title) },
+    });
     return CategoryMapper.toDomain(raw);
+  }
+
+  private buildSlug(title: string) {
+    return generateSlug(title);
   }
 }

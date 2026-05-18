@@ -15,6 +15,7 @@ import { MailService } from '@/infrastructure/mail/mail.service';
 import { PrismaModule } from '@/infrastructure/prisma/prisma.module';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 import { RedisModule } from '@/infrastructure/redis/redis.module';
+import { RedisService } from '@/infrastructure/redis/redis.service';
 import { S3Module } from '@/infrastructure/s3/s3.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { CatalogModule } from '@/modules/catalog/catalog.module';
@@ -65,16 +66,22 @@ import { createAuth } from './lib';
       inject: [ConfigService],
     }),
     BetterAuthModule.forRootAsync({
-      imports: [PrismaModule, ConfigModule],
+      imports: [],
       useFactory: (
         prismaService: PrismaService,
         configService: ConfigService,
         mailService: MailService,
+        redisService: RedisService,
       ) => ({
-        auth: createAuth(prismaService, configService, mailService),
+        auth: createAuth(
+          prismaService,
+          configService,
+          mailService,
+          redisService,
+        ),
         disableTrustedOriginsCors: true,
       }),
-      inject: [PrismaService, ConfigService, MailService],
+      inject: [PrismaService, ConfigService, MailService, RedisService],
     }),
     AuthModule,
     CaslModule,

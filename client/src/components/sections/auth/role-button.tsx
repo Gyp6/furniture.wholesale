@@ -1,4 +1,4 @@
-import { Icon } from '@/components/ui';
+import { Icon } from '@/components/ui/icon';
 import { cn } from '@/lib/cn';
 import { RoleIconName } from '@/shared/data/icons';
 import { TRole, TRoleButton } from '@/shared/types';

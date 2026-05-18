@@ -83,11 +83,14 @@ export class RegisterService {
         );
       }
 
-      await this.profileRepository.create({
-        user: { connect: { id: user.id } },
-        company: { connect: { id: company.id } },
-        specializations: body.specialisations,
-      });
+      await this.profileRepository.create(
+        {
+          user: { connect: { id: user.id } },
+          company: { connect: { id: company.id } },
+          specializations: body.specialisations,
+        },
+        tx,
+      );
     });
 
     await this.otpService.sendCode(user.email);

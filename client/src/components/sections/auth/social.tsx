@@ -54,7 +54,8 @@ export function Social() {
         // onClick={handleAppleLogin}
       >
         <BRANDS_MONOCHROME.AppleMonochrome
-          // size={20}
+          size={22}
+          color={'currentColor'}
         />
         <span className={'sr-only'}>Login with Apple</span>
       </Button>
@@ -65,7 +66,8 @@ export function Social() {
         onClick={handleGoogleLogin}
       >
         <BRANDS_MONOCHROME.GoogleMonochrome
-          // size={20}
+          size={22}
+          color={'currentColor'}
         />
         <span className={'sr-only'}>Login with Google</span>
       </Button>
@@ -76,7 +78,8 @@ export function Social() {
         onClick={handleFacebookLogin}
       >
         <BRANDS_MONOCHROME.MetaMonochrome
-          // size={20}
+          size={22}
+          color={'currentColor'}
         />
         <span className={'sr-only'}>Login with Meta</span>
       </Button>

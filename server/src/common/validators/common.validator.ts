@@ -388,3 +388,5 @@ export const IsNullableString = ({
       default: null,
     }),
   );
+
+export const IsSlug = () => applyDecorators(ApiProperty({ example: 'nordic' }));

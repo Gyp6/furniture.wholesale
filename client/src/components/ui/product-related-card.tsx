@@ -19,13 +19,13 @@ type Props = {
 export function ProductRelatedCard({ product }: Props) {
   return (
     <Card
-			className={
+      className={
         'bg-white p-2.5 rounded-3xl border-transparent ring-transparent shadow-xl'
       }
     >
       <div className={'relative'}>
         <Image
-          src={product.image}
+          src={product.images[0]}
           alt={product.title}
           className={'w-full aspect-square object-cover rounded-2xl'}
           width={300}
@@ -37,7 +37,7 @@ export function ProductRelatedCard({ product }: Props) {
             'absolute top-3 left-3 bg-white text-muted-foreground text-xs font-medium p-3 shadow-sm border-0'
           }
         >
-          {product.space}
+          {product.spaceType}
         </Badge>
       </div>
 
@@ -50,12 +50,14 @@ export function ProductRelatedCard({ product }: Props) {
           >
             {product.title}
           </CardTitle>
-          <CardDescription className={'text-s'}>{product.vendor}</CardDescription>
+          <CardDescription className={'text-s'}>
+            {product.vendor}
+          </CardDescription>
         </CardHeader>
 
         <div className={'flex items-center justify-between'}>
           <span className={'text-s text-muted-foreground'}>
-            min. {product.minPieces} pieces
+            min. {product.minSellQuantity} pieces
           </span>
           <span className={'text-base font-bold'}>
             ${new Intl.NumberFormat('en-US').format(product.price)}

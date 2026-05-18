@@ -1,6 +1,4 @@
-'use client';
-
-import { ProductRelatedCard } from '@/components/ui';
+import { ProductCard } from '@/components/ui';
 import { productCardData } from '@/shared/data/core/catalog';
 
 export function ProductRelated() {
@@ -13,9 +11,10 @@ export function ProductRelated() {
         }
       >
         {[...Array(6)].map((_, i) => (
-          <ProductRelatedCard
+          <ProductCard
             key={i}
             product={{ ...productCardData, id: i.toString() }}
+            isAuthorized
           />
         ))}
       </div>

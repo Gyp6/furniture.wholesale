@@ -8,7 +8,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Roles } from '@thallesp/nestjs-better-auth';
+import { AllowAnonymous, Roles } from '@thallesp/nestjs-better-auth';
 
 import { ROLES } from '@/common/constants';
 
@@ -20,6 +20,7 @@ export class CategoryController {
   @ApiOperation({ summary: 'Get all root categories with children' })
   @ApiOkResponse({ type: [CategoryResponse] })
   @Get()
+  @AllowAnonymous()
   async findAll(): Promise<CategoryResponse[]> {
     return this.categoryService.findAll();
   }
@@ -27,6 +28,7 @@ export class CategoryController {
   @ApiOperation({ summary: 'Get category by id' })
   @ApiOkResponse({ type: CategoryResponse })
   @Get(':id')
+  @AllowAnonymous()
   async findOne(@Param('id') id: string): Promise<CategoryResponse> {
     return this.categoryService.findById(id);
   }

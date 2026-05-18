@@ -1,10 +1,11 @@
 'use client';
 
 import { Separator } from '@shadcn/separator';
-import { useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Pagination } from '@/components/ui/pagination';
 import { CatalogTypes } from '@/constants';
+import { useGetProducts } from '@/hooks/queries';
 import { useCatalogTypeStore } from '@/store/use-catalog-type.store';
 
 import { BundlesGrid } from './bundles-grid';
@@ -16,9 +17,29 @@ interface Props {
 
 export function CatalogContent({ isAuthorized }: Props) {
   const { type } = useCatalogTypeStore(state => state);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const [page, setPage] = useState(1);
-  const total = 24;
+  const params = {
+    search: searchParams.get('search') || undefined,
+    categories: searchParams.get('categories')?.split(',').filter(Boolean),
+    spaces: searchParams.get('spaces')?.split(',').filter(Boolean),
+    tags: searchParams.get('tags')?.split(',').filter(Boolean),
+    minPrice: Number(searchParams.get('minPrice')) || undefined,
+    maxPrice: Number(searchParams.get('maxPrice')) || undefined,
+    sort: searchParams.get('sort') || undefined,
+    page: Number(searchParams.get('page')) || 1,
+    limit: 10,
+  };
+
+  const { data: response } = useGetProducts(params);
+
+  const handlePageChange = (newPage: number) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set('page', newPage.toString());
+    router.push(`${pathname}?${newParams.toString()}`, { scroll: false });
+  };
 
   return (
     <>
@@ -29,11 +50,13 @@ export function CatalogContent({ isAuthorized }: Props) {
       )}
       <Separator className={'my-10'} />
 
-      <Pagination
-        currentPage={page}
-        totalPages={total}
-        onPageChange={newPage => setPage(newPage)}
-      />
+      {response && response.totalPages > 1 && (
+        <Pagination
+          currentPage={response.page}
+          totalPages={response.totalPages}
+          onPageChange={handlePageChange}
+        />
+      )}
     </>
   );
 }

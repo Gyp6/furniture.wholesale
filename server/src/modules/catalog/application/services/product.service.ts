@@ -16,10 +16,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { STATUS } from '@/common/constants';
 import { ECalsAction } from '@/common/enums';
 import { IReqUser, TProductStatusValues } from '@/common/types';
 import { AppAbility } from '@/infrastructure/casl/casl.ability-factory';
 import { ProfileService } from '@/modules/identity/application/services';
+
+import { CategoryService } from './category.service';
 
 @Injectable()
 export class ProductService {
@@ -27,11 +30,18 @@ export class ProductService {
     @Inject(PRODUCT_REPOSITORY)
     private readonly productRepository: IProductRepository,
     private readonly profileService: ProfileService,
+    private readonly categoryService: CategoryService,
   ) {}
 
-  async findAll(): Promise<ProductResponse[]> {
+  async findAll() {
     const entities = await this.productRepository.findAll();
-    return entities.map(p => ProductMapper.toResponse(p));
+    const data = entities.map(p => ProductMapper.toResponse(p));
+
+    return {
+      status: STATUS.OK,
+      quantity: data.length,
+      data,
+    };
   }
 
   async findById(id: string): Promise<ProductResponse> {
@@ -48,6 +58,10 @@ export class ProductService {
     if (!profile?.companyId) {
       throw new ForbiddenException('Supplier has no associated company');
     }
+
+    const category = await this.categoryService.findById(dto.categoryId);
+    if (!category)
+      throw new NotFoundException(`Category ${dto.categoryId} not found`);
 
     const entity = await this.productRepository.create(
       user.id,

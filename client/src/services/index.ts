@@ -1,3 +1,3 @@
 export * from './auth.service';
-export * from './user.service';
-export * from './session.service';
+export * from './catalog.service';
+export * from './identity.service';

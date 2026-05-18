@@ -5,13 +5,14 @@ import { CategoryResponse } from '../dto/responses';
 
 export class CategoryMapper {
   static toDomain(raw: PrismaCategory): Category {
-    return new Category(raw.id, raw.name);
+    return new Category(raw.id, raw.title, raw.slug);
   }
 
   static toResponse(entity: Category): CategoryResponse {
     return {
       id: entity.id,
-      name: entity.name,
+      title: entity.title,
+      slug: entity.slug,
     };
   }
 }

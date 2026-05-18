@@ -28,7 +28,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Roles } from '@thallesp/nestjs-better-auth';
+import { AllowAnonymous, Roles } from '@thallesp/nestjs-better-auth';
 
 import { ROLES } from '@/common/constants';
 import { IReqUser } from '@/common/types';
@@ -47,13 +47,15 @@ export class ProductController {
   @ApiOperation({ summary: 'Get all active products' })
   @ApiOkResponse({ type: [ProductResponse] })
   @Get()
-  async findAll(): Promise<ProductResponse[]> {
+  @AllowAnonymous()
+  async findAll() {
     return this.productService.findAll();
   }
 
   @ApiOperation({ summary: 'Get product by id' })
   @ApiOkResponse({ type: ProductResponse })
   @Get(':id')
+  @AllowAnonymous()
   async findOne(@Param('id') id: string): Promise<ProductResponse> {
     return this.productService.findById(id);
   }
