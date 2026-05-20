@@ -19,7 +19,6 @@ export class ProfileMapper {
       raw.userId,
       raw.companyId,
       raw.company ? CompanyMapper.toDomain(raw.company) : null,
-      raw.specializations,
     );
   }
 
@@ -28,7 +27,6 @@ export class ProfileMapper {
       id: entity.id,
       companyId: entity.companyId,
       company: entity.company ? CompanyMapper.toResponse(entity.company) : null,
-      specializations: entity.specializations,
     };
   }
 }

@@ -8,3 +8,4 @@ export * from './s3-options.interface';
 export * from './space-type.type';
 export * from './status.type';
 export * from './verification-status.type';
+export * from './sku-data.interface';

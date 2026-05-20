@@ -6,8 +6,12 @@ export const COMPANY_REPOSITORY: unique symbol = Symbol('COMPANY_REPOSITORY');
 export type COMPANY_REPOSITORY = typeof COMPANY_REPOSITORY;
 
 export interface ICompanyRepository {
-  findByTaxId(
-    taxId: string,
+  findByTaxCode(
+    taxCode: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<Company | null>;
+  findByAbbreviation(
+    abbreviation: string,
     tx?: Prisma.TransactionClient,
   ): Promise<Company | null>;
   create(

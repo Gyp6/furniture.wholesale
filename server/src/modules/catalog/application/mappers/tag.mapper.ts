@@ -13,4 +13,10 @@ export class TagMapper {
       slug: entity.slug,
     };
   }
+  static toResponseClear(entity: Tag): Omit<TagResponse, 'id'> {
+    return {
+      title: entity.title,
+      slug: entity.slug,
+    };
+  }
 }

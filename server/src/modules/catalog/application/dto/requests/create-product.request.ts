@@ -1,11 +1,14 @@
+import { DimensionRequest } from '@/common/dto/requests';
 import type { TSpaceTypeValues } from '@/common/types';
 import {
   IsCategoryId,
+  IsEmbedded,
   IsImages,
-  IsMinSellQuantity,
+  IsMinSellUnits,
   IsPrice,
   IsProductTags,
   IsSpaceType,
+  IsStock,
   IsTitle,
 } from '@/common/validators';
 
@@ -19,11 +22,17 @@ export class CreateProductRequest {
   @IsPrice()
   price!: number;
 
-  @IsMinSellQuantity()
-  minSellQuantity?: number;
+  @IsStock()
+  stock!: number;
+
+  @IsMinSellUnits()
+  minSellUnits!: number;
 
   @IsCategoryId()
   categoryId!: string;
+
+  @IsEmbedded({ to: DimensionRequest })
+  dimension!: DimensionRequest;
 
   @IsProductTags()
   tags!: string[];

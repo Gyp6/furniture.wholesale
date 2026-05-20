@@ -14,8 +14,8 @@ export class CompanyService {
     private readonly companyRepository: ICompanyRepository,
   ) {}
 
-  async findByTaxId(taxId: string): Promise<CompanyResponse | null> {
-    const entity = await this.companyRepository.findByTaxId(taxId);
+  async findByTaxCode(taxCode: string): Promise<CompanyResponse | null> {
+    const entity = await this.companyRepository.findByTaxCode(taxCode);
     if (!entity) throw new NotFoundException('Company not found');
 
     return CompanyMapper.toResponse(entity);

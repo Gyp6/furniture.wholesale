@@ -1,4 +1,7 @@
-import { CreateProductRequest } from '@catalog/application/dto/requests';
+import {
+  CreateProductRequest,
+  CreateSkuRequest,
+} from '@catalog/application/dto/requests';
 import { ProductMapper } from '@catalog/application/mappers';
 import { IProductRepository } from '@catalog/domain/contracts';
 import { Product } from '@catalog/domain/entities';
@@ -9,15 +12,28 @@ import { PRODUCT_STATUSES } from '@/common/constants';
 import { TProductStatusValues } from '@/common/types';
 import { generateSlug } from '@/core/lib';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
+import { SmartSkuService } from '@/infrastructure/smart-sku/smart-sku.service';
 
 @Injectable()
 export class ProductRepository implements IProductRepository {
   private readonly include = {
-    vendor: { select: { id: true, name: true } },
+    manufacturer: {
+      select: {
+        id: true,
+        name: true,
+        specializations: true,
+        verificationStatus: true,
+        ratingAvg: true,
+      },
+    },
+    dimension: true,
     tags: { include: { tag: true } },
   } as const satisfies Prisma.ProductInclude;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly smartSkuService: SmartSkuService,
+  ) {}
 
   async findAll(): Promise<Product[]> {
     const raws = await this.prisma.product.findMany({
@@ -41,22 +57,51 @@ export class ProductRepository implements IProductRepository {
     return raw ? ProductMapper.toDomain(raw) : null;
   }
 
+  async countBySupplierId(
+    supplierId: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<number> {
+    const client = tx ?? this.prisma;
+    return client.product.count({
+      where: { supplierId },
+    });
+  }
+
   async create(
     supplierId: string,
-    vendorId: string,
+    manufacturerId: string,
+    skuDto: Omit<CreateSkuRequest, 'sequence'>,
     dto: CreateProductRequest,
   ): Promise<Product> {
-    const { tags, ...rest } = dto;
-    const raw = await this.prisma.product.create({
-      data: {
-        ...rest,
-        supplierId,
-        vendorId,
-        tags: {
-          create: await this.buildTagConnections(tags),
+    const { tags, dimension, ...rest } = dto;
+    const raw = await this.prisma.$transaction(async tx => {
+      const currentCount = await this.countBySupplierId(supplierId, tx);
+      const nextSequence = currentCount + 1;
+
+      const newDimension = await tx.dimension.create({
+        data: {
+          width: dimension.width,
+          height: dimension.height,
+          depth: dimension.depth,
         },
-      },
-      include: this.include,
+      });
+
+      return tx.product.create({
+        data: {
+          ...rest,
+          sku: this.smartSkuService.generate({
+            ...skuDto,
+            sequence: nextSequence,
+          }),
+          supplierId,
+          manufacturerId,
+          dimensionId: newDimension.id, // Прив'язуємо обов'язкові розміри
+          tags: {
+            create: await this.buildTagConnections(tags, tx),
+          },
+        },
+        include: this.include,
+      });
     });
 
     return ProductMapper.toDomain(raw);
@@ -66,11 +111,25 @@ export class ProductRepository implements IProductRepository {
     id: string,
     dto: Partial<CreateProductRequest>,
   ): Promise<Product> {
-    const { tags, ...rest } = dto;
+    const { tags, dimension, categoryId, ...rest } = dto;
     const raw = await this.prisma.product.update({
       where: { id },
       data: {
         ...rest,
+        ...(categoryId && {
+          category: {
+            connect: { id: categoryId },
+          },
+        }),
+        ...(dimension && {
+          dimension: {
+            update: {
+              width: dimension.width,
+              height: dimension.height,
+              depth: dimension.depth,
+            },
+          },
+        }),
         ...(tags && {
           tags: {
             deleteMany: {},
@@ -99,12 +158,16 @@ export class ProductRepository implements IProductRepository {
     await this.prisma.product.delete({ where: { id } });
   }
 
-  private async buildTagConnections(tagTitles: string[]) {
+  private async buildTagConnections(
+    tagTitles: string[],
+    tx?: Prisma.TransactionClient,
+  ) {
+    const client = tx ?? this.prisma;
     return Promise.all(
       tagTitles.map(async title => {
         const slug = generateSlug(title);
 
-        const tag = await this.prisma.productTag.upsert({
+        const tag = await client.productTag.upsert({
           where: { slug },
           update: {},
           create: { title, slug },

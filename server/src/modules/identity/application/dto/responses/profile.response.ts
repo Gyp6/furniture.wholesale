@@ -1,4 +1,4 @@
-import { IsEmbedded, IsHash, IsSpecialisations } from '@/common/validators';
+import { IsEmbedded, IsHash } from '@/common/validators';
 
 import { CompanyResponse } from './company.response';
 
@@ -11,7 +11,4 @@ export class ProfileResponse {
 
   @IsEmbedded({ to: CompanyResponse })
   company!: CompanyResponse | null;
-
-  @IsSpecialisations()
-  specializations!: string[];
 }

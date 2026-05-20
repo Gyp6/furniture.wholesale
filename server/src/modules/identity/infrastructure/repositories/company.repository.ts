@@ -10,12 +10,21 @@ import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 export class CompanyRepository implements ICompanyRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findByTaxId(
-    taxId: string,
+  async findByTaxCode(
+    taxCode: string,
     tx?: Prisma.TransactionClient,
   ): Promise<Company | null> {
     const client = tx ?? this.prisma;
-    const raw = await client.company.findUnique({ where: { taxId } });
+    const raw = await client.company.findUnique({ where: { taxCode } });
+    return raw ? CompanyMapper.toDomain(raw) : null;
+  }
+
+  async findByAbbreviation(
+    abbreviation: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<Company | null> {
+    const client = tx ?? this.prisma;
+    const raw = await client.company.findUnique({ where: { abbreviation } });
     return raw ? CompanyMapper.toDomain(raw) : null;
   }
 

@@ -8,7 +8,7 @@ import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 @Controller('tags')
 export class TagController {
   constructor(private readonly tagService: TagService) {}
-  t;
+
   @ApiOperation({ summary: 'Get all product tags' })
   @ApiOkResponse({ type: [TagResponse] })
   @Get()

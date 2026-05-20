@@ -1,54 +1,65 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { OmitType } from '@nestjs/mapped-types';
 
+import { DimensionRequest } from '@/common/dto/requests';
 import type { TSpaceTypeValues } from '@/common/types';
 import {
-  IsCategoryId,
+  IsDate,
+  IsDescription,
+  IsEmbedded,
   IsHash,
   IsImages,
-  IsMinSellQuantity,
+  IsMinSellUnits,
   IsPrice,
-  IsSlug,
+  IsSku,
   IsSpaceType,
+  IsStock,
   IsTitle,
-  IsVendor,
 } from '@/common/validators';
 
-export class ProductTagResponse {
-  @IsTitle()
-  title!: string;
+import { ManufacturerResponse } from './manufacturer.response';
+import { TagResponse } from './tag.response';
 
-  @IsSlug()
-  slug!: string;
-}
+export class ProductTagResponse extends OmitType(TagResponse, [
+  'id',
+] as const) {}
 
 export class ProductResponse {
   @IsHash({ title: 'id' })
   id!: string;
 
+  @IsSku()
+  sku!: string;
+
   @IsTitle()
   title!: string;
 
-  @IsImages()
-  images!: string[];
+  @IsDescription()
+  description!: string | null;
 
   @IsPrice()
   price!: number;
 
-  @IsMinSellQuantity()
-  minSellQuantity!: number | null;
+  @IsStock()
+  stock!: number;
 
-  @IsCategoryId()
-  categoryId!: string;
+  @IsImages()
+  images!: string[];
 
-  @IsVendor()
-  vendor!: string;
-
-  @ApiProperty({
-    type: () => [ProductTagResponse],
-    description: 'Product tags',
-  })
-  tags!: ProductTagResponse[];
+  @IsMinSellUnits()
+  minSellUnits!: number | null;
 
   @IsSpaceType()
   spaceType!: TSpaceTypeValues;
+
+  @IsEmbedded({ to: DimensionRequest })
+  dimension!: DimensionRequest;
+
+  @IsEmbedded({ to: ManufacturerResponse })
+  manufacturer!: ManufacturerResponse;
+
+  @IsEmbedded({ to: ProductTagResponse })
+  tags!: ProductTagResponse[];
+
+  @IsDate()
+  createdAt!: Date;
 }

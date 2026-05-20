@@ -14,6 +14,6 @@ export class CompanyController {
   async findByTaxId(
     @Param('taxId') taxId: string,
   ): Promise<CompanyResponse | null> {
-    return await this.companyService.findByTaxId(taxId);
+    return await this.companyService.findByTaxCode(taxId);
   }
 }

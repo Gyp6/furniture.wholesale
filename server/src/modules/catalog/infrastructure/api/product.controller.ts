@@ -48,8 +48,8 @@ export class ProductController {
   @ApiOkResponse({ type: [ProductResponse] })
   @Get()
   @AllowAnonymous()
-  async findAll() {
-    return this.productService.findAll();
+  async findAll(@Req() { user }: { user: IReqUser | null }) {
+    return this.productService.findAll(user);
   }
 
   @ApiOperation({ summary: 'Get product by id' })

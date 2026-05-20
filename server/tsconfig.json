@@ -25,6 +25,14 @@
     "paths": {
       "@/*": ["./src/*"],
       "@root/*": ["./"],
+      "@core/*": [
+        "./src/core/*",
+        "./src/core/*/index.ts"
+      ],
+      "@auth/*": [
+        "./src/modules/auth/*",
+        "./src/modules/auth/*/index.ts"
+      ],
       "@catalog/*": [
         "./src/modules/catalog/*",
         "./src/modules/catalog/*/index.ts"

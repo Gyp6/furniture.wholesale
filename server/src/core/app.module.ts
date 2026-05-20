@@ -12,19 +12,20 @@ import { IMailOptions } from '@/common/types';
 import { CaslModule } from '@/infrastructure/casl/casl.module';
 import { MailModule } from '@/infrastructure/mail/mail.module';
 import { MailService } from '@/infrastructure/mail/mail.service';
+import { OtpModule } from '@/infrastructure/otp/otp.module';
 import { PrismaModule } from '@/infrastructure/prisma/prisma.module';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 import { RedisModule } from '@/infrastructure/redis/redis.module';
 import { RedisService } from '@/infrastructure/redis/redis.service';
 import { S3Module } from '@/infrastructure/s3/s3.module';
+import { SmartSkuModule } from '@/infrastructure/smart-sku/smart-sku.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { CatalogModule } from '@/modules/catalog/catalog.module';
 import { IdentityModule } from '@/modules/identity/identity.module';
-import { OtpModule } from '@/modules/otp/otp.module';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AbilitiesGuard } from './guards/abilities.guard';
+import { AbilitiesGuard } from './application/guards';
+import { HealthService } from './application/services';
+import { HealthController } from './infrastructure/api';
 import { createAuth } from './lib';
 
 @Module({
@@ -88,10 +89,11 @@ import { createAuth } from './lib';
     IdentityModule,
     CatalogModule,
     OtpModule,
+    SmartSkuModule,
   ],
-  controllers: [AppController],
+  controllers: [HealthController],
   providers: [
-    AppService,
+    HealthService,
     {
       provide: APP_GUARD,
       useClass: BetterAuthGuard,

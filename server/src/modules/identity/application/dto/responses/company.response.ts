@@ -3,10 +3,10 @@ import {
   IsCompanyImage,
   IsCompanyName,
   IsCompanyRatingAvg,
-  IsCompanyRatingCount,
   IsCompanyVerified,
   IsHash,
-  IsTaxId,
+  IsSpecialisations,
+  IsTaxCode,
 } from '@/common/validators';
 
 export class CompanyResponse {
@@ -16,8 +16,11 @@ export class CompanyResponse {
   @IsCompanyName()
   name!: string;
 
-  @IsTaxId()
-  taxId!: string;
+  @IsTaxCode()
+  taxCode!: string;
+
+  @IsSpecialisations()
+  specializations!: string[];
 
   @IsCompanyImage()
   logoUrl!: string | null;
@@ -27,7 +30,4 @@ export class CompanyResponse {
 
   @IsCompanyRatingAvg()
   ratingAvg!: number;
-
-  @IsCompanyRatingCount()
-  ratingCount!: number;
 }

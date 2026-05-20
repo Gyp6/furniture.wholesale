@@ -1,6 +1,9 @@
-import { CreateProductRequest } from '@catalog/application/dto/requests';
+import {
+  CreateProductRequest,
+  CreateSkuRequest,
+} from '@catalog/application/dto/requests';
 import { Product } from '@catalog/domain/entities';
-import { Product as PrismaProduct } from '@prisma/client';
+import { Prisma, Product as PrismaProduct } from '@prisma/client';
 
 import { TProductStatusValues } from '@/common/types';
 
@@ -11,9 +14,14 @@ export interface IProductRepository {
   findAll(): Promise<Product[]>;
   findOne(id: string): Promise<Product | null>;
   findRaw(id: string): Promise<PrismaProduct | null>;
+  countBySupplierId(
+    supplierId: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<number>;
   create(
     supplierId: string,
-    vendorId: string,
+    manufacturerId: string,
+    skuDto: Omit<CreateSkuRequest, 'sequence'>,
     dto: CreateProductRequest,
   ): Promise<Product>;
   update(id: string, dto: Partial<CreateProductRequest>): Promise<Product>;

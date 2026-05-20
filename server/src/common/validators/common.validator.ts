@@ -34,6 +34,15 @@ export const IsHash = ({ title }: { title: string }) =>
     IsString({ message: `${title} must be a string` }),
   );
 
+export const IsSize = ({ title }: { title: string }) =>
+  applyDecorators(
+    ApiProperty({
+      example: 145,
+      description: 'mm',
+    }),
+    IsNumber({}, { message: `${title} must be a number in mm` }),
+  );
+
 export const IsEmbedded = ({ to }: { to: Type }) =>
   applyDecorators(
     ApiProperty({ type: () => to }),
@@ -95,17 +104,27 @@ export const IsPrice = () =>
     Min(0.01, { message: 'Price must be greater than 0' }),
   );
 
-export const IsMinSellQuantity = () =>
+export const IsStock = () =>
+  applyDecorators(
+    ApiProperty({
+      example: 120,
+      description: 'Stock of product',
+    }),
+    IsNumber({}, { message: 'Stock must be a number' }),
+    Min(1, { message: 'Stock must be greater than 0' }),
+  );
+
+export const IsMinSellUnits = () =>
   applyDecorators(
     ApiPropertyOptional({
       example: 10,
       nullable: true,
       default: null,
-      description: 'Minimum sell quantity',
+      description: 'Minimum sell units quantity',
     }),
     IsOptional(),
-    IsInt({ message: 'Min sell quantity must be an integer' }),
-    Min(1, { message: 'Min sell quantity must be at least 1' }),
+    IsInt({ message: 'Min sell units quantity must be an integer' }),
+    Min(1, { message: 'Min sell units quantity must be at least 1' }),
   );
 
 export const IsImages = () =>
@@ -154,6 +173,13 @@ export const IsVendor = () =>
   applyDecorators(
     ApiProperty({
       example: 'Noble Furniture Co.',
+    }),
+  );
+
+export const IsVerified = () =>
+  applyDecorators(
+    ApiProperty({
+      example: false,
     }),
   );
 
@@ -229,7 +255,7 @@ export const IsUniqueCompanyName = () =>
     }) as PropertyDecorator,
   );
 
-export const IsTaxId = () =>
+export const IsTaxCode = () =>
   applyDecorators(
     ApiProperty({
       example: '12345678',
@@ -240,10 +266,10 @@ export const IsTaxId = () =>
     MaxLength(10, { message: 'EDRPOU must be less than 10 characters long' }),
   );
 
-export const IsUniqueTaxId = () =>
+export const IsUniqueTaxCode = () =>
   applyDecorators(
-    IsTaxId(),
-    IsUnique('company', 'taxId', {
+    IsTaxCode(),
+    IsUnique('company', 'taxCode', {
       message: 'Company with this EDRPOU already exists',
     }) as PropertyDecorator,
   );
@@ -275,6 +301,32 @@ export const IsDate = () =>
   applyDecorators(
     ApiProperty({
       example: '2026-03-21T21:30:00.000Z',
+    }),
+  );
+
+export const IsAbbreviation = () =>
+  applyDecorators(
+    ApiProperty({
+      example: 'HC',
+      description: 'Like company name, was HruCorp, abbreviation will be HC',
+    }),
+  );
+
+export const IsSku = () =>
+  applyDecorators(
+    ApiProperty({
+      example: 'GYP6-0000BKJ9NTNBR002-HC',
+      description:
+        'SKU of product, GYP6-<hash of name and price>NBR<sequence>-<manufacturerCode>',
+    }),
+  );
+
+export const IsDescription = () =>
+  applyDecorators(
+    ApiProperty({
+      example: 'Some text about something',
+      nullable: true,
+      description: 'description',
     }),
   );
 
@@ -329,6 +381,13 @@ export const IsCompanyTerms = () =>
       example: 'Our terms...',
       nullable: true,
       default: null,
+    }),
+  );
+
+export const IsRatingAvg = () =>
+  applyDecorators(
+    ApiProperty({
+      example: 4.5,
     }),
   );
 

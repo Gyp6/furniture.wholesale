@@ -8,13 +8,16 @@ export class CompanyMapper {
     return new Company(
       raw.id,
       raw.name,
-      raw.taxId,
+      raw.abbreviation,
+      raw.taxCode,
       raw.description,
+      raw.specializations,
       raw.logoUrl,
       raw.verificationStatus,
       Number(raw.ratingAvg),
       raw.ratingCount,
       raw.createdAt,
+      raw.terms,
     );
   }
 
@@ -22,11 +25,11 @@ export class CompanyMapper {
     return {
       id: entity.id,
       name: entity.name,
-      taxId: entity.taxId,
+      taxCode: entity.taxCode,
+      specializations: entity.specializations,
       logoUrl: entity.logoUrl,
       verificationStatus: entity.verificationStatus,
       ratingAvg: entity.ratingAvg,
-      ratingCount: entity.ratingCount,
     };
   }
 }

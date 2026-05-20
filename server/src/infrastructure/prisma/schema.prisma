@@ -127,39 +127,58 @@ model Verification {
 // --- Бізнес-логіка (Domain Models) ---
 
 model Company {
-  id                 String             @id @default(nanoid())
-  name               String
-  taxId              String             @unique @map("tax_id")
-  description        String?            @db.Text
-  verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
-  profiles           Profile[]
-  createdAt          DateTime           @default(now()) @map("created_at")
-  logoUrl            String?            @map("logo_url")
-  terms              String?            @map("terms") @db.Text
-  ratingAvg          Decimal            @default(0) @map("rating_avg") @db.Decimal(3, 2)
-  ratingCount        Int                @default(0) @map("rating_count")
-  products           Product[]
+  id String @id @default(nanoid())
 
+  name            String
+  abbreviation    String   @unique
+  taxCode         String   @unique @map("tax_code")
+  description     String?  @db.Text
+  specializations String[]
+  logoUrl         String?  @map("logo_url")
+
+  profiles Profile[]
+  products Product[]
+
+  verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
+
+  terms       String? @db.Text
+  ratingAvg   Decimal @default(0) @map("rating_avg") @db.Decimal(3, 2)
+  ratingCount Int     @default(0) @map("rating_count")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([taxCode, abbreviation])
   @@map("company")
 }
 
 model Profile {
-  id              String   @id @default(nanoid())
-  userId          String   @unique @map("user_id")
-  user            User     @relation(fields: [userId], references: [id])
-  companyId       String?  @map("company_id")
-  company         Company? @relation(fields: [companyId], references: [id])
-  specializations String[]
+  id String @id @default(nanoid())
 
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  companyId String?  @map("company_id")
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId, companyId])
   @@map("profile")
 }
 
 model Category {
-  id        String          @id @default(nanoid())
-  title     String
-  slug      String          @unique
+  id String @id @default(nanoid())
+
+  title String
+  slug  String @unique
+
   products  Product[]
   templates SpaceTemplate[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([slug])
   @@map("category")
@@ -168,12 +187,15 @@ model Category {
 model Product {
   id String @id @default(nanoid())
 
-  title  String
-  images String[]
-  status ProductStatus @default(DRAFT)
+  sku         String   @unique
+  title       String
+  description String?
+  images      String[]
+  price       Decimal  @db.Decimal(10, 2)
 
-  price           Decimal @db.Decimal(10, 2)
-  minSellQuantity Int?    @map("min_sell_quantity")
+  stock        Int           @default(0)
+  minSellUnits Int           @default(1) @map("min_sell_units")
+  status       ProductStatus @default(DRAFT)
 
   categoryId String   @map("category_id")
   category   Category @relation(fields: [categoryId], references: [id])
@@ -181,8 +203,11 @@ model Product {
   supplierId String @map("supplier_id")
   supplier   User   @relation(fields: [supplierId], references: [id])
 
-  vendorId String  @map("vendor_id")
-  vendor   Company @relation(fields: [vendorId], references: [id])
+  manufacturerId String  @map("manufacturer_id")
+  manufacturer   Company @relation(fields: [manufacturerId], references: [id])
+
+  dimensionId String    @unique @map("dimension_id")
+  dimension   Dimension @relation(fields: [dimensionId], references: [id])
 
   tags      ProductTagMap[]
   spaceType SpaceType       @map("space_type")
@@ -190,13 +215,28 @@ model Product {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([sku])
   @@map("product")
 }
 
+model Dimension {
+  id String @id @default(nanoid())
+
+  width  Int
+  height Int
+  depth  Int
+
+  product Product?
+
+  @@map("dimension")
+}
+
 model ProductTag {
-  id       String          @id @default(nanoid())
-  title    String
-  slug     String          @unique
+  id String @id @default(nanoid())
+
+  title String
+  slug  String @unique
+
   products ProductTagMap[]
 
   @@index([slug])

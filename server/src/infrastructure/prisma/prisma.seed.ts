@@ -7,14 +7,43 @@ import { nanoid } from 'nanoid';
 
 import { generateSlug } from '@/core/lib/slugify.lib';
 
-const db_url = process.env.DATABASE_URL;
+import { SmartSkuService } from '../smart-sku/smart-sku.service';
 
+const db_url = process.env.DATABASE_URL;
 console.log('DEBUG, prisma seed db_url:', db_url);
 
 const adapter = new PrismaPg({
   connectionString: db_url as string,
 });
 const prisma = new PrismaClient({ adapter });
+
+// --- Допоміжні утиліти для SKU та Абревіатур ---
+function seedGenerateSlug(text: string): string {
+  return generateSlug(text);
+}
+
+function generateAbbreviation(name: string): string {
+  return name
+    .replace(/[^a-zA-Zа-яА-Я0-9\s]/g, '')
+    .split(/\s+/)
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+    .substring(0, 4);
+}
+
+// function generateSku(
+//   name: string,
+//   price: number,
+//   sequence: number,
+//   mfgCode: string,
+// ): string {
+//   const dataString = `${name.trim().toLowerCase()}|${price}`;
+//   const hashNumber = fnv1a(dataString);
+//   const dataHash = hashNumber.toString(36).toUpperCase().padStart(10, '0');
+//   const paddedSeq = String(sequence).padStart(3, '0');
+//   return `GYP6-${dataHash}NBR${paddedSeq}-${mfgCode.toUpperCase()}`;
+// }
 
 // --- Дані як в DTO ---
 
@@ -29,22 +58,14 @@ const CATEGORIES = [
   { title: 'Industrial' },
 ];
 
-const USERS: Array<{
-  name: string;
-  email: string;
-  password: string;
-  role: Role;
-  companyName: string;
-  taxId: string;
-  specialisations: string[];
-}> = [
+const USERS = [
   {
     name: 'Admin User',
     email: 'admin@gyp6.sale',
     password: 'Password123',
     role: Role.ADMIN,
     companyName: 'GYP6 Admin',
-    taxId: '0000000000',
+    taxCode: '00000000',
     specialisations: ['Coworking'],
   },
   {
@@ -53,7 +74,7 @@ const USERS: Array<{
     password: 'Password123',
     role: Role.SUPPLIER,
     companyName: 'Furniture UA',
-    taxId: '12345678',
+    taxCode: '12345678',
     specialisations: ['Restaurant'],
   },
   {
@@ -62,103 +83,100 @@ const USERS: Array<{
     password: 'Password123',
     role: Role.DESIGNER,
     companyName: 'Design Studio',
-    taxId: '87654321',
+    taxCode: '87654321',
     specialisations: ['Interior Design', 'Architecture'],
   },
 ];
 
-const PRODUCTS: Array<{
-  supplierEmail: string;
-  title: string;
-  images: string[];
-  price: number;
-  minSellQuantity?: number;
-  categoryTitle: string;
-  tags: string[];
-  spaceType: SpaceType;
-  status: ProductStatus;
-}> = [
+const PRODUCTS = [
   {
     supplierEmail: 'supplier@gyp6.sale',
     title: 'Nordic Wooden Dining Table',
     images: ['marketplace/table-1.png'],
     price: 12500,
-    minSellQuantity: 4,
+    minSellUnits: 4,
     categoryTitle: 'Dining',
     tags: ['Nordic', 'Дерево'],
     spaceType: SpaceType.RESTAURANT,
     status: ProductStatus.ACTIVE,
+    dimension: { width: 1800, height: 750, depth: 900 },
   },
   {
     supplierEmail: 'supplier@gyp6.sale',
     title: 'Industrial Metal Chair',
-    images: ['marketplace/table-1.png'],
+    images: ['marketplace/chair-1.png'],
     price: 3200,
-    minSellQuantity: 10,
+    minSellUnits: 10,
     categoryTitle: 'Seating',
     tags: ['Loft', 'Industrial'],
     spaceType: SpaceType.CAFE,
     status: ProductStatus.ACTIVE,
+    dimension: { width: 450, height: 850, depth: 500 },
   },
   {
     supplierEmail: 'supplier@gyp6.sale',
     title: 'Modern Office Desk',
-    images: ['marketplace/table-1.png'],
+    images: ['marketplace/desk-1.png'],
     price: 18000,
-    minSellQuantity: 2,
-    categoryTitle: 'Seating',
+    minSellUnits: 2,
+    categoryTitle: 'Tables & Desks',
     tags: ['Мінімалізм', 'Office'],
     spaceType: SpaceType.OFFICE,
     status: ProductStatus.ACTIVE,
+    dimension: { width: 1400, height: 750, depth: 700 },
   },
   {
     supplierEmail: 'supplier@gyp6.sale',
     title: 'Luxury Lobby Sofa',
-    images: ['marketplace/table-1.png'],
+    images: ['marketplace/sofa-1.png'],
     price: 45000,
-    minSellQuantity: 1,
-    categoryTitle: 'Seating',
+    minSellUnits: 1,
+    categoryTitle: 'Lounge',
     tags: ['Luxury', 'Диван'],
     spaceType: SpaceType.HOTEL,
     status: ProductStatus.ACTIVE,
+    dimension: { width: 2200, height: 800, depth: 950 },
   },
   {
     supplierEmail: 'supplier@gyp6.sale',
     title: 'Minimalist Coffee Table',
-    images: ['marketplace/table-1.png'],
+    images: ['marketplace/coffee-table-1.png'],
     price: 7500,
-    minSellQuantity: 5,
-    categoryTitle: 'Outdoor',
+    minSellUnits: 5,
+    categoryTitle: 'Lounge',
     tags: ['Мінімалізм'],
     spaceType: SpaceType.HOTEL,
     status: ProductStatus.ACTIVE,
+    dimension: { width: 800, height: 450, depth: 800 },
   },
   {
     supplierEmail: 'supplier@gyp6.sale',
     title: 'Bistro Outdoor Set',
-    images: ['marketplace/table-1.png'],
+    images: ['marketplace/bistro-1.png'],
     price: 15000,
-    minSellQuantity: 4,
-    categoryTitle: 'Industrial',
+    minSellUnits: 4,
+    categoryTitle: 'Outdoor',
     tags: ['Nordic', 'Outdoor'],
     spaceType: SpaceType.RESTAURANT,
     status: ProductStatus.ACTIVE,
+    dimension: { width: 700, height: 750, depth: 700 },
   },
   ...Array.from({ length: 20 }).map((_, i) => ({
     supplierEmail: 'supplier@gyp6.sale',
     title: `Extra Product ${i + 7}`,
     images: ['marketplace/table-1.png'],
     price: 5000 + i * 1000,
-    minSellQuantity: 1,
+    minSellUnits: i + 1,
     categoryTitle: 'Tables & Desks',
     tags: ['Мінімалізм'],
     spaceType: SpaceType.COWORKING,
     status: ProductStatus.ACTIVE,
+    dimension: { width: 1200, height: 750, depth: 600 },
   })),
 ];
 
-async function upsertTag(title: string) {
-  const slug = generateSlug(title);
+function upsertTag(title: string) {
+  const slug = seedGenerateSlug(title);
   return prisma.productTag.upsert({
     where: { slug },
     update: {},
@@ -171,7 +189,7 @@ async function seedCategories() {
   const result: Record<string, string> = {};
 
   for (const cat of CATEGORIES) {
-    const slug = generateSlug(cat.title);
+    const slug = seedGenerateSlug(cat.title);
     const category = await prisma.category.upsert({
       where: { slug },
       update: {},
@@ -180,18 +198,20 @@ async function seedCategories() {
     result[cat.title] = category.id;
     console.log(`  ✅ Category: ${cat.title}`);
   }
-
   return result;
 }
 
 async function seedUsers() {
   console.log('🌱 Seeding users...');
-  const result: Record<string, { id: string; companyId: string }> = {};
+  const result: Record<
+    string,
+    { id: string; companyId: string; abbreviation: string }
+  > = {};
 
   for (const userData of USERS) {
     const passwordHash = await hash(userData.password);
 
-    await prisma.$transaction(async tx => {
+    const userWithCompany = await prisma.$transaction(async tx => {
       let user = await tx.user.findUnique({ where: { email: userData.email } });
 
       if (!user) {
@@ -214,62 +234,85 @@ async function seedUsers() {
         });
       }
 
-      // 2. Компанія — як в CompanyRepository.create
       let company = await tx.company.findUnique({
-        where: { taxId: userData.taxId },
+        where: { taxCode: userData.taxCode },
       });
 
       if (!company) {
+        const baseAbbr = generateAbbreviation(userData.companyName);
+        let abbreviation = baseAbbr;
+        let counter = 1;
+
+        while (true) {
+          const exists = await tx.company.findUnique({
+            where: { abbreviation },
+          });
+          if (!exists) break;
+          abbreviation = `${baseAbbr.substring(0, 2)}${counter}`;
+          counter++;
+        }
+
         company = await tx.company.create({
           data: {
             id: nanoid(),
             name: userData.companyName,
-            taxId: userData.taxId,
+            abbreviation,
+            taxCode: userData.taxCode,
+            specializations: userData.specialisations, // 👈 ТЕПЕР СПЕЦІАЛІЗАЦІЇ СЕРЕД КЛЮЧІВ КОМПАНІЇ
           },
         });
       }
 
       await tx.profile.upsert({
         where: { userId: user.id },
-        update: {},
+        update: { companyId: company.id },
         create: {
           id: nanoid(),
           userId: user.id,
           companyId: company.id,
-          specializations: userData.specialisations,
         },
       });
 
-      result[userData.email] = { id: user.id, companyId: company.id };
+      return {
+        userId: user.id,
+        companyId: company.id,
+        abbreviation: company.abbreviation,
+      };
     });
 
-    console.log(`  ✅ User: ${userData.email} (${userData.role})`);
+    result[userData.email] = {
+      id: userWithCompany.userId,
+      companyId: userWithCompany.companyId,
+      abbreviation: userWithCompany.abbreviation,
+    };
+    console.log(
+      `  ✅ User & Company: ${userData.email} (${userData.role}) -> Spec: ${userData.specialisations.join(', ')}`,
+    );
   }
 
   return result;
 }
 
 async function seedProducts(
-  users: Record<string, { id: string; companyId: string }>,
+  users: Record<
+    string,
+    { id: string; companyId: string; abbreviation: string }
+  >,
   categories: Record<string, string>,
 ) {
   console.log('🌱 Seeding products...');
 
-  for (const productData of PRODUCTS) {
+  for (const [index, productData] of PRODUCTS.entries()) {
     const supplier = users[productData.supplierEmail];
     const categoryId = categories[productData.categoryTitle];
 
-    if (!supplier) {
-      console.warn(`  ⚠️ Supplier not found: ${productData.supplierEmail}`);
+    if (!supplier || !categoryId) {
+      console.warn(
+        `  ⚠️ Skip product: ${productData.title} (Supplier/Category error)`,
+      );
       continue;
     }
 
-    if (!categoryId) {
-      console.warn(`  ⚠️ Category not found: ${productData.categoryTitle}`);
-      continue;
-    }
-
-    // Повторює логіку ProductRepository.buildTagConnections
     const tagConnections = await Promise.all(
       productData.tags.map(async title => {
         const tag = await upsertTag(title);
@@ -282,20 +325,39 @@ async function seedProducts(
     });
 
     if (!existing) {
-      await prisma.product.create({
-        data: {
-          id: nanoid(),
-          title: productData.title,
-          images: productData.images,
-          price: productData.price,
-          minSellQuantity: productData.minSellQuantity ?? null,
-          categoryId,
-          supplierId: supplier.id,
-          vendorId: supplier.companyId,
-          spaceType: productData.spaceType,
-          status: productData.status,
-          tags: { create: tagConnections },
-        },
+      const smartSkuService = new SmartSkuService();
+      const productSku = smartSkuService.generate({
+        name: productData.title,
+        price: productData.price,
+        sequence: index + 1,
+        manufacturerCode: supplier.abbreviation,
+      });
+
+      await prisma.$transaction(async tx => {
+        const newDimension = await tx.dimension.create({
+          data: {
+            width: productData.dimension.width,
+            height: productData.dimension.height,
+            depth: productData.dimension.depth,
+          },
+        });
+        await tx.product.create({
+          data: {
+            id: nanoid(),
+            sku: productSku,
+            title: productData.title,
+            images: productData.images,
+            price: productData.price,
+            minSellUnits: productData.minSellUnits,
+            status: productData.status,
+            spaceType: productData.spaceType,
+            categoryId,
+            supplierId: supplier.id,
+            manufacturerId: supplier.companyId,
+            dimensionId: newDimension.id,
+            tags: { create: tagConnections },
+          },
+        });
       });
     }
 

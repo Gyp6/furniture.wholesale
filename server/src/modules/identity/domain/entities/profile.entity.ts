@@ -6,6 +6,5 @@ export class Profile {
     public readonly userId: string,
     public readonly companyId: string | null,
     public readonly company: Company | null,
-    public readonly specializations: string[],
   ) {}
 }

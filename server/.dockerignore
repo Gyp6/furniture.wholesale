@@ -1,6 +1,9 @@
-node_modules
 dist
+docs
+node_modules
+test
 npm-debug.log
-Dockerfile
+Dockerfile.api
 .git
 .env
+.env.example

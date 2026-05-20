@@ -9,9 +9,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 
 import { AppModule } from './core/app.module';
-import { getFastifyCorsConfig, getValidationPipeConfig } from './core/config';
-import { getExcludedRoutesConfig } from './core/config/excluded-routing.config';
-import { LoggingInterceptor } from './core/interceptors';
+import { LoggingInterceptor } from './core/application/interceptors';
+import {
+  getExcludedRoutesConfig,
+  getFastifyCorsConfig,
+  getValidationPipeConfig,
+} from './core/infrastructure/config';
 
 async function bootstrap() {
   const adapter = new FastifyAdapter({
@@ -72,7 +75,7 @@ async function bootstrap() {
   const port = config.getOrThrow<number>('HTTP_PORT');
   const host = config.getOrThrow<string>('HTTP_HOST');
 
-  await app.listen(port, '0.0.0.0');
+  await app.listen(port);
 
   logger.log(`Backend started: ${host}/api`);
   logger.log(`Swagger: ${host}/docs`);

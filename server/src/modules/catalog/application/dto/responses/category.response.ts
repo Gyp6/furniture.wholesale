@@ -1,6 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
-
-import { IsHash, IsName } from '@/common/validators';
+import { IsHash, IsName, IsSlug } from '@/common/validators';
 
 export class CategoryResponse {
   @IsHash({ title: 'Id' })
@@ -9,6 +7,6 @@ export class CategoryResponse {
   @IsName()
   title!: string;
 
-  @ApiProperty({ example: 'nordic' })
+  @IsSlug()
   slug!: string;
 }

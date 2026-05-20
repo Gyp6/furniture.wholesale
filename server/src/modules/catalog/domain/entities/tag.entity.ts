@@ -1,6 +1,4 @@
-import { IProductTag } from './product.entity';
-
-export class Tag implements IProductTag {
+export class Tag {
   constructor(
     public readonly id: string,
     public readonly title: string,

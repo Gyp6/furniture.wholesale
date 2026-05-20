@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 
-import { OtpModule } from '@/modules/otp/otp.module';
-
 import {
   CompanyService,
   ProfileService,
@@ -28,7 +26,6 @@ const repositories = [
 ];
 
 @Module({
-  imports: [OtpModule],
   controllers: [...controllers],
   providers: [...repositories, ...services],
   exports: [...repositories, ...services],

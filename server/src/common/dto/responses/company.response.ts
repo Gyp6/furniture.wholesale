@@ -10,7 +10,7 @@ import {
   IsCompanyVerified,
   IsDate,
   IsHash,
-  IsTaxId,
+  IsTaxCode,
 } from '@/common/validators';
 
 export class CompanyResponse {
@@ -20,7 +20,7 @@ export class CompanyResponse {
   @IsCompanyName()
   name!: string;
 
-  @IsTaxId()
+  @IsTaxCode()
   taxId!: string;
 
   @IsCompanyDescription()

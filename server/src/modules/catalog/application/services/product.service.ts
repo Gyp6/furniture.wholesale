@@ -16,7 +16,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { STATUS } from '@/common/constants';
 import { ECalsAction } from '@/common/enums';
 import { IReqUser, TProductStatusValues } from '@/common/types';
 import { AppAbility } from '@/infrastructure/casl/casl.ability-factory';
@@ -33,15 +32,11 @@ export class ProductService {
     private readonly categoryService: CategoryService,
   ) {}
 
-  async findAll() {
+  async findAll(user: IReqUser | null) {
     const entities = await this.productRepository.findAll();
-    const data = entities.map(p => ProductMapper.toResponse(p));
-
-    return {
-      status: STATUS.OK,
-      quantity: data.length,
-      data,
-    };
+    if (!user)
+      return entities.map(p => ProductMapper.toResponseUnauthorized(p));
+    return entities.map(p => ProductMapper.toResponse(p));
   }
 
   async findById(id: string): Promise<ProductResponse> {
@@ -63,9 +58,16 @@ export class ProductService {
     if (!category)
       throw new NotFoundException(`Category ${dto.categoryId} not found`);
 
+    const skuDto = {
+      name: profile.company?.name || '',
+      price: Number(dto.price),
+      manufacturerCode: profile.company?.abbreviation || '',
+    };
+
     const entity = await this.productRepository.create(
       user.id,
       profile.companyId,
+      skuDto,
       dto,
     );
     return ProductMapper.toResponse(entity);

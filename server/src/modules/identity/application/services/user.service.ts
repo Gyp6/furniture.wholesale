@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 
 import { MESSAGE } from '@/common/constants';
-import { OtpService } from '@/modules/otp/otp.service';
+import { OtpService } from '@/infrastructure/otp/otp.service';
 
 import { UserResponse, VerifiedUserResponse } from '../dto/responses';
 import { UserMapper } from '../mappers';
