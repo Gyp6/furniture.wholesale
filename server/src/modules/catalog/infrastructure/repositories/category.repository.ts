@@ -20,6 +20,11 @@ export class CategoryRepository implements ICategoryRepository {
     return raw ? CategoryMapper.toDomain(raw) : null;
   }
 
+  async findBySlug(slug: string): Promise<Category | null> {
+    const raw = await this.prisma.category.findUnique({ where: { slug } });
+    return raw ? CategoryMapper.toDomain(raw) : null;
+  }
+
   async create(title: string): Promise<Category> {
     const raw = await this.prisma.category.create({
       data: { title, slug: this.buildSlug(title) },

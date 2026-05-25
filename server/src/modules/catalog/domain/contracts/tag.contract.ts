@@ -5,4 +5,6 @@ export type TAG_REPOSITORY = typeof TAG_REPOSITORY;
 
 export interface ITagRepository {
   findAll(): Promise<Tag[]>;
+  findById(id: string): Promise<Tag | null>;
+  findBySlug(slug: string): Promise<Tag | null>;
 }

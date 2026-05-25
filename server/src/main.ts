@@ -6,6 +6,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { apiReference } from '@scalar/nestjs-api-reference';
 import { useContainer } from 'class-validator';
 
 import { AppModule } from './core/app.module';
@@ -66,19 +67,31 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('docs', app, swaggerDocument, {
+  const swaggerDocument = () =>
+    SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('/docs/swagger', app, swaggerDocument, {
     jsonDocumentUrl: '/docs/swagger.json',
     yamlDocumentUrl: '/docs/openapi.yaml',
   });
 
+  app.use(
+    '/docs/scalar',
+    apiReference({
+      content: swaggerDocument,
+      withFastify: true,
+      theme: 'deepSpace',
+      layout: 'classic',
+    }),
+  );
+
   const port = config.getOrThrow<number>('HTTP_PORT');
   const host = config.getOrThrow<string>('HTTP_HOST');
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   logger.log(`Backend started: ${host}/api`);
-  logger.log(`Swagger: ${host}/docs`);
+  logger.log(`Swagger: ${host}/docs/swagger`);
+  logger.log(`Scalar: ${host}/docs/scalar`);
 }
 
 bootstrap().catch(err => {

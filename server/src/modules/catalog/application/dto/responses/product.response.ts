@@ -1,27 +1,20 @@
-import { OmitType } from '@nestjs/mapped-types';
-
 import { DimensionRequest } from '@/common/dto/requests';
-import type { TSpaceTypeValues } from '@/common/types';
+import { ClearInfoOnjectResponse } from '@/common/dto/responses';
 import {
   IsDate,
   IsDescription,
   IsEmbedded,
   IsHash,
   IsImages,
+  IsLeadTime,
   IsMinSellUnits,
   IsPrice,
   IsSku,
-  IsSpaceType,
   IsStock,
   IsTitle,
 } from '@/common/validators';
 
 import { ManufacturerResponse } from './manufacturer.response';
-import { TagResponse } from './tag.response';
-
-export class ProductTagResponse extends OmitType(TagResponse, [
-  'id',
-] as const) {}
 
 export class ProductResponse {
   @IsHash({ title: 'id' })
@@ -48,17 +41,23 @@ export class ProductResponse {
   @IsMinSellUnits()
   minSellUnits!: number | null;
 
-  @IsSpaceType()
-  spaceType!: TSpaceTypeValues;
-
   @IsEmbedded({ to: DimensionRequest })
   dimension!: DimensionRequest;
 
   @IsEmbedded({ to: ManufacturerResponse })
   manufacturer!: ManufacturerResponse;
 
-  @IsEmbedded({ to: ProductTagResponse })
-  tags!: ProductTagResponse[];
+  @IsEmbedded({ to: ClearInfoOnjectResponse })
+  category!: ClearInfoOnjectResponse;
+
+  @IsEmbedded({ to: ClearInfoOnjectResponse })
+  spaces!: ClearInfoOnjectResponse[];
+
+  @IsEmbedded({ to: ClearInfoOnjectResponse })
+  tags!: ClearInfoOnjectResponse[];
+
+  @IsLeadTime()
+  leadTime!: string | null;
 
   @IsDate()
   createdAt!: Date;

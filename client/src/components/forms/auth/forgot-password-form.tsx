@@ -1,5 +1,7 @@
 'use client';
 
+import { Eye, EyeOff } from 'lucide-react';
+
 import { FormStateSync } from '@/components/sections/auth';
 import {
   Field,
@@ -10,7 +12,6 @@ import {
 import { Input } from '@/components/ui/shadcn/input';
 import { useForgotPasswordForm } from '@/hooks';
 import { emailSchema, passwordSchema } from '@/shared/schemas';
-import { Eye, EyeOff } from 'lucide-react';
 
 export function ForgotPasswordForm() {
   const { form, isResetMode, showPassword, togglePassword } =

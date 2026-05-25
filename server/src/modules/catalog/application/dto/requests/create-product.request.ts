@@ -1,5 +1,4 @@
 import { DimensionRequest } from '@/common/dto/requests';
-import type { TSpaceTypeValues } from '@/common/types';
 import {
   IsCategoryId,
   IsEmbedded,
@@ -38,5 +37,5 @@ export class CreateProductRequest {
   tags!: string[];
 
   @IsSpaceType()
-  spaceType!: TSpaceTypeValues;
+  spaces!: string[];
 }

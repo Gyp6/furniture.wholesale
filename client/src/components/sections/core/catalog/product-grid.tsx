@@ -84,6 +84,7 @@ export function ProductGrid({ isAuthorized }: Props) {
       </Empty>
     );
   }
+
   return (
     <div
       className={

@@ -1,12 +1,15 @@
 generator client {
   provider = "prisma-client-js"
+  url      = env("DATABASE_URL")
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-// --- Енами ---
+// ─────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────
 
 enum Role {
   RETAILER
@@ -35,16 +38,14 @@ enum OrderStatus {
   CANCELLED
 }
 
-enum SpaceType {
-  APARTMENT
-  HOTEL
-  RESTAURANT
-  CAFE
-  COWORKING
-  OFFICE
+enum BundleType {
+  SUPPLIER
+  USER
 }
 
-// --- Better Auth Core ---
+// ─────────────────────────────────────────
+// BETTER AUTH CORE
+// ─────────────────────────────────────────
 
 model User {
   id            String  @id @default(nanoid())
@@ -64,6 +65,7 @@ model User {
   cart          Cart?
   profile       Profile?
   notifications Notification[]
+  subOrders     SubOrder[]
 
   sessions Session[]
   accounts Account[]
@@ -124,17 +126,22 @@ model Verification {
   @@map("verification")
 }
 
-// --- Бізнес-логіка (Domain Models) ---
+// ─────────────────────────────────────────
+// DOMAIN — COMPANY & PROFILE
+// ─────────────────────────────────────────
 
 model Company {
   id String @id @default(nanoid())
 
   name            String
-  abbreviation    String   @unique
-  taxCode         String   @unique @map("tax_code")
-  description     String?  @db.Text
+  abbreviation    String  @unique
+  businessEmail   String? @unique @map("business_email")
+  showroomAddress String? @unique @map("showroom_address")
+  taxCode         String  @unique @map("tax_code")
+  description     String? @db.Text
+
   specializations String[]
-  logoUrl         String?  @map("logo_url")
+  leadTime        String?  @map("lead_time")
 
   profiles Profile[]
   products Product[]
@@ -168,6 +175,10 @@ model Profile {
   @@map("profile")
 }
 
+// ─────────────────────────────────────────
+// DOMAIN — CATALOG
+// ─────────────────────────────────────────
+
 model Category {
   id String @id @default(nanoid())
 
@@ -187,15 +198,16 @@ model Category {
 model Product {
   id String @id @default(nanoid())
 
-  sku         String   @unique
+  sku         String  @unique
   title       String
   description String?
-  images      String[]
-  price       Decimal  @db.Decimal(10, 2)
+  price       Decimal @db.Decimal(10, 2)
 
-  stock        Int           @default(0)
-  minSellUnits Int           @default(1) @map("min_sell_units")
-  status       ProductStatus @default(DRAFT)
+  stock        Int @default(0)
+  minSellUnits Int @default(1) @map("min_sell_units")
+  imagesCount  Int @default(0) @map("images_count")
+
+  status ProductStatus @default(DRAFT)
 
   categoryId String   @map("category_id")
   category   Category @relation(fields: [categoryId], references: [id])
@@ -209,8 +221,12 @@ model Product {
   dimensionId String    @unique @map("dimension_id")
   dimension   Dimension @relation(fields: [dimensionId], references: [id])
 
-  tags      ProductTagMap[]
-  spaceType SpaceType       @map("space_type")
+  tags   ProductTagMap[]
+  spaces ProductSpaceMap[]
+
+  bundleItems BundleItem[]
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -231,9 +247,48 @@ model Dimension {
   @@map("dimension")
 }
 
-model ProductTag {
+model SpaceType {
+  id    String @id @default(nanoid())
+  title String
+  slug  String @unique
+
+  products  ProductSpaceMap[]
+  bundles   Bundle[]
+  templates SpaceTemplate[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([slug])
+  @@map("space_type")
+}
+
+model ProductSpaceMap {
+  productId   String    @map("product_id")
+  spaceTypeId String    @map("space_type_id")
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  spaceType   SpaceType @relation(fields: [spaceTypeId], references: [id], onDelete: Cascade)
+
+  @@id([productId, spaceTypeId])
+  @@map("product_space_map")
+}
+
+model SpaceTemplate {
   id String @id @default(nanoid())
 
+  spaceTypeId String    @map("space_type_id")
+  spaceType   SpaceType @relation(fields: [spaceTypeId], references: [id])
+
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  sortOrder Int @map("sort_order")
+
+  @@map("space_template")
+}
+
+model ProductTag {
+  id    String @id @default(nanoid())
   title String
   slug  String @unique
 
@@ -253,91 +308,231 @@ model ProductTagMap {
   @@map("product_tag_map")
 }
 
+// ─────────────────────────────────────────
+// DOMAIN — BUNDLE SYSTEM
+//
+// Правила вкладеності (enforced у сервісному шарі + DB constraint):
+//
+//   SUPPLIER-бандл (depth = 0):
+//     • може містити тільки окремі товари (BundleItem.productId)
+//     • BundleItem.nestedBundleId завжди NULL
+//     • створюється тільки юзером із роллю SUPPLIER
+//
+//   USER-бандл (depth = 1):
+//     • може містити окремі товари І SUPPLIER-бандли
+//     • НЕ може містити інші USER-бандли (max depth = 1)
+//     • створюється RETAILER / DESIGNER / HORECA / SUPPLIER
+//
+//   Fork:
+//     • будь-хто може форкнути USER-бандл → новий USER-бандл зі статусом DRAFT
+//     • parentBundleId вказує на оригінал для відстеження історії
+//
+//   Share:
+//     • shareToken генерується при isShared = true
+//     • той хто прийшов по лінці може: одразу замовити АБО форкнути й відредагувати
+// ─────────────────────────────────────────
+
+model Bundle {
+  id String @id @default(nanoid())
+
+  bundleType BundleType @map("bundle_type")
+  depth      Int        @default(0)
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  name        String
+  description String?       @db.Text
+  status      ProductStatus @default(DRAFT)
+
+  isShared   Boolean @default(false) @map("is_shared")
+  shareToken String? @unique @map("share_token")
+
+  spaceTypeId String    @map("space_type_id")
+  spaceType   SpaceType @relation(fields: [spaceTypeId], references: [id])
+
+  parentBundleId String?  @map("parent_bundle_id")
+  parentBundle   Bundle?  @relation("BundleHistory", fields: [parentBundleId], references: [id], onDelete: SetNull)
+  forkedBundles  Bundle[] @relation("BundleHistory")
+
+  items    BundleItem[] @relation("BundleToItems")
+  nestedIn BundleItem[] @relation("NestedInBundle")
+
+  cartItems CartItem[]
+  subOrders SubOrder[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([shareToken])
+  @@index([bundleType, depth])
+  @@map("bundle")
+}
+
+/// Один елемент бандлу — або товар, або вкладений SUPPLIER-бандл.
+/// ВАЖЛИВО: рівно одне з двох полів має бути NOT NULL.
+/// DB-level CHECK constraint додається в міграції:
+///   ALTER TABLE bundle_item
+///   ADD CONSTRAINT chk_bundle_item_one_target
+///   CHECK (
+///     (product_id IS NOT NULL AND nested_bundle_id IS NULL) OR
+///     (product_id IS NULL  AND nested_bundle_id IS NOT NULL)
+///   );
+
+model BundleItem {
+  id String @id @default(nanoid())
+
+  bundleId String @map("bundle_id")
+  bundle   Bundle @relation("BundleToItems", fields: [bundleId], references: [id], onDelete: Cascade)
+
+  /// Варіант А: звичайний товар
+  productId String?  @map("product_id")
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  /// Варіант Б: вкладений SUPPLIER-бандл (тільки в USER-бандлах)
+  nestedBundleId String? @map("nested_bundle_id")
+  nestedBundle   Bundle? @relation("NestedInBundle", fields: [nestedBundleId], references: [id], onDelete: Cascade)
+
+  quantity      Int     @default(1)
+  priceSnapshot Decimal @map("price_snapshot") @db.Decimal(10, 2)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([bundleId])
+  @@map("bundle_item")
+}
+
+// ─────────────────────────────────────────
+// DOMAIN — CART
+//
+// Cart — поточна "чернетка" перед оформленням замовлення.
+// Може містити:
+//   • окремі товари (CartItem.productId)
+//   • USER-бандли або SUPPLIER-бандли (CartItem.bundleId)
+// Після checkout Cart очищується, Order + SubOrder(s) створюються.
+// ─────────────────────────────────────────
+
 model Cart {
-  id     String     @id @default(nanoid())
-  userId String     @unique @map("user_id")
-  user   User       @relation(fields: [userId], references: [id])
-  items  CartItem[]
+  id String @id @default(nanoid())
+
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items CartItem[]
 
   @@map("cart")
 }
 
+/// Аналогічно BundleItem — рівно одне з productId / bundleId має бути заповнено.
+/// DB-level CHECK:
+///   ALTER TABLE cart_item
+///   ADD CONSTRAINT chk_cart_item_one_target
+///   CHECK (
+///     (product_id IS NOT NULL AND bundle_id IS NULL) OR
+///     (product_id IS NULL  AND bundle_id IS NOT NULL)
+///   );
+
 model CartItem {
-  id       String   @id @default(nanoid())
-  cartId   String   @map("cart_id")
-  cart     Cart     @relation(fields: [cartId], references: [id])
-  quantity Int
+  id     String @id @default(nanoid())
+  cartId String @map("cart_id")
+  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  productId String?  @map("product_id")
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  bundleId String? @map("bundle_id")
+  bundle   Bundle? @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+  quantity Int      @default(1)
   addedAt  DateTime @default(now()) @map("added_at")
 
   @@map("cart_item")
 }
 
+// ─────────────────────────────────────────
+// DOMAIN — ORDERS
+//
+// Order        — головний документ покупця (агрегат усіх постачальників)
+// SubOrder     — частина замовлення для конкретного постачальника
+// OrderItem    — рядок SubOrder із snapshot даними товару
+//
+// Якщо куплено бандл — SubOrder.sourceBundleId фіксує це.
+// Snapshot полів (price, title, sku) захищають від змін каталогу.
+// ─────────────────────────────────────────
+
 model Order {
-  id            String         @id @default(nanoid())
-  buyerId       String         @map("buyer_id")
-  buyer         User           @relation(fields: [buyerId], references: [id])
-  status        OrderStatus    @default(NEW)
-  totalAmount   Decimal        @map("total_amount") @db.Decimal(10, 2)
-  platformFee   Decimal        @map("platform_fee") @db.Decimal(10, 2)
-  items         OrderItem[]
+  id      String      @id @default(nanoid())
+  buyerId String      @map("buyer_id")
+  buyer   User        @relation(fields: [buyerId], references: [id])
+  status  OrderStatus @default(NEW)
+
+  totalAmount Decimal @map("total_amount") @db.Decimal(10, 2)
+  platformFee Decimal @map("platform_fee") @db.Decimal(10, 2)
+
+  subOrders     SubOrder[]
   notifications Notification[]
-  createdAt     DateTime       @default(now()) @map("created_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("order")
 }
 
+model SubOrder {
+  id      String      @id @default(nanoid())
+  orderId String      @map("order_id")
+  order   Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status  OrderStatus @default(NEW)
+
+  /// Постачальник цього суб-ордеру
+  supplierId String @map("supplier_id")
+  supplier   User   @relation(fields: [supplierId], references: [id])
+
+  /// Якщо суб-ордер створено із бандлу — фіксуємо який саме
+  sourceBundleId String? @map("source_bundle_id")
+  sourceBundle   Bundle? @relation(fields: [sourceBundleId], references: [id], onDelete: SetNull)
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("sub_order")
+}
+
 model OrderItem {
-  id            String  @id @default(nanoid())
-  orderId       String  @map("order_id")
-  order         Order   @relation(fields: [orderId], references: [id])
-  supplierId    String  @map("supplier_id")
-  quantity      Int
+  id         String   @id @default(nanoid())
+  subOrderId String   @map("sub_order_id")
+  subOrder   SubOrder @relation(fields: [subOrderId], references: [id], onDelete: Cascade)
+
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+
+  quantity Int
+
   priceSnapshot Decimal @map("price_snapshot") @db.Decimal(10, 2)
+  titleSnapshot String  @map("title_snapshot")
+  skuSnapshot   String  @map("sku_snapshot")
 
   @@map("order_item")
 }
 
-model Bundle {
-  id        String       @id @default(nanoid())
-  userId    String       @map("user_id")
-  user      User         @relation(fields: [userId], references: [id])
-  name      String
-  spaceType SpaceType    @map("space_type")
-  items     BundleItem[]
-  createdAt DateTime     @default(now()) @map("created_at")
-
-  @@map("bundle")
-}
-
-model BundleItem {
-  id            String  @id @default(nanoid())
-  bundleId      String  @map("bundle_id")
-  bundle        Bundle  @relation(fields: [bundleId], references: [id])
-  quantity      Int
-  priceSnapshot Decimal @map("price_snapshot") @db.Decimal(10, 2)
-
-  @@map("bundle_item")
-}
-
-model SpaceTemplate {
-  id         String    @id @default(nanoid())
-  spaceType  SpaceType @map("space_type")
-  categoryId String    @map("category_id")
-  category   Category  @relation(fields: [categoryId], references: [id])
-  sortOrder  Int       @map("sort_order")
-
-  @@map("space_template")
-}
+// ─────────────────────────────────────────
+// DOMAIN — NOTIFICATIONS
+// ─────────────────────────────────────────
 
 model Notification {
-  id      String   @id @default(nanoid())
-  userId  String   @map("user_id")
-  user    User     @relation(fields: [userId], references: [id])
-  orderId String?  @map("order_id")
-  order   Order?   @relation(fields: [orderId], references: [id])
-  type    String
-  status  String   @default("PENDING")
-  sentAt  DateTime @default(now()) @map("sent_at")
+  id String @id @default(nanoid())
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orderId String? @map("order_id")
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  type   String
+  status String   @default("PENDING")
+  sentAt DateTime @default(now()) @map("sent_at")
 
   @@map("notification")
 }

@@ -1,6 +1,8 @@
 import { Company } from '@identity/domain/entities';
 import type { Company as PrismaCompany } from '@prisma/client';
 
+import { COMPANY_STATUSES } from '@/common/constants/company-status.constant';
+
 import { CompanyResponse } from '../dto/responses';
 
 export class CompanyMapper {
@@ -11,24 +13,30 @@ export class CompanyMapper {
       raw.abbreviation,
       raw.taxCode,
       raw.description,
+      raw.businessEmail,
+      raw.showroomAddress,
       raw.specializations,
-      raw.logoUrl,
+      raw.leadTime,
       raw.verificationStatus,
+      raw.terms,
       Number(raw.ratingAvg),
       raw.ratingCount,
       raw.createdAt,
-      raw.terms,
     );
   }
 
   static toResponse(entity: Company): CompanyResponse {
     return {
-      id: entity.id,
       name: entity.name,
+      abbreviation: entity.abbreviation,
       taxCode: entity.taxCode,
+      description: entity.description,
+      businessEmail: entity.businessEmail,
+      showroomAddress: entity.showroomAddress,
       specializations: entity.specializations,
-      logoUrl: entity.logoUrl,
-      verificationStatus: entity.verificationStatus,
+      isVerified: entity.verificationStatus === COMPANY_STATUSES.VERIFIED,
+      terms: entity.terms,
+      leadTime: entity.leadTime,
       ratingAvg: entity.ratingAvg,
     };
   }

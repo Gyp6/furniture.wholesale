@@ -20,11 +20,13 @@ export function CatalogHeader() {
   const router = useRouter();
 
   return (
-    <div className={"flex flex-col gap-8"}>
-
-     
-      <div className={"flex flex-wrap items-center justify-between gap-8"}>
-        <h2 className={"text-5xl font-bold tracking-tight text-foreground whitespace-nowrap"}>
+    <div className={'flex flex-col gap-8'}>
+      <div className={'flex flex-wrap items-center justify-between gap-8'}>
+        <h2
+          className={
+            'text-5xl font-bold tracking-tight text-foreground whitespace-nowrap'
+          }
+        >
           Catalog with Prebuilt Bundles
         </h2>
         <div className={'flex items-center gap-4'}>
@@ -35,13 +37,15 @@ export function CatalogHeader() {
               }
             />
             <Input
-              placeholder={"Search curated catalog..."}
-              className={"pl-10 h-[56px] text-sm rounded-full bg-white border border-neutral-200 text-foreground placeholder:text-muted-foreground shadow-none"}
+              placeholder={'Search curated catalog...'}
+              className={
+                'pl-10 h-[56px] text-sm rounded-full bg-white border border-neutral-200 text-foreground placeholder:text-muted-foreground shadow-none'
+              }
             />
           </div>
           <Button
-            className={"h-[56px] rounded-full px-6 whitespace-nowrap text-sm"}
-            variant={"default"}
+            className={'h-[56px] rounded-full px-6 whitespace-nowrap text-sm'}
+            variant={'default'}
             onClick={() => router.push(ROUTES.CATALOG)}
           >
             View single Items
@@ -49,13 +53,15 @@ export function CatalogHeader() {
         </div>
       </div>
 
-      <div className={"flex items-center justify-between gap-8 flex-wrap"}>
-        <div className={"flex items-center gap-3 flex-wrap"}>
-          {ACTIVE_FILTERS.map((filter) => (
+      <div className={'flex items-center justify-between gap-8 flex-wrap'}>
+        <div className={'flex items-center gap-3 flex-wrap'}>
+          {ACTIVE_FILTERS.map(filter => (
             <Badge
               key={filter}
-              variant={"secondary"}
-              className={"rounded-full px-4 h-[40px] text-sm flex items-center gap-2 cursor-pointer bg-secondary/10 text-secondary hover:bg-secondary/20 border-0"}
+              variant={'secondary'}
+              className={
+                'rounded-full px-4 h-[40px] text-sm flex items-center gap-2 cursor-pointer bg-secondary/10 text-secondary hover:bg-secondary/20 border-0'
+              }
             >
               {filter} <X className={'w-3.5 h-3.5'} />
             </Badge>

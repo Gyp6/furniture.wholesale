@@ -1,6 +1,6 @@
 import { TagResponse } from '@catalog/application/dto/responses';
 import { TagService } from '@catalog/application/services';
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 
@@ -15,5 +15,13 @@ export class TagController {
   @AllowAnonymous()
   async findAll(): Promise<TagResponse[]> {
     return this.tagService.findAll();
+  }
+
+  @ApiOperation({ summary: 'Get tag by slug' })
+  @ApiOkResponse({ type: TagResponse })
+  @Get(':slug')
+  @AllowAnonymous()
+  async findOne(@Param('slug') slug: string): Promise<TagResponse> {
+    return this.tagService.findBySlug(slug);
   }
 }

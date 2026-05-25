@@ -1,20 +1,32 @@
-import type { TVerificationStatusValues } from '@/common/types';
 import {
-  IsCompanyImage,
+  IsAbbreviation,
+  IsAddress,
+  IsCompanyDescription,
   IsCompanyName,
   IsCompanyRatingAvg,
-  IsCompanyVerified,
-  IsHash,
+  IsEmail,
+  IsLeadTime,
   IsSpecialisations,
   IsTaxCode,
+  IsTerms,
+  IsVerified,
 } from '@/common/validators';
 
 export class CompanyResponse {
-  @IsHash({ title: 'Id' })
-  id!: string;
-
   @IsCompanyName()
   name!: string;
+
+  @IsAbbreviation()
+  abbreviation!: string;
+
+  @IsCompanyDescription()
+  description!: string | null;
+
+  @IsEmail()
+  businessEmail!: string | null;
+
+  @IsAddress()
+  showroomAddress!: string | null;
 
   @IsTaxCode()
   taxCode!: string;
@@ -22,11 +34,14 @@ export class CompanyResponse {
   @IsSpecialisations()
   specializations!: string[];
 
-  @IsCompanyImage()
-  logoUrl!: string | null;
+  @IsVerified()
+  isVerified!: boolean;
 
-  @IsCompanyVerified()
-  verificationStatus!: TVerificationStatusValues;
+  @IsTerms()
+  terms!: string | null;
+
+  @IsLeadTime()
+  leadTime!: string | null;
 
   @IsCompanyRatingAvg()
   ratingAvg!: number;

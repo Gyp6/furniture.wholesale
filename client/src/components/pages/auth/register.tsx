@@ -1,5 +1,6 @@
 'use client';
 
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 import { RegisterForm } from '@/components/forms/auth';
@@ -15,7 +16,6 @@ import {
 import { Field } from '@/components/ui/shadcn/field';
 import { ROUTES } from '@/constants';
 import { useAuthFormStore } from '@/store';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 export function RegisterPage() {
   const { step, validatedGoNext, goBack } = useAuthFormStore();
@@ -41,8 +41,7 @@ export function RegisterPage() {
               onClick={goBack}
               type={'button'}
             >
-              <ArrowLeft size={18} />{' '}
-              Back
+              <ArrowLeft size={18} /> Back
             </Button>
           )}
 
@@ -53,7 +52,8 @@ export function RegisterPage() {
               type={'button'}
             >
               Continue
-              <ArrowRight size={18}
+              <ArrowRight
+                size={18}
                 className={'transition-transform group-hover:translate-x-2'}
               />
             </Button>

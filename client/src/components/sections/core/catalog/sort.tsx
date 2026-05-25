@@ -30,11 +30,13 @@ export function Sort() {
       params.set(name, value);
       return params.toString();
     },
-    [searchParams]
+    [searchParams],
   );
 
   const handleSortChange = (option: string) => {
-    router.push(`${pathname}?${createQueryString('sort', option)}`, { scroll: false });
+    router.push(`${pathname}?${createQueryString('sort', option)}`, {
+      scroll: false,
+    });
   };
 
   return (

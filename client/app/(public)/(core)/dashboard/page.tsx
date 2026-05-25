@@ -11,8 +11,9 @@ export const metadata: Metadata = {
 export default async function Dashboard() {
   const { user } = (await getServerSession()) || {};
   return (
-      <Suspense fallback={<div>Please authorize</div>}>
-        <DashboardPage user={user!} />
-      </Suspense>
+    <Suspense fallback={<div>Please authorize</div>}>
+      {!user} <div>Please authorize</div>
+      <DashboardPage user={user!} />
+    </Suspense>
   );
 }

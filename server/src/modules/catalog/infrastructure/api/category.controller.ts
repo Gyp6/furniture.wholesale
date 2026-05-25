@@ -25,12 +25,12 @@ export class CategoryController {
     return this.categoryService.findAll();
   }
 
-  @ApiOperation({ summary: 'Get category by id' })
+  @ApiOperation({ summary: 'Get category by slug' })
   @ApiOkResponse({ type: CategoryResponse })
-  @Get(':id')
+  @Get(':slug')
   @AllowAnonymous()
-  async findOne(@Param('id') id: string): Promise<CategoryResponse> {
-    return this.categoryService.findById(id);
+  async findOne(@Param('slug') slug: string): Promise<CategoryResponse> {
+    return this.categoryService.findBySlug(slug);
   }
 
   @ApiOperation({ summary: 'Create category (admin only)' })

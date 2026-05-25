@@ -15,6 +15,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import { ECalsAction } from '@/common/enums';
 import { IReqUser, TProductStatusValues } from '@/common/types';
@@ -30,19 +31,26 @@ export class ProductService {
     private readonly productRepository: IProductRepository,
     private readonly profileService: ProfileService,
     private readonly categoryService: CategoryService,
+    private readonly configService: ConfigService,
   ) {}
+
+  private get s3Url(): string {
+    return this.configService.get<string>('S3_URL') || '';
+  }
 
   async findAll(user: IReqUser | null) {
     const entities = await this.productRepository.findAll();
     if (!user)
-      return entities.map(p => ProductMapper.toResponseUnauthorized(p));
-    return entities.map(p => ProductMapper.toResponse(p));
+      return entities.map(p =>
+        ProductMapper.toResponseUnauthorized(p, this.s3Url),
+      );
+    return entities.map(p => ProductMapper.toResponse(p, this.s3Url));
   }
 
   async findById(id: string): Promise<ProductResponse> {
     const entity = await this.productRepository.findOne(id);
     if (!entity) throw new NotFoundException(`Product ${id} not found`);
-    return ProductMapper.toResponse(entity);
+    return ProductMapper.toResponse(entity, this.s3Url);
   }
 
   async create(
@@ -70,7 +78,7 @@ export class ProductService {
       skuDto,
       dto,
     );
-    return ProductMapper.toResponse(entity);
+    return ProductMapper.toResponse(entity, this.s3Url);
   }
 
   async update(
@@ -86,7 +94,7 @@ export class ProductService {
     }
 
     const entity = await this.productRepository.update(id, dto);
-    return ProductMapper.toResponse(entity);
+    return ProductMapper.toResponse(entity, this.s3Url);
   }
 
   async updateStatus(
@@ -102,7 +110,7 @@ export class ProductService {
     }
 
     const entity = await this.productRepository.updateStatus(id, status);
-    return ProductMapper.toResponse(entity);
+    return ProductMapper.toResponse(entity, this.s3Url);
   }
 
   async delete(id: string, ability: AppAbility): Promise<void> {

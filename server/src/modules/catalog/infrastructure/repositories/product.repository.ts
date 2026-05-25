@@ -23,10 +23,14 @@ export class ProductRepository implements IProductRepository {
         name: true,
         specializations: true,
         verificationStatus: true,
+        leadTime: true,
         ratingAvg: true,
       },
     },
+    supplier: true,
+    category: true,
     dimension: true,
+    spaces: { include: { spaceType: true } },
     tags: { include: { tag: true } },
   } as const satisfies Prisma.ProductInclude;
 
@@ -73,7 +77,7 @@ export class ProductRepository implements IProductRepository {
     skuDto: Omit<CreateSkuRequest, 'sequence'>,
     dto: CreateProductRequest,
   ): Promise<Product> {
-    const { tags, dimension, ...rest } = dto;
+    const { tags, spaces, dimension, ...rest } = dto;
     const raw = await this.prisma.$transaction(async tx => {
       const currentCount = await this.countBySupplierId(supplierId, tx);
       const nextSequence = currentCount + 1;
@@ -95,7 +99,10 @@ export class ProductRepository implements IProductRepository {
           }),
           supplierId,
           manufacturerId,
-          dimensionId: newDimension.id, // Прив'язуємо обов'язкові розміри
+          dimensionId: newDimension.id,
+          spaces: {
+            create: await this.buildSpaceConnections(spaces, tx),
+          },
           tags: {
             create: await this.buildTagConnections(tags, tx),
           },
@@ -111,7 +118,7 @@ export class ProductRepository implements IProductRepository {
     id: string,
     dto: Partial<CreateProductRequest>,
   ): Promise<Product> {
-    const { tags, dimension, categoryId, ...rest } = dto;
+    const { tags, spaces, dimension, categoryId, ...rest } = dto;
     const raw = await this.prisma.product.update({
       where: { id },
       data: {
@@ -128,6 +135,12 @@ export class ProductRepository implements IProductRepository {
               height: dimension.height,
               depth: dimension.depth,
             },
+          },
+        }),
+        ...(spaces && {
+          spaces: {
+            deleteMany: {},
+            create: await this.buildSpaceConnections(spaces),
           },
         }),
         ...(tags && {
@@ -156,6 +169,26 @@ export class ProductRepository implements IProductRepository {
 
   async delete(id: string): Promise<void> {
     await this.prisma.product.delete({ where: { id } });
+  }
+
+  private async buildSpaceConnections(
+    spaceTitles: string[],
+    tx?: Prisma.TransactionClient,
+  ) {
+    const client = tx ?? this.prisma;
+    return Promise.all(
+      spaceTitles.map(async title => {
+        const slug = generateSlug(title);
+
+        const space = await client.spaceType.upsert({
+          where: { slug },
+          update: {},
+          create: { title, slug },
+        });
+
+        return { spaceType: { connect: { id: space.id } } };
+      }),
+    );
   }
 
   private async buildTagConnections(

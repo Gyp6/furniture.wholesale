@@ -1,5 +1,7 @@
 'use client';
 
+import { Eye, EyeOff } from 'lucide-react';
+
 import { FormStateSync } from '@/components/sections/auth';
 import { Checkbox } from '@/components/ui/shadcn/checkbox';
 import {
@@ -12,7 +14,6 @@ import { Input } from '@/components/ui/shadcn/input';
 import { Label } from '@/components/ui/shadcn/label';
 import { ROUTES } from '@/constants';
 import { useLoginForm } from '@/hooks';
-import { Eye, EyeOff } from 'lucide-react';
 
 export function LoginForm() {
   const { form, showPassword, togglePassword, remember, setRemember, router } =

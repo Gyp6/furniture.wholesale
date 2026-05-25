@@ -13,11 +13,7 @@ export default function DashboardLayout({
         image={ROUTES.S3('marketplace/hero-bg.png')}
       />
       <main className={'relative -top-18 px-10'}>
-        <section
-          className={
-            'rounded-t-4xl bg-white p-10 w-full'
-          }
-        >
+        <section className={'rounded-t-4xl bg-white p-10 w-full'}>
           {children}
         </section>
       </main>

@@ -1,4 +1,4 @@
-import { AbilityBuilder, InferSubjects, PureAbility } from '@casl/ability';
+import { Ability, AbilityBuilder, InferSubjects } from '@casl/ability';
 import { createPrismaAbility, PrismaQuery } from '@casl/prisma';
 import { Injectable } from '@nestjs/common';
 import { Company, Product, Profile, Role, User } from '@prisma/client';
@@ -13,7 +13,7 @@ type AppSubjects =
   | 'Product'
   | 'all';
 
-export type AppAbility = PureAbility<[ECalsAction, AppSubjects], PrismaQuery>;
+export type AppAbility = Ability<[ECalsAction, AppSubjects], PrismaQuery>;
 
 @Injectable()
 export class CaslAbilityFactory {

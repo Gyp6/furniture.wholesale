@@ -22,7 +22,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { ROLES, SPACE_TYPES } from '../constants';
+import { ROLES } from '../constants';
 
 import { IsUnique } from './is-unique.validator';
 
@@ -139,6 +139,42 @@ export const IsImages = () =>
     IsString({ each: true, message: 'Each image must be a string' }),
   );
 
+export const IsImage = () =>
+  applyDecorators(
+    ApiProperty({
+      example: 'products/abc/image1.png',
+      type: String,
+      nullable: true,
+    }),
+  );
+
+export const IsTerms = () =>
+  applyDecorators(
+    ApiProperty({
+      example: 'company/terms/terms.pdf',
+      type: String,
+      nullable: true,
+    }),
+  );
+
+export const IsAddress = () =>
+  applyDecorators(
+    ApiProperty({
+      example: 'Via della Spiga, 15, Milan',
+      type: String,
+      nullable: true,
+    }),
+  );
+
+export const IsLeadTime = () =>
+  applyDecorators(
+    ApiProperty({
+      example: '6 - 8 weeks',
+      type: String,
+      nullable: true,
+    }),
+  );
+
 // catalog/application/dto/requests/create-product.request.ts
 export const IsProductTags = () =>
   applyDecorators(
@@ -186,10 +222,21 @@ export const IsVerified = () =>
 export const IsSpaceType = () =>
   applyDecorators(
     ApiProperty({
-      enum: SPACE_TYPES,
-      example: SPACE_TYPES.APARTMENT,
+      example: ['Office', 'House'],
+      type: [String],
+      description: 'Space titles — will be created automatically if not exist',
     }),
-    IsEnum(SPACE_TYPES, { message: 'Invalid space type' }),
+    IsArray({ message: 'Spaces must be an array' }),
+    ArrayMinSize(1, { message: 'At least one space is required' }),
+    IsString({ each: true, message: 'Each space must be a string' }),
+    MinLength(2, {
+      each: true,
+      message: 'Each space must be at least 2 characters',
+    }),
+    MaxLength(50, {
+      each: true,
+      message: 'Each space must be less than 50 characters',
+    }),
   );
 
 export const isUniqueName = () =>

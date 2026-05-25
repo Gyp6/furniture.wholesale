@@ -15,4 +15,11 @@ export class CategoryMapper {
       slug: entity.slug,
     };
   }
+
+  static toResponseClear(entity: Category): Omit<CategoryResponse, 'id'> {
+    return {
+      title: entity.title,
+      slug: entity.slug,
+    };
+  }
 }

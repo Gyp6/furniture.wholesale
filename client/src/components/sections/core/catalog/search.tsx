@@ -19,7 +19,9 @@ export function CatalogSearch() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [searchValue, setSearchValue] = useState(searchParams.get('search') || '');
+  const [searchValue, setSearchValue] = useState(
+    searchParams.get('search') || '',
+  );
 
   useEffect(() => {
     setSearchValue(searchParams.get('search') || '');
@@ -35,12 +37,14 @@ export function CatalogSearch() {
       }
       return params.toString();
     },
-    [searchParams]
+    [searchParams],
   );
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      router.push(`${pathname}?${createQueryString('search', searchValue)}`, { scroll: false });
+      router.push(`${pathname}?${createQueryString('search', searchValue)}`, {
+        scroll: false,
+      });
     }
   };
 
@@ -54,7 +58,7 @@ export function CatalogSearch() {
           id={'catalog-search-url'}
           placeholder={'Search current catalog...'}
           value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
+          onChange={e => setSearchValue(e.target.value)}
           onKeyDown={handleSearch}
         />
       </InputGroup>

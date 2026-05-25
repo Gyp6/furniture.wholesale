@@ -1,9 +1,9 @@
 // components/role-card.tsx
+import { CircleCheck } from 'lucide-react';
 import Image from 'next/image';
 
 import { cn } from '@/lib/cn';
 import type { TRoleCard } from '@/shared/types';
-import { CircleCheck } from 'lucide-react';
 
 interface Props extends TRoleCard {
   onClick?: (value: TRoleCard['value']) => void;

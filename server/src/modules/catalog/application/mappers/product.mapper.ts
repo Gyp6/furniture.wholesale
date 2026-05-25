@@ -3,8 +3,11 @@ import { Product } from '@catalog/domain/entities';
 import { Prisma } from '@prisma/client';
 
 import { COMPANY_STATUSES } from '@/common/constants/company-status.constant';
+import { TRoleValues } from '@/common/types';
 
+import { CategoryMapper } from './category.mapper';
 import { DimensionMapper } from './dimension.mapper';
+import { SpaceMapper } from './space.mapper';
 import { TagMapper } from './tag.mapper';
 
 type PrismaProductWithRelations = Prisma.ProductGetPayload<{
@@ -15,10 +18,14 @@ type PrismaProductWithRelations = Prisma.ProductGetPayload<{
         name: true;
         specializations: true;
         verificationStatus: true;
+        leadTime: true;
         ratingAvg: true;
       };
     };
+    supplier: true;
+    category: true;
     dimension: true;
+    spaces: { include: { spaceType: true } };
     tags: { include: { tag: true } };
   };
 }>;
@@ -30,12 +37,12 @@ export class ProductMapper {
       raw.sku,
       raw.title,
       raw.description,
-      raw.images,
       Number(raw.price),
       raw.stock,
       raw.minSellUnits,
+      raw.imagesCount,
+      raw.manufacturer.leadTime,
       raw.status,
-      raw.spaceType,
       raw.categoryId,
       raw.supplierId,
       raw.manufacturerId,
@@ -43,10 +50,18 @@ export class ProductMapper {
       raw.createdAt,
       raw.updatedAt,
       {
-        id: raw.dimension.id,
-        width: raw.dimension.width,
-        height: raw.dimension.height,
-        depth: raw.dimension.depth,
+        id: raw.category.id,
+        title: raw.category.title,
+        slug: raw.category.slug,
+      },
+      {
+        id: raw.supplier.id,
+        name: raw.supplier.name,
+        email: raw.supplier.email,
+        emailVerified: raw.supplier.emailVerified,
+        image: raw.supplier.image,
+        role: raw.supplier.role as TRoleValues,
+        banned: raw.supplier.banned,
       },
       {
         id: raw.manufacturer.id,
@@ -55,6 +70,19 @@ export class ProductMapper {
         verificationStatus: String(raw.manufacturer.verificationStatus),
         ratingAvg: Number(raw.manufacturer.ratingAvg),
       },
+      {
+        id: raw.dimension.id,
+        width: raw.dimension.width,
+        height: raw.dimension.height,
+        depth: raw.dimension.depth,
+      },
+      raw.spaces && Array.isArray(raw.spaces)
+        ? raw.spaces.map(s => ({
+            id: s.spaceType.id,
+            title: s.spaceType.title,
+            slug: s.spaceType.slug,
+          }))
+        : [],
       raw.tags && Array.isArray(raw.tags)
         ? raw.tags.map(t => ({
             id: t.tag.id,
@@ -65,8 +93,19 @@ export class ProductMapper {
     );
   }
 
-  static toResponse(entity: Product): ProductResponse {
+  static toResponse(entity: Product, s3Url: string): ProductResponse {
     const { verificationStatus, ...manufacturerRest } = entity.manufacturer;
+
+    const isDev = process.env.NODE_ENV === 'development';
+
+    const images = Array.from({ length: entity.imagesCount }).map(
+      (_, index) => {
+        return isDev
+          ? `${s3Url}/catalog/test/${index}.png`
+          : `${s3Url}/catalog/product/${entity.sku}/${index}.png`;
+      },
+    );
+
     return {
       id: entity.id,
       sku: entity.sku,
@@ -74,15 +113,17 @@ export class ProductMapper {
       description: entity.description,
       price: entity.price,
       stock: entity.stock,
-      images: entity.images,
+      images: images,
       minSellUnits: entity.minSellUnits,
-      spaceType: entity.spaceType,
+      leadTime: entity.leadTime,
 
-      dimension: DimensionMapper.toResponseClear(entity.dimension),
       manufacturer: {
         ...manufacturerRest,
         isVerified: verificationStatus === COMPANY_STATUSES.VERIFIED,
       },
+      category: CategoryMapper.toResponseClear(entity.category),
+      dimension: DimensionMapper.toResponseClear(entity.dimension),
+      spaces: entity.spaces.map(s => SpaceMapper.toResponseClear(s)),
       tags: entity.tags.map(t => TagMapper.toResponseClear(t)),
       createdAt: entity.createdAt,
     };
@@ -90,23 +131,37 @@ export class ProductMapper {
 
   static toResponseUnauthorized(
     entity: Product,
+    s3Url: string,
   ): Omit<
     ProductResponse,
     'sku' | 'price' | 'stock' | 'minSellUnits' | 'createdAt'
   > {
     const { verificationStatus, ...manufacturerRest } = entity.manufacturer;
+
+    const isDev = process.env.NODE_ENV === 'development';
+
+    const images = Array.from({ length: entity.imagesCount }).map(
+      (_, index) => {
+        return isDev
+          ? `${s3Url}/catalog/test/${index}.png`
+          : `${s3Url}/catalog/product/${entity.sku}/${index}.png`;
+      },
+    );
+
     return {
       id: entity.id,
       title: entity.title,
       description: entity.description,
-      images: entity.images,
-      spaceType: entity.spaceType,
+      images: images,
+      leadTime: entity.leadTime,
 
-      dimension: DimensionMapper.toResponseClear(entity.dimension),
       manufacturer: {
         ...manufacturerRest,
         isVerified: verificationStatus === COMPANY_STATUSES.VERIFIED,
       },
+      category: CategoryMapper.toResponseClear(entity.category),
+      dimension: DimensionMapper.toResponseClear(entity.dimension),
+      spaces: entity.spaces.map(s => SpaceMapper.toResponseClear(s)),
       tags: entity.tags.map(t => TagMapper.toResponseClear(t)),
     };
   }

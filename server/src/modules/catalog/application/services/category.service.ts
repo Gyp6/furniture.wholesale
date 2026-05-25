@@ -25,6 +25,12 @@ export class CategoryService {
     return CategoryMapper.toResponse(entity);
   }
 
+  async findBySlug(slug: string): Promise<CategoryResponse> {
+    const entity = await this.categoryRepository.findBySlug(slug);
+    if (!entity) throw new NotFoundException(`Category ${slug} not found`);
+    return CategoryMapper.toResponse(entity);
+  }
+
   async create(name: string): Promise<CategoryResponse> {
     const entity = await this.categoryRepository.create(name);
     return CategoryMapper.toResponse(entity);

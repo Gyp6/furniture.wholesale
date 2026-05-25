@@ -25,9 +25,7 @@ export default function PublicLayout({
                 'flex size-10 items-center justify-center text-primary-foreground'
               }
             >
-              <LOGO.LogoGyp6
-                size={50}
-              />
+              <LOGO.LogoGyp6 size={50} />
             </div>
             <span className={'link text-2xl font-black tracking-widest'}>
               Gyp6.sale
@@ -73,9 +71,7 @@ export default function PublicLayout({
                     'flex size-8 items-center justify-center rounded-full bg-white text-primary'
                   }
                 >
-                  <LOGO.LogoProject
-                    size={28}
-                  />
+                  <LOGO.LogoProject size={28} />
                 </div>
                 <span className={'text-sm font-medium'}>
                   Furniture.wholesale

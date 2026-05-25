@@ -1,5 +1,7 @@
 'use client';
 
+import { Eye, EyeOff } from 'lucide-react';
+
 import {
   FormStateSync,
   RoleButton,
@@ -18,7 +20,6 @@ import { RoleButtonsConfig } from '@/config';
 import { useRegisterForm } from '@/hooks';
 import { cn } from '@/lib/cn';
 import { horecaType, specifications } from '@/shared/data/auth';
-import { Eye, EyeOff } from 'lucide-react';
 
 export function RegisterForm() {
   const {
@@ -162,7 +163,11 @@ export function RegisterForm() {
                               'absolute inset-y-0 right-4 flex items-center text-muted-foreground hover:text-primary'
                             }
                           >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {showPassword ? (
+                              <EyeOff size={18} />
+                            ) : (
+                              <Eye size={18} />
+                            )}
                           </button>
                         </div>
                         {isInvalid && (
@@ -216,7 +221,11 @@ export function RegisterForm() {
                               'absolute inset-y-0 right-4 flex items-center text-muted-foreground hover:text-primary'
                             }
                           >
-                            {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {showConfirm ? (
+                              <EyeOff size={18} />
+                            ) : (
+                              <Eye size={18} />
+                            )}
                           </button>
                         </div>
                         {isInvalid && (

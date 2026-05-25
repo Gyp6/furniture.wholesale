@@ -4,5 +4,4 @@ export * from './horeca.constant';
 export * from './message.constant';
 export * from './product-status.constant';
 export * from './role.constant';
-export * from './space-type.constant';
 export * from './status.constant';

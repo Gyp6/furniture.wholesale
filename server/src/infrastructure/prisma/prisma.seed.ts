@@ -1,10 +1,10 @@
-// prisma/seed.ts
-import { hash } from '@node-rs/argon2';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, ProductStatus, Role, SpaceType } from '@prisma/client';
+import { BundleType, PrismaClient, ProductStatus, Role } from '@prisma/client';
+import { hashPassword } from 'better-auth/crypto';
 import 'dotenv/config';
 import { nanoid } from 'nanoid';
 
+import { generateAbbreviation } from '@/common/utils';
 import { generateSlug } from '@/core/lib/slugify.lib';
 
 import { SmartSkuService } from '../smart-sku/smart-sku.service';
@@ -12,40 +12,22 @@ import { SmartSkuService } from '../smart-sku/smart-sku.service';
 const db_url = process.env.DATABASE_URL;
 console.log('DEBUG, prisma seed db_url:', db_url);
 
-const adapter = new PrismaPg({
-  connectionString: db_url as string,
-});
+const adapter = new PrismaPg({ connectionString: db_url as string });
 const prisma = new PrismaClient({ adapter });
 
-// --- Допоміжні утиліти для SKU та Абревіатур ---
-function seedGenerateSlug(text: string): string {
-  return generateSlug(text);
-}
+// ─────────────────────────────────────────
+// SEED DATA
+// ─────────────────────────────────────────
 
-function generateAbbreviation(name: string): string {
-  return name
-    .replace(/[^a-zA-Zа-яА-Я0-9\s]/g, '')
-    .split(/\s+/)
-    .map(word => word[0])
-    .join('')
-    .toUpperCase()
-    .substring(0, 4);
-}
-
-// function generateSku(
-//   name: string,
-//   price: number,
-//   sequence: number,
-//   mfgCode: string,
-// ): string {
-//   const dataString = `${name.trim().toLowerCase()}|${price}`;
-//   const hashNumber = fnv1a(dataString);
-//   const dataHash = hashNumber.toString(36).toUpperCase().padStart(10, '0');
-//   const paddedSeq = String(sequence).padStart(3, '0');
-//   return `GYP6-${dataHash}NBR${paddedSeq}-${mfgCode.toUpperCase()}`;
-// }
-
-// --- Дані як в DTO ---
+const SPACE_TYPES = [
+  { title: 'Restaurant' },
+  { title: 'Cafe' },
+  { title: 'Office' },
+  { title: 'Hotel' },
+  { title: 'Coworking' },
+  { title: 'Bar' },
+  { title: 'Retail' },
+];
 
 const CATEGORIES = [
   { title: 'Seating' },
@@ -86,110 +68,141 @@ const USERS = [
     taxCode: '87654321',
     specialisations: ['Interior Design', 'Architecture'],
   },
+  {
+    name: 'Retailer One',
+    email: 'retailer@gyp6.sale',
+    password: 'Password123',
+    role: Role.RETAILER,
+    companyName: 'Retail Co',
+    taxCode: '11223344',
+    specialisations: ['Retail'],
+  },
+  {
+    name: 'Yanbellq | Max',
+    email: 'yanbellq@gmail.com',
+    password: 'Password123',
+    role: Role.SUPPLIER,
+    companyName: '@HruCorp',
+    taxCode: '12312345',
+    specialisations: ['House-Loft-Furniture'],
+  },
 ];
 
 const PRODUCTS = [
   {
     supplierEmail: 'supplier@gyp6.sale',
     title: 'Nordic Wooden Dining Table',
-    images: ['marketplace/table-1.png'],
+    imagesCount: 5,
     price: 12500,
     minSellUnits: 4,
     categoryTitle: 'Dining',
-    tags: ['Nordic', 'Дерево'],
-    spaceType: SpaceType.RESTAURANT,
+    tags: ['Nordic', 'Wood'],
+    spaceTypeTitles: ['Restaurant', 'Hotel'],
     status: ProductStatus.ACTIVE,
     dimension: { width: 1800, height: 750, depth: 900 },
   },
   {
     supplierEmail: 'supplier@gyp6.sale',
     title: 'Industrial Metal Chair',
-    images: ['marketplace/chair-1.png'],
+    imagesCount: 5,
     price: 3200,
     minSellUnits: 10,
     categoryTitle: 'Seating',
     tags: ['Loft', 'Industrial'],
-    spaceType: SpaceType.CAFE,
+    spaceTypeTitles: ['Cafe', 'Restaurant', 'Bar', 'Coworking'],
     status: ProductStatus.ACTIVE,
     dimension: { width: 450, height: 850, depth: 500 },
   },
   {
     supplierEmail: 'supplier@gyp6.sale',
     title: 'Modern Office Desk',
-    images: ['marketplace/desk-1.png'],
+    imagesCount: 5,
     price: 18000,
     minSellUnits: 2,
     categoryTitle: 'Tables & Desks',
-    tags: ['Мінімалізм', 'Office'],
-    spaceType: SpaceType.OFFICE,
+    tags: ['Minimal', 'Office'],
+    spaceTypeTitles: ['Office', 'Coworking'],
     status: ProductStatus.ACTIVE,
     dimension: { width: 1400, height: 750, depth: 700 },
   },
   {
     supplierEmail: 'supplier@gyp6.sale',
     title: 'Luxury Lobby Sofa',
-    images: ['marketplace/sofa-1.png'],
+    imagesCount: 5,
     price: 45000,
     minSellUnits: 1,
     categoryTitle: 'Lounge',
-    tags: ['Luxury', 'Диван'],
-    spaceType: SpaceType.HOTEL,
+    tags: ['Luxury', 'Sofa'],
+    spaceTypeTitles: ['Hotel', 'Office'],
     status: ProductStatus.ACTIVE,
     dimension: { width: 2200, height: 800, depth: 950 },
   },
   {
     supplierEmail: 'supplier@gyp6.sale',
     title: 'Minimalist Coffee Table',
-    images: ['marketplace/coffee-table-1.png'],
+    imagesCount: 5,
     price: 7500,
     minSellUnits: 5,
     categoryTitle: 'Lounge',
-    tags: ['Мінімалізм'],
-    spaceType: SpaceType.HOTEL,
+    tags: ['Minimal'],
+    spaceTypeTitles: ['Hotel', 'Office', 'Coworking'],
     status: ProductStatus.ACTIVE,
     dimension: { width: 800, height: 450, depth: 800 },
   },
   {
     supplierEmail: 'supplier@gyp6.sale',
     title: 'Bistro Outdoor Set',
-    images: ['marketplace/bistro-1.png'],
+    imagesCount: 5,
     price: 15000,
     minSellUnits: 4,
     categoryTitle: 'Outdoor',
     tags: ['Nordic', 'Outdoor'],
-    spaceType: SpaceType.RESTAURANT,
+    spaceTypeTitles: ['Restaurant', 'Cafe', 'Bar'],
     status: ProductStatus.ACTIVE,
     dimension: { width: 700, height: 750, depth: 700 },
   },
   ...Array.from({ length: 20 }).map((_, i) => ({
     supplierEmail: 'supplier@gyp6.sale',
     title: `Extra Product ${i + 7}`,
-    images: ['marketplace/table-1.png'],
+    imagesCount: 5,
     price: 5000 + i * 1000,
     minSellUnits: i + 1,
     categoryTitle: 'Tables & Desks',
-    tags: ['Мінімалізм'],
-    spaceType: SpaceType.COWORKING,
+    tags: ['Minimal'],
+    spaceTypeTitles: ['Coworking', 'Office'],
     status: ProductStatus.ACTIVE,
     dimension: { width: 1200, height: 750, depth: 600 },
   })),
 ];
 
-function upsertTag(title: string) {
-  const slug = seedGenerateSlug(title);
-  return prisma.productTag.upsert({
-    where: { slug },
-    update: {},
-    create: { title, slug },
-  });
+// ─────────────────────────────────────────
+// SEEDERS
+// ─────────────────────────────────────────
+
+async function seedSpaceTypes(): Promise<Record<string, string>> {
+  console.log('🌱 Seeding space types...');
+  const result: Record<string, string> = {};
+
+  for (const st of SPACE_TYPES) {
+    const slug = generateSlug(st.title);
+    const spaceType = await prisma.spaceType.upsert({
+      where: { slug },
+      update: {},
+      create: { title: st.title, slug },
+    });
+    result[st.title] = spaceType.id;
+    console.log(`  ✅ SpaceType: ${st.title}`);
+  }
+
+  return result;
 }
 
-async function seedCategories() {
+async function seedCategories(): Promise<Record<string, string>> {
   console.log('🌱 Seeding categories...');
   const result: Record<string, string> = {};
 
   for (const cat of CATEGORIES) {
-    const slug = seedGenerateSlug(cat.title);
+    const slug = generateSlug(cat.title);
     const category = await prisma.category.upsert({
       where: { slug },
       update: {},
@@ -198,10 +211,22 @@ async function seedCategories() {
     result[cat.title] = category.id;
     console.log(`  ✅ Category: ${cat.title}`);
   }
+
   return result;
 }
 
-async function seedUsers() {
+function upsertTag(title: string) {
+  const slug = generateSlug(title);
+  return prisma.productTag.upsert({
+    where: { slug },
+    update: {},
+    create: { title, slug },
+  });
+}
+
+async function seedUsers(): Promise<
+  Record<string, { id: string; companyId: string; abbreviation: string }>
+> {
   console.log('🌱 Seeding users...');
   const result: Record<
     string,
@@ -209,7 +234,7 @@ async function seedUsers() {
   > = {};
 
   for (const userData of USERS) {
-    const passwordHash = await hash(userData.password);
+    const passwordHash = await hashPassword(userData.password);
 
     const userWithCompany = await prisma.$transaction(async tx => {
       let user = await tx.user.findUnique({ where: { email: userData.email } });
@@ -258,7 +283,7 @@ async function seedUsers() {
             name: userData.companyName,
             abbreviation,
             taxCode: userData.taxCode,
-            specializations: userData.specialisations, // 👈 ТЕПЕР СПЕЦІАЛІЗАЦІЇ СЕРЕД КЛЮЧІВ КОМПАНІЇ
+            specializations: userData.specialisations,
           },
         });
       }
@@ -285,6 +310,7 @@ async function seedUsers() {
       companyId: userWithCompany.companyId,
       abbreviation: userWithCompany.abbreviation,
     };
+
     console.log(
       `  ✅ User & Company: ${userData.email} (${userData.role}) -> Spec: ${userData.specialisations.join(', ')}`,
     );
@@ -299,26 +325,25 @@ async function seedProducts(
     { id: string; companyId: string; abbreviation: string }
   >,
   categories: Record<string, string>,
-) {
+  spaceTypes: Record<string, string>,
+): Promise<Record<string, string>> {
   console.log('🌱 Seeding products...');
+  const result: Record<string, string> = {}; // title -> id
 
   for (const [index, productData] of PRODUCTS.entries()) {
     const supplier = users[productData.supplierEmail];
     const categoryId = categories[productData.categoryTitle];
 
-    if (!supplier || !categoryId) {
+    const spaceTypeIds = productData.spaceTypeTitles
+      .map(t => spaceTypes[t])
+      .filter(Boolean);
+
+    if (!supplier || !categoryId || spaceTypeIds.length === 0) {
       console.warn(
-        `  ⚠️ Skip product: ${productData.title} (Supplier/Category error)`,
+        `  ⚠️ Skip product: ${productData.title} (Supplier/Category/SpaceType not found)`,
       );
       continue;
     }
-
-    const tagConnections = await Promise.all(
-      productData.tags.map(async title => {
-        const tag = await upsertTag(title);
-        return { tag: { connect: { id: tag.id } } };
-      }),
-    );
 
     const existing = await prisma.product.findFirst({
       where: { title: productData.title, supplierId: supplier.id },
@@ -333,44 +358,272 @@ async function seedProducts(
         manufacturerCode: supplier.abbreviation,
       });
 
-      await prisma.$transaction(async tx => {
-        const newDimension = await tx.dimension.create({
+      const tagConnections = await Promise.all(
+        productData.tags.map(async title => {
+          const tag = await upsertTag(title);
+          return { tag: { connect: { id: tag.id } } };
+        }),
+      );
+
+      const spaceConnections = spaceTypeIds.map(spaceTypeId => ({
+        spaceType: { connect: { id: spaceTypeId } },
+      }));
+
+      const created = await prisma.$transaction(async tx => {
+        const dimension = await tx.dimension.create({
           data: {
             width: productData.dimension.width,
             height: productData.dimension.height,
             depth: productData.dimension.depth,
           },
         });
-        await tx.product.create({
+
+        return tx.product.create({
           data: {
             id: nanoid(),
             sku: productSku,
             title: productData.title,
-            images: productData.images,
+            imagesCount: productData.imagesCount,
             price: productData.price,
             minSellUnits: productData.minSellUnits,
             status: productData.status,
-            spaceType: productData.spaceType,
             categoryId,
             supplierId: supplier.id,
             manufacturerId: supplier.companyId,
-            dimensionId: newDimension.id,
+            dimensionId: dimension.id,
             tags: { create: tagConnections },
+            spaces: { create: spaceConnections },
           },
         });
       });
+
+      result[productData.title] = created.id;
+    } else {
+      result[productData.title] = existing.id;
     }
 
     console.log(`  ✅ Product: ${productData.title}`);
   }
+
+  return result;
 }
+
+async function seedBundles(
+  users: Record<
+    string,
+    { id: string; companyId: string; abbreviation: string }
+  >,
+  products: Record<string, string>,
+  spaceTypes: Record<string, string>,
+): Promise<void> {
+  console.log('🌱 Seeding bundles...');
+
+  const supplierId = users['supplier@gyp6.sale']?.id;
+  const designerId = users['designer@gyp6.sale']?.id;
+  const restaurantSpaceId = spaceTypes['Restaurant'];
+  const officeSpaceId = spaceTypes['Office'];
+
+  if (!supplierId || !designerId || !restaurantSpaceId || !officeSpaceId) {
+    console.warn('  ⚠️ Skip bundles: required users/spaceTypes not found');
+    return;
+  }
+
+  // ── SUPPLIER-бандл: Restaurant Starter Kit ──────────────────────
+  // depth = 0, тільки товари, без вкладених бандлів
+  const existingSupplierBundle = await prisma.bundle.findFirst({
+    where: { name: 'Restaurant Starter Kit', userId: supplierId },
+  });
+
+  let supplierBundleId: string;
+
+  if (!existingSupplierBundle) {
+    const tableId = products['Nordic Wooden Dining Table'];
+    const chairId = products['Industrial Metal Chair'];
+
+    if (!tableId || !chairId) {
+      console.warn('  ⚠️ Skip supplier bundle: products not found');
+      return;
+    }
+
+    const tablePrice = await prisma.product
+      .findUnique({ where: { id: tableId } })
+      .then(p => p?.price ?? 0);
+    const chairPrice = await prisma.product
+      .findUnique({ where: { id: chairId } })
+      .then(p => p?.price ?? 0);
+
+    const supplierBundle = await prisma.bundle.create({
+      data: {
+        id: nanoid(),
+        bundleType: BundleType.SUPPLIER,
+        depth: 0,
+        userId: supplierId,
+        name: 'Restaurant Starter Kit',
+        description: 'Базовий набір для ресторану: стіл та стільці',
+        status: ProductStatus.ACTIVE,
+        spaceTypeId: restaurantSpaceId,
+        items: {
+          create: [
+            {
+              id: nanoid(),
+              productId: tableId,
+              quantity: 1,
+              priceSnapshot: tablePrice,
+            },
+            {
+              id: nanoid(),
+              productId: chairId,
+              quantity: 4,
+              priceSnapshot: chairPrice,
+            },
+          ],
+        },
+      },
+    });
+
+    supplierBundleId = supplierBundle.id;
+    console.log(`  ✅ Supplier bundle: ${supplierBundle.name}`);
+  } else {
+    supplierBundleId = existingSupplierBundle.id;
+    console.log(`  ♻️  Supplier bundle already exists: Restaurant Starter Kit`);
+  }
+
+  // ── USER-бандл: дизайнер збирає кошик ───────────────────────────
+  // depth = 1, містить SUPPLIER-бандл + окремий товар
+  const existingUserBundle = await prisma.bundle.findFirst({
+    where: { name: 'My Restaurant Design', userId: designerId },
+  });
+
+  if (!existingUserBundle) {
+    const sofaId = products['Luxury Lobby Sofa'];
+    const sofaPrice = sofaId
+      ? await prisma.product
+          .findUnique({ where: { id: sofaId } })
+          .then(p => p?.price ?? 0)
+      : null;
+
+    // Отримуємо snapshot ціни supplier-бандлу (сума товарів)
+    const supplierBundleItems = await prisma.bundleItem.findMany({
+      where: { bundleId: supplierBundleId },
+    });
+    const supplierBundlePrice = supplierBundleItems.reduce(
+      (sum, item) => sum + Number(item.priceSnapshot) * item.quantity,
+      0,
+    );
+
+    const userBundle = await prisma.bundle.create({
+      data: {
+        id: nanoid(),
+        bundleType: BundleType.USER,
+        depth: 1,
+        userId: designerId,
+        name: 'My Restaurant Design',
+        description:
+          'Комплект для ресторану від дизайнера: набір + диван у лоббі',
+        status: ProductStatus.DRAFT,
+        isShared: true,
+        shareToken: nanoid(),
+        spaceTypeId: restaurantSpaceId,
+        items: {
+          create: [
+            // Варіант Б: вкладений SUPPLIER-бандл
+            {
+              id: nanoid(),
+              nestedBundleId: supplierBundleId,
+              quantity: 1,
+              priceSnapshot: supplierBundlePrice,
+            },
+            // Варіант А: окремий товар (якщо є)
+            ...(sofaId && sofaPrice !== null
+              ? [
+                  {
+                    id: nanoid(),
+                    productId: sofaId,
+                    quantity: 1,
+                    priceSnapshot: sofaPrice,
+                  },
+                ]
+              : []),
+          ],
+        },
+      },
+    });
+
+    console.log(
+      `  ✅ User bundle: ${userBundle.name} (shared, token: ${userBundle.shareToken})`,
+    );
+  } else {
+    console.log(`  ♻️  User bundle already exists: My Restaurant Design`);
+  }
+}
+
+async function seedCarts(
+  users: Record<
+    string,
+    { id: string; companyId: string; abbreviation: string }
+  >,
+  products: Record<string, string>,
+): Promise<void> {
+  console.log('🌱 Seeding carts...');
+
+  const retailerId = users['retailer@gyp6.sale']?.id;
+  if (!retailerId) {
+    console.warn('  ⚠️ Skip cart: retailer not found');
+    return;
+  }
+
+  const deskId = products['Modern Office Desk'];
+  if (!deskId) {
+    console.warn('  ⚠️ Skip cart: product not found');
+    return;
+  }
+
+  // const deskPrice = await prisma.product
+  //   .findUnique({ where: { id: deskId } })
+  //   .then(p => p?.price ?? 0);
+
+  const cart = await prisma.cart.upsert({
+    where: { userId: retailerId },
+    update: {},
+    create: {
+      id: nanoid(),
+      userId: retailerId,
+    },
+  });
+
+  // Додаємо товар тільки якщо кошик порожній
+  const existingItems = await prisma.cartItem.findMany({
+    where: { cartId: cart.id },
+  });
+
+  if (existingItems.length === 0) {
+    await prisma.cartItem.create({
+      data: {
+        id: nanoid(),
+        cartId: cart.id,
+        productId: deskId,
+        quantity: 2,
+      },
+    });
+    console.log(`  ✅ Cart for retailer with product: Modern Office Desk x2`);
+  } else {
+    console.log(`  ♻️  Cart for retailer already has items`);
+  }
+}
+
+// ─────────────────────────────────────────
+// MAIN
+// ─────────────────────────────────────────
 
 async function main() {
   console.log('🚀 Starting seed...\n');
 
+  const spaceTypes = await seedSpaceTypes();
   const categories = await seedCategories();
   const users = await seedUsers();
-  await seedProducts(users, categories);
+  const products = await seedProducts(users, categories, spaceTypes);
+  await seedBundles(users, products, spaceTypes);
+  await seedCarts(users, products);
 
   console.log('\n✨ Seed completed successfully');
 }

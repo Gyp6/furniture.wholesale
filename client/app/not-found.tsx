@@ -1,9 +1,9 @@
 'use client';
 
+import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/shadcn/button';
-import { ArrowLeft } from 'lucide-react';
 
 export default function NotFound() {
   const router = useRouter();

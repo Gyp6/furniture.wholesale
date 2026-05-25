@@ -39,7 +39,7 @@ export const ROUTES = {
     CATALOG: {
       PRODUCT: {
         GET_ALL: '/products',
-        GET_ONE: (id: string) => `/products/${id}`
+        GET_ONE: (id: string) => `/products/${id}`,
       },
       CATEGORY: {
         GET_ALL: '/categories',

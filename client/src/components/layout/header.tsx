@@ -16,7 +16,7 @@ export async function HeaderContent() {
   return (
     <div className={'flex items-center justify-end gap-2 min-w-80'}>
       {session ? (
-        <Suspense fallback={(<div>hui</div>)}>
+        <Suspense fallback={<div>hui</div>}>
           <HeaderSearch user={user || null} />
         </Suspense>
       ) : (

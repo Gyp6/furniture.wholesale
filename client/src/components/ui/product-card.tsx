@@ -57,7 +57,7 @@ export function ProductCard({ isAuthorized, product }: Props) {
           </CardDescription>
         </CardHeader>
       </Link>
-      
+
       <CardContent className={'p-0 mt-auto'}>
         {isAuthorized ? (
           <div className={'flex flex-col gap-2'}>

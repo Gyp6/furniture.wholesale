@@ -111,7 +111,7 @@ export const productService = {
   },
 
   async getOne(id: string): Promise<IProduct> {
-    const { data } = await api.get(ROUTES.API.CATALOG.PRODUCT.GET_ONE(id))
+    const { data } = await api.get(ROUTES.API.CATALOG.PRODUCT.GET_ONE(id));
     return data;
-  }
+  },
 };

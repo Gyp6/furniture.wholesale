@@ -1,34 +1,4 @@
 services:
-  # postgres:
-  #   image: postgres:18.3-bookworm
-  #   container_name: gyp6-postgres
-  #   ports:
-  #     - "5432:5432"
-  #   environment:
-  #     - POSTGRES_USER=${POSTGRES_USER}
-  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-  #     - POSTGRES_DB=${POSTGRES_DB}
-  #   volumes:
-  #     - ${PROJECT_ROOT}/out/pg-data:/var/lib/postgresql
-  #   networks: 
-  #     - gyp6
-  #   restart: always
-
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   container_name: gyp6-pgadmin
-  #   ports:
-  #     - "8080:80"
-  #   environment:
-  #     - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
-  #     - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
-  #     - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=${PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED}
-  #   depends_on:
-  #     - postgres
-  #   networks: 
-  #     - gyp6
-  #   restart: always
-
   redis:
     image: redis:8.2.5-bookworm
     container_name: gyp6-redis
@@ -37,8 +7,6 @@ services:
       - 6379:6379
     volumes:
       - ${PROJECT_ROOT}/out/redis-data:/data
-    networks: 
-      - gyp6
     restart: always
 
   localstack:
@@ -54,9 +22,4 @@ services:
     volumes:
       - "${PROJECT_ROOT}/out/localstack-data:/persisted-data"
       - "/var/run/docker.sock:/var/run/docker.sock"
-    networks: 
-      - gyp6
     restart: always
-
-networks:
-   gyp6:

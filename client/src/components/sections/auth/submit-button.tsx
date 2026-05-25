@@ -1,9 +1,10 @@
 'use client';
 
+import { ArrowRight } from 'lucide-react';
+
 import { Button } from '@/components/ui/shadcn/button';
 import { cn } from '@/lib/cn';
 import { useAuthFormStore } from '@/store';
-import { ArrowRight } from 'lucide-react';
 
 type TLabels = {
   loading: string;
@@ -29,7 +30,8 @@ export function SubmitButton({ className, forForm, labels }: Props) {
     >
       {isSubmitting ? labels.loading : labels.standard}
       {!isSubmitting && (
-        <ArrowRight size={18}
+        <ArrowRight
+          size={18}
           className={'transition-transform group-hover:translate-x-2'}
         />
       )}
