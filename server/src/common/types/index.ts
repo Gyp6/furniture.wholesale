@@ -1,3 +1,4 @@
+export * from './bundle-type.type';
 export * from './horeca.type';
 export * from './mail-options.interface';
 export * from './message.type';

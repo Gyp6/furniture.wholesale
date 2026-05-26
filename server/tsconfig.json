@@ -37,6 +37,10 @@
         "./src/modules/catalog/*",
         "./src/modules/catalog/*/index.ts"
       ],
+      "@bundle/*": [
+        "./src/modules/bundle/*",
+        "./src/modules/bundle/*/index.ts"
+      ],
       "@identity/*": [
         "./src/modules/identity/*",
         "./src/modules/identity/*/index.ts"

@@ -1,4 +1,8 @@
+import { AuthModule } from '@auth/auth.module';
 import { S3Client } from '@aws-sdk/client-s3';
+import { BundleModule } from '@bundle/bundle.module';
+import { CatalogModule } from '@catalog/catalog.module';
+import { IdentityModule } from '@identity/identity.module';
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -19,9 +23,6 @@ import { RedisModule } from '@/infrastructure/redis/redis.module';
 import { RedisService } from '@/infrastructure/redis/redis.service';
 import { S3Module } from '@/infrastructure/s3/s3.module';
 import { SmartSkuModule } from '@/infrastructure/smart-sku/smart-sku.module';
-import { AuthModule } from '@/modules/auth/auth.module';
-import { CatalogModule } from '@/modules/catalog/catalog.module';
-import { IdentityModule } from '@/modules/identity/identity.module';
 
 import { AbilitiesGuard } from './application/guards';
 import { HealthService } from './application/services';
@@ -88,6 +89,7 @@ import { createAuth } from './lib';
     CaslModule,
     IdentityModule,
     CatalogModule,
+    BundleModule,
     OtpModule,
     SmartSkuModule,
   ],

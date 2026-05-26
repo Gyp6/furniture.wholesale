@@ -1,9 +1,9 @@
-import { EmailVerifyRequest } from '@identity/application/dto/requests/email-verify.request';
+import { EmailVerifyRequest } from '@identity/application/dto/requests';
 import {
   UserResponse,
   VerifiedUserResponse,
 } from '@identity/application/dto/responses';
-import { UserService } from '@identity/application/services/user.service';
+import { UserService } from '@identity/application/services';
 import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '@thallesp/nestjs-better-auth';

@@ -1,4 +1,6 @@
 export * from './auth.constant';
+export * from './bundle-type.constant';
+export * from './company-status.constant';
 export * from './excluded-route.constant';
 export * from './horeca.constant';
 export * from './message.constant';

@@ -1,6 +1,5 @@
 import { applyDecorators, Type } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { VerificationStatus } from '@prisma/client';
 import { Type as TransformType } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -22,7 +21,12 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { ROLES } from '../constants';
+import {
+  BUNDLE_TYPES,
+  COMPANY_STATUSES,
+  PRODUCT_STATUSES,
+  ROLES,
+} from '../constants';
 
 import { IsUnique } from './is-unique.validator';
 
@@ -67,13 +71,32 @@ export const IsRole = () =>
     IsEnum(ROLES, { message: 'Invalid role' }),
   );
 
+export const IsBundleType = () =>
+  applyDecorators(
+    ApiProperty({
+      enum: BUNDLE_TYPES,
+      example: BUNDLE_TYPES.USER,
+      description: 'B2B Bundle Type: SUPPLIER (depth=0) or USER (depth=1)',
+    }),
+    IsEnum(BUNDLE_TYPES, { message: 'Invalid bundle type' }),
+  );
+
 export const IsCompanyVerified = () =>
   applyDecorators(
     ApiProperty({
-      enum: VerificationStatus,
-      example: VerificationStatus.PENDING,
+      enum: COMPANY_STATUSES,
+      example: COMPANY_STATUSES.PENDING,
     }),
-    IsEnum(VerificationStatus, { message: 'Invalid verification status' }),
+    IsEnum(COMPANY_STATUSES, { message: 'Invalid verification status' }),
+  );
+
+export const IsProductStatus = () =>
+  applyDecorators(
+    ApiProperty({
+      enum: PRODUCT_STATUSES,
+      example: PRODUCT_STATUSES.ACTIVE,
+    }),
+    IsEnum(PRODUCT_STATUSES, { message: 'Invalid product status' }),
   );
 
 export const IsName = () =>
@@ -125,6 +148,17 @@ export const IsMinSellUnits = () =>
     IsOptional(),
     IsInt({ message: 'Min sell units quantity must be an integer' }),
     Min(1, { message: 'Min sell units quantity must be at least 1' }),
+  );
+
+export const IsQuantity = () =>
+  applyDecorators(
+    ApiPropertyOptional({
+      example: 10,
+      default: 1,
+      description: 'Quantity',
+    }),
+    IsInt({ message: 'Quantity must be an integer' }),
+    Min(1, { message: 'Quantity must be at least 1' }),
   );
 
 export const IsImages = () =>
@@ -375,6 +409,7 @@ export const IsDescription = () =>
       nullable: true,
       description: 'description',
     }),
+    IsString({ message: 'Description must be a string' }),
   );
 
 export const IsUserImage = () =>
@@ -458,6 +493,13 @@ export const IsOtpCode = () =>
       example: '123456',
     }),
     IsString({ message: 'Code must be a string' }),
+  );
+
+export const IsPriceSnapshot = () =>
+  applyDecorators(
+    ApiProperty({ example: 1450.5, description: 'Price snapshot in UAH' }),
+    IsNumber({}, { message: 'Price snapshot must be a number' }),
+    Min(0.01),
   );
 
 export const IsLink = () =>

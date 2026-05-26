@@ -1,16 +1,17 @@
 import { Ability, AbilityBuilder, InferSubjects } from '@casl/ability';
 import { createPrismaAbility, PrismaQuery } from '@casl/prisma';
 import { Injectable } from '@nestjs/common';
-import { Company, Product, Profile, Role, User } from '@prisma/client';
+import { Bundle, Company, Product, Profile, Role, User } from '@prisma/client';
 
 import { ECalsAction } from '@/common/enums';
 
 type AppSubjects =
-  | InferSubjects<User | Company | Profile | Product>
+  | InferSubjects<User | Company | Profile | Product | Bundle>
   | 'User'
   | 'Company'
   | 'Profile'
   | 'Product'
+  | 'Bundle'
   | 'all';
 
 export type AppAbility = Ability<[ECalsAction, AppSubjects], PrismaQuery>;
@@ -48,6 +49,11 @@ export class CaslAbilityFactory {
       if (isPublic) {
         can(ECalsAction.Read, 'Company');
       }
+
+      can(ECalsAction.Read, 'Bundle', { isShared: true });
+      can(ECalsAction.Read, 'Bundle', { userId: user.id });
+      can(ECalsAction.Update, 'Bundle', { userId: user.id });
+      can(ECalsAction.Delete, 'Bundle', { userId: user.id });
     }
 
     if (user.role === Role.SUPPLIER) {
