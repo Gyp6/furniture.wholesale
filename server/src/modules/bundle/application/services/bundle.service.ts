@@ -8,6 +8,7 @@ import {
   BundleNotSharedError,
 } from '@bundle/domain/exceptions';
 import { subject } from '@casl/ability';
+import { ProductService, SpaceService } from '@catalog/application/services';
 import {
   ForbiddenException,
   Inject,
@@ -21,6 +22,7 @@ import { nanoid } from 'nanoid';
 import { ECalsAction } from '@/common/enums';
 import { IReqUser } from '@/common/types';
 import { AppAbility } from '@/infrastructure/casl/casl.ability-factory';
+import { ProductResponse } from '@/modules/catalog/application/dto/responses';
 
 import {
   AddBundleItemRequest,
@@ -35,6 +37,8 @@ export class BundleService {
   constructor(
     @Inject(BUNDLE_REPOSITORY)
     private readonly bundleRepository: IBundleRepository,
+    private readonly spaceService: SpaceService,
+    private readonly productService: ProductService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -72,6 +76,11 @@ export class BundleService {
       );
     }
 
+    const space = await this.spaceService.findById(dto.spaceTypeId);
+    if (!space) {
+      throw new NotFoundException(`Space type ${dto.spaceTypeId} not found`);
+    }
+
     const now = new Date();
     const entity = new Bundle(
       nanoid(),
@@ -88,6 +97,7 @@ export class BundleService {
       ProductStatus.DRAFT,
       false,
       null,
+      space,
     );
 
     const saved = await this.bundleRepository.create(entity);
@@ -157,11 +167,21 @@ export class BundleService {
     if (entity.userId !== user.id)
       throw new ForbiddenException('You can only modify your own bundles.');
 
+    let domainProduct: ProductResponse | null = null;
+    if (dto.productId) {
+      domainProduct = await this.productService.findById(dto.productId);
+      if (!domainProduct)
+        throw new NotFoundException(`Product ${dto.productId} not found`);
+    }
+
+    let domainNestedBundle: Bundle | null = null;
     if (dto.nestedBundleId) {
-      const nested = await this.bundleRepository.findById(dto.nestedBundleId);
-      if (!nested)
+      domainNestedBundle = await this.bundleRepository.findById(
+        dto.nestedBundleId,
+      );
+      if (!domainNestedBundle)
         throw new NotFoundException(`Bundle ${dto.nestedBundleId} not found`);
-      entity.validateCanNest(nested);
+      entity.validateCanNest(domainNestedBundle);
     }
 
     const newItem = new BundleItem(
@@ -172,6 +192,8 @@ export class BundleService {
       dto.quantity,
       dto.priceSnapshot,
       new Date(),
+      domainProduct as any,
+      domainNestedBundle,
     );
 
     const updated = await this.bundleRepository.addItem(bundleId, newItem);

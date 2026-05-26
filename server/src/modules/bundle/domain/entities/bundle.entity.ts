@@ -3,6 +3,7 @@ import {
   CannotForkSupplierBundleError,
   SupplierBundleCannotNestError,
 } from '@bundle/domain/exceptions';
+import { Space } from '@catalog/domain/entities';
 import { nanoid } from 'nanoid';
 
 import { BUNDLE_TYPES, PRODUCT_STATUSES } from '@/common/constants';
@@ -26,6 +27,8 @@ export class Bundle {
     public status: TProductStatusValues,
     public isShared: boolean,
     public shareToken: string | null,
+
+    public readonly space: Space,
   ) {}
 
   get isSupplierBundle(): boolean {
@@ -61,6 +64,8 @@ export class Bundle {
           item.quantity,
           item.priceSnapshot,
           new Date(),
+          item.product,
+          item.nestedBundle,
         ),
     );
 
@@ -79,6 +84,7 @@ export class Bundle {
       PRODUCT_STATUSES.DRAFT,
       false,
       null,
+      this.space,
     );
   }
 

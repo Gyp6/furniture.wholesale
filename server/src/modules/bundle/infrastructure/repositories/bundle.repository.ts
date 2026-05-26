@@ -10,7 +10,24 @@ import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 @Injectable()
 export class BundleRepository implements IBundleRepository {
   private readonly include = {
-    items: true,
+    spaceType: true,
+    items: {
+      include: {
+        product: {
+          include: {
+            manufacturer: true,
+            supplier: true,
+            category: true,
+            dimension: true,
+            spaces: { include: { spaceType: true } },
+            tags: { include: { tag: true } },
+          },
+        },
+        nestedBundle: {
+          include: { items: true },
+        },
+      },
+    },
   } as const satisfies Prisma.BundleInclude;
 
   constructor(private readonly prisma: PrismaService) {}

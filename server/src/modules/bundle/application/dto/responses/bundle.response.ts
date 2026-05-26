@@ -1,4 +1,7 @@
+import { ProductResponse } from '@catalog/application/dto/responses';
 import { BundleType, ProductStatus } from '@prisma/client';
+
+import { IInfoObject } from '@/modules/catalog/domain/entities';
 
 export class BundleItemResponse {
   id!: string;
@@ -6,8 +9,8 @@ export class BundleItemResponse {
   priceSnapshot!: number;
   createdAt!: Date;
 
-  productId!: string | null;
-  nestedBundleId!: string | null;
+  product!: ProductResponse | null;
+  nestedBundle!: BundleResponse | null;
 }
 
 export class BundleResponse {
@@ -24,7 +27,7 @@ export class BundleResponse {
   shareToken!: string | null;
   shareUrl!: string | null;
 
-  spaceTypeId!: string;
+  space!: IInfoObject;
   parentBundleId!: string | null;
 
   items!: BundleItemResponse[];

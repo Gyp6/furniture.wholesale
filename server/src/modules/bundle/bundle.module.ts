@@ -1,3 +1,4 @@
+import { CatalogModule } from '@catalog/catalog.module';
 import { Module } from '@nestjs/common';
 
 import { BundleService } from './application/services';
@@ -12,7 +13,7 @@ const repositories = [
 ];
 
 @Module({
-  imports: [],
+  imports: [CatalogModule],
   controllers: [...controllers],
   providers: [...repositories, ...services],
   exports: [...repositories, ...services],

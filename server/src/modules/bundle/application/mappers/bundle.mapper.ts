@@ -1,28 +1,60 @@
 import { Bundle, BundleItem } from '@bundle/domain/entities';
 import { Prisma } from '@prisma/client';
 
+import {
+  ProductMapper,
+  SpaceMapper,
+} from '@/modules/catalog/application/mappers';
+
 import { BundleResponse } from '../dto/responses';
 
 import { BundleItemMapper } from './bundle-item.mapper';
 
 export type PrismaBundleWithItems = Prisma.BundleGetPayload<{
-  include: { items: true };
+  include: {
+    spaceType: true;
+    items: {
+      include: {
+        product: {
+          include: {
+            manufacturer: true;
+            supplier: true;
+            category: true;
+            dimension: true;
+            spaces: { include: { spaceType: true } };
+            tags: { include: { tag: true } };
+          };
+        };
+        nestedBundle: {
+          include: { items: true };
+        };
+      };
+    };
+  };
 }>;
 
 export class BundleMapper {
   static toDomain(raw: PrismaBundleWithItems): Bundle {
-    const domainItems = raw.items.map(
-      item =>
-        new BundleItem(
-          item.id,
-          item.bundleId,
-          item.productId,
-          item.nestedBundleId,
-          item.quantity,
-          Number(item.priceSnapshot),
-          item.createdAt,
-        ),
-    );
+    const domainItems = raw.items.map(item => {
+      const domainProduct = item.product
+        ? ProductMapper.toDomain(item.product)
+        : null;
+      const domainNestedBundle = item.nestedBundle
+        ? BundleMapper.toDomain(item.nestedBundle as any)
+        : null;
+
+      return new BundleItem(
+        item.id,
+        item.bundleId,
+        item.productId,
+        item.nestedBundleId,
+        item.quantity,
+        Number(item.priceSnapshot),
+        item.createdAt,
+        domainProduct,
+        domainNestedBundle,
+      );
+    });
 
     return new Bundle(
       raw.id,
@@ -39,6 +71,7 @@ export class BundleMapper {
       raw.status,
       raw.isShared,
       raw.shareToken,
+      SpaceMapper.toDomain(raw.spaceType),
     );
   }
 
@@ -61,9 +94,9 @@ export class BundleMapper {
       shareUrl: entity.shareToken
         ? `${baseUrl}/bundles/share/${entity.shareToken}`
         : null,
-      spaceTypeId: entity.spaceTypeId,
+      space: SpaceMapper.toResponse(entity.space),
       parentBundleId: entity.parentBundleId,
-      items: entity.items.map(i => BundleItemMapper.toResponse(i)),
+      items: entity.items.map(i => BundleItemMapper.toResponse(i, baseUrl)),
       totalPrice,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
