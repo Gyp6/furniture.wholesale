@@ -3,6 +3,7 @@ export * from './order-table';
 export * from './statistics';
 export * from './active-projects';
 export * from './curation-tools';
+export * from './order-details-modal'
 
 export * from './designer';
 export * from './horeca';

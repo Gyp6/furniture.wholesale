@@ -10,7 +10,7 @@ import { ICONS } from '@/shared/data/icons';
 import { ISession } from '@/shared/types';
 
 interface Props {
-  user: ISession['user'];
+  user?: ISession['user'];
 }
 
 export function DashboardPage({ user }: Props) {
@@ -27,10 +27,10 @@ export function DashboardPage({ user }: Props) {
               'text-base font-bold uppercase tracking-widest text-muted-foreground mb-1'
             }
           >
-            {user.role} OVERVIEW
+            {user?.role ?? 'CURATOR'} OVERVIEW
           </p>
           <h1 className={'text-3xl font-bold tracking-tight'}>
-            Welcome back, {user.name}!
+            Welcome back, {user?.name ?? 'there'}!
           </h1>
         </div>
         <Button
@@ -52,7 +52,6 @@ export function DashboardPage({ user }: Props) {
       >
         <div className={'flex flex-col w-full min-h-0'}>
           <h2 className={'text-2xl font-semibold mb-3'}>Orders</h2>
-
           <OrderTable />
         </div>
 
