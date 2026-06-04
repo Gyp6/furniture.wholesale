@@ -1,5 +1,5 @@
-import { SupplierDashboardPage } from '@/components/sections/core/dashboard/supplier';
+import { SupplierPersonalDashboardPage } from '@/components/sections/core/dashboard/supplier';
 
-export default function DesignerDashboard() {
-  return <SupplierDashboardPage />;
+export default function SupplierPersonal() {
+  return <SupplierPersonalDashboardPage />;
 }

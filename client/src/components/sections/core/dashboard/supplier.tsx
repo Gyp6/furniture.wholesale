@@ -1,337 +1,188 @@
 'use client';
 
-import { ArrowUpRight, Check, X } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/shadcn/button';
 import {
-  CATEGORY_STYLES,
-  INVENTORY_STATUS_STYLES,
-  ORDER_STATUS_STYLES,
-} from '@/constants/dashboard.const';
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+} from '@/components/ui/shadcn/carousel';
+import { ORDER_STATUS_STYLES } from '@/constants/dashboard.const';
 import { authClient } from '@/lib';
 import {
-  InventoryData,
+  CurationToolsData,
+  HoRecaStatsData,
   OrdersData,
-  SupplierStatsData,
+  ProjectsData,
 } from '@/shared/data/dashboard';
 import { ICONS } from '@/shared/data/icons';
-import { EInventoryStatus, EOrderStatus } from '@/shared/enums/dashboard.enum';
+import { EOrderStatus } from '@/shared/enums/dashboard.enum';
+import { EditOrderModal } from './edit-order-modal';
+import { OrderConfirmModal } from './order-confirm-modal';
 
 const ICON_MAP: Record<string, React.ReactNode> = {
-  Cart: (
-    <ICONS.Cart
-      size={20}
-      color={'currentColor'}
-      className={'text-muted-foreground'}
-    />
-  ),
-  Market: (
-    <ICONS.Market
-      size={20}
-      color={'currentColor'}
-      className={'text-muted-foreground'}
-    />
-  ),
-  OrganizationFigma: (
-    <ICONS.OrganizationFigma
-      size={20}
-      color={'currentColor'}
-      className={'text-muted-foreground'}
-    />
-  ),
+  Cart: <ICONS.Cart size={20} color="currentColor" className="text-muted-foreground" />,
+  Market: <ICONS.Market size={20} color="currentColor" className="text-muted-foreground" />,
+  WalletFigma: <ICONS.WalletFigma size={20} color="currentColor" className="text-muted-foreground" />,
+  Bundles: <ICONS.Bundles size={20} color="currentColor" className="text-muted-foreground" />,
+  Stonks: <ICONS.Stonks size={20} color="currentColor" className="text-muted-foreground" />,
 };
 
-export function SupplierDashboardPage() {
+export function SupplierPersonalDashboardPage() {
   const { data: session } = authClient.useSession();
   const name = session?.user?.name?.split(' ')[0] ?? 'there';
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
 
   return (
-    <div className={'h-[calc(100vh-64px)] overflow-hidden flex flex-col'}>
-      <div
-        className={
-          'w-full bg-transparent px-8 py-5 flex items-center justify-between shrink-0'
-        }
-      >
+    <div className="h-[calc(100vh-64px)] overflow-hidden flex flex-col">
+
+      <div className="w-full bg-transparent px-10 py-5 flex items-center justify-between shrink-0">
         <div>
-          <p
-            className={
-              'text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1'
-            }
-          >
+          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
             Supplier Overview
           </p>
-          <h1 className={'text-5xl font-bold tracking-tight'}>
+          <h1 className="text-3xl font-bold tracking-tight">
             Welcome back, {name}!
           </h1>
         </div>
-        <Button
-          className={'rounded-full gap-2'}
-          variant={'default'}
-        >
-          <ICONS.Bundles
-            size={16}
-            color={'currentColor'}
-          />
-          Add New Bundle
+        <Button className="rounded-full gap-2" variant="default">
+          <ICONS.Bundle size={16} color="currentColor" />
+          Create Bundle
         </Button>
       </div>
 
-      <div
-        className={
-          'w-full px-10 py-4 flex flex-col lg:flex-row gap-[30px] flex-1 min-h-0'
-        }
-      >
-        <div className={'flex flex-col min-h-0'}>
-          <h2 className={'text-2xl font-semibold mb-3'}>Orders</h2>
+      <div className="w-full px-10 py-4 flex flex-col lg:flex-row gap-[30px] flex-1 min-h-0 items-stretch">
 
-          <div
-            className={
-              'rounded-4xl border border-neutral-100 overflow-hidden flex flex-col bg-white'
-            }
-            style={{ width: '1100px', height: '768px' }}
-          >
-            <div
-              className={
-                'grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr] px-5 py-3 border-b border-neutral-100 shrink-0'
-              }
-            >
+        <div className="flex flex-col min-h-0 flex-1">
+          <h2 className="text-2xl font-semibold mb-3">Orders</h2>
+
+          <div className="rounded-2xl border border-neutral-100 overflow-hidden flex flex-col min-h-0 flex-1 bg-white shadow-[0_8px_40px_rgba(0,0,0,0.08)]">
+            <div className="grid grid-cols-[0.8fr_0.8fr_1fr_1fr_0.8fr_1fr] px-5 py-3 border-b border-neutral-100 shrink-0">
               {['ORDER ID', 'ITEMS', 'DATE', 'STATUS', 'TOTAL', ''].map(col => (
-                <span
-                  key={col}
-                  className={
-                    'text-[14px] font-bold uppercase tracking-widest text-muted-foreground'
-                  }
-                >
+                <span key={col} className="text-[14px] font-bold uppercase tracking-widest text-muted-foreground">
                   {col}
                 </span>
               ))}
             </div>
-
-            <div className={'overflow-y-auto scrollbar-hide flex-1'}>
+            <div className="overflow-y-auto scrollbar-hide flex-1">
               {OrdersData.map((order, i) => (
                 <div
                   key={i}
-                  className={
-                    'grid grid-cols-[0.8fr_0.8fr_1fr_1fr_0.8fr_1fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors'
-                  }
+                  className="grid grid-cols-[0.8fr_0.8fr_1fr_1fr_0.8fr_1fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors cursor-pointer"
+                  onClick={() => setEditModalOpen(true)}
                 >
-                  <span className={'text-14 font-medium'}>{order.id}</span>
+                  <span className="text-sm font-medium text-muted-foreground">{order.id}</span>
 
-                  <div className={'flex items-center gap-1'}>
-                    <div className={'flex -space-x-2'}>
-                      <div
-                        className={
-                          'w-6 h-6 rounded-full bg-neutral-300 border-2 border-white'
-                        }
-                      />
-                      <div
-                        className={
-                          'w-6 h-6 rounded-full bg-neutral-400 border-2 border-white'
-                        }
-                      />
+                  <div className="flex items-center gap-1">
+                    <div className="flex -space-x-2">
+                      <div className="w-6 h-6 rounded-full bg-neutral-300 border-2 border-white" />
+                      <div className="w-6 h-6 rounded-full bg-neutral-400 border-2 border-white" />
                     </div>
                     {order.items > 0 && (
-                      <span
-                        className={'text-[14px] text-muted-foreground ml-0.5'}
-                      >
-                        +{order.items}
-                      </span>
+                      <span className="text-[14px] text-muted-foreground ml-0.5">+{order.items}</span>
                     )}
                   </div>
 
-                  <span className={'text-14 text-muted-foreground'}>
-                    {order.date}
-                  </span>
+                  <span className="text-sm text-muted-foreground">{order.date}</span>
 
-                  <span
-                    className={`inline-flex w-fit px-2.5 py-0.5 rounded-full text-[14px] font-bold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status as EOrderStatus]}`}
-                  >
+                  <span className={`inline-flex w-fit px-2.5 py-0.5 rounded-full text-[14px] font-bold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status as EOrderStatus]}`}>
                     {order.status}
                   </span>
 
-                  {order.status === EOrderStatus.PENDING ? (
-                    <div className={'flex items-center gap-2'}>
-                      <button
-                        className={
-                          'w-12 h-12 rounded-full bg-green-100 flex items-center justify-center hover:bg-green-200 transition-colors'
-                        }
-                      >
-                        <Check className={'w-6 h-6 text-green-600'} />
-                      </button>
-                      <button
-                        className={
-                          'w-12 h-12 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors'
-                        }
-                      >
-                        <X className={'w-6 h-6 text-red-500'} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div />
-                  )}
+                  <span className="text-sm font-semibold">
+                    ${order.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </span>
+
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="rounded-2xl gap-1 text-[14px] w-full h-10 px-3 bg-secondary/15 text-secondary hover:bg-secondary/25"
+                    onClick={(e) => { e.stopPropagation(); setConfirmModalOpen(true); }}
+                  >
+                    <ICONS.RefreshLoading size={20} color="currentColor" />
+                    Order again
+                  </Button>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <div className={'w-[700px] shrink-0 flex flex-col gap-6'}>
-          <div
-            className={
-              'rounded-2xl bg-white overflow-hidden flex flex-col h-[45%] shrink-0'
-            }
-          >
-            <div className={'px-5 py-4 shrink-0'}>
-              <h2 className={'text-2xl font-semibold'}>Active Inventory</h2>
-            </div>
+        <div className="w-[600px] shrink-0 flex flex-col gap-4 min-h-0">
 
-            <div
-              className={
-                'grid grid-cols-[2fr_1fr_0.8fr_0.8fr_0.6fr] px-5 py-2 border-y border-neutral-50 shrink-0'
-              }
-            >
-              {[
-                'PRODUCT NAME',
-                'CATEGORY',
-                'STOCK LEVEL',
-                'STATUS',
-                'ACTION',
-              ].map(col => (
-                <span
-                  key={col}
-                  className={
-                    'text-[14px] font-bold uppercase tracking-widest text-muted-foreground'
-                  }
-                >
-                  {col}
-                </span>
-              ))}
-            </div>
-
-            <div className={'overflow-y-auto scrollbar-hide flex-1'}>
-              {InventoryData.map((item, i) => (
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">Statistics</h2>
+            <div className="grid grid-cols-3 gap-3">
+              {HoRecaStatsData.map(stat => (
                 <div
-                  key={i}
-                  className={
-                    'grid grid-cols-[2fr_1fr_0.8fr_0.8fr_0.6fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors'
-                  }
+                  key={stat.label}
+                  className="relative rounded-2xl border border-neutral-100 p-5 bg-white shadow-[0_8px_40px_rgba(0,0,0,0.08)] min-h-[130px]"
                 >
-                  <div className={'flex items-center gap-2'}>
-                    <div
-                      className={'w-7 h-7 rounded-lg bg-neutral-100 shrink-0'}
-                    />
-                    <span className={'text-14 font-medium leading-tight'}>
-                      {item.name}
-                    </span>
-                  </div>
-
-                  <span
-                    className={`inline-flex w-fit px-2 py-0.5 rounded-full text-[14px] font-semibold ${CATEGORY_STYLES[item.category] ?? 'bg-neutral-100 text-neutral-600'}`}
-                  >
-                    {item.category}
-                  </span>
-
-                  <span className={'text-14 text-muted-foreground'}>
-                    {item.stock} units
-                  </span>
-
-                  <div className={'flex items-center gap-1'}>
-                    <div
-                      className={`w-1.5 h-1.5 rounded-full ${item.status === EInventoryStatus.ACTIVE ? 'bg-green-500' : 'bg-neutral-300'}`}
-                    />
-                    <span
-                      className={`text-14 ${INVENTORY_STATUS_STYLES[item.status]}`}
-                    >
-                      {item.status}
-                    </span>
-                  </div>
-
-                  <div className={'flex items-center gap-2'}>
-                    <button
-                      className={
-                        'w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors'
-                      }
-                    >
-                      <ICONS.PenFigma
-                        size={16}
-                        color={'currentColor'}
-                        className={'text-secondary'}
-                      />
-                    </button>
-                    <button
-                      className={
-                        'w-10 h-10 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors'
-                      }
-                    >
-                      <ICONS.TrashFigma
-                        size={16}
-                        color={'currentColor'}
-                        className={'text-red-500'}
-                      />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className={'grid grid-cols-3 gap-4'}>
-            {SupplierStatsData.map(stat => (
-              <div
-                key={stat.label}
-                className={
-                  'relative rounded-2xl border border-neutral-100 p-5 bg-white min-h-[130px]'
-                }
-              >
-                {stat.badge && (
-                  <span
-                    className={`absolute top-2.5 right-2.5 text-[14px] font-semibold px-1.5 py-0.5 rounded-full ${stat.badgeColor}`}
-                  >
+                  <span className={`absolute top-3 right-3 text-[12px] font-semibold px-2 py-1 rounded-full ${stat.badgeColor}`}>
                     {stat.badge}
                   </span>
-                )}
-                <div
-                  className={
-                    'w-9 h-9 rounded-xl bg-secondary/10 flex items-center justify-center mb-3'
-                  }
-                >
-                  {ICON_MAP[stat.icon]}
+                  <div className="w-9 h-9 rounded-xl bg-secondary/10 flex items-center justify-center mb-3">
+                    {ICON_MAP[stat.icon]}
+                  </div>
+                  <p className="text-3xl font-bold tracking-tight">{stat.value}</p>
+                  <p className="text-[12px] uppercase tracking-widest text-muted-foreground mt-1">{stat.label}</p>
                 </div>
-                <p className={'text-3xl font-bold tracking-tight'}>
-                  {stat.value}
-                </p>
-                <p
-                  className={
-                    'text-[14px] uppercase tracking-widest text-muted-foreground mt-1'
-                  }
-                >
-                  {stat.label}
-                </p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
-          <div
-            className={
-              'rounded-2xl border border-neutral-100 bg-white p-5 flex items-center justify-between shrink-0'
-            }
-          >
-            <div>
-              <p className={'text-xl font-semibold'}>Profile Completeness</p>
-              <p className={'text-s text-muted-foreground mt-0.5'}>
-                Increase visibility by finishing your setup.
-              </p>
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">Active Projects</h2>
+            <Carousel opts={{ align: 'start', dragFree: true }} className="w-full">
+              <CarouselContent className="-ml-3">
+                {ProjectsData.map((project, i) => (
+                  <CarouselItem key={i} className="pl-2 basis-[150px]">
+                    <div className="rounded-2xl border border-neutral-100 p-4 bg-white flex flex-col justify-between min-h-[160px] shadow-[0_8px_40px_rgba(0,0,0,0.08)]">
+                      <div className="flex justify-end">
+                        <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
+                          <ArrowUpRight className="w-4 h-4 text-secondary" />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xl font-semibold leading-tight">{project.title}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{project.units} Units</p>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselNext className="right-0 top-1/2 w-10 h-10 bg-secondary/10 border-none hover:bg-secondary/20 text-secondary" />
+            </Carousel>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">Curation Tools</h2>
+            <div className="grid grid-cols-2 gap-4">
+              {CurationToolsData.map(tool => (
+                <div
+                  key={tool.title}
+                  className="rounded-2xl border border-neutral-100 p-3 bg-white flex items-center gap-2 cursor-pointer hover:bg-secondary/5 transition-colors min-h-[84px] shadow-[0_8px_40px_rgba(0,0,0,0.08)]"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                    {ICON_MAP[tool.icon]}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">{tool.title}</p>
+                    <p className="text-[11px] text-muted-foreground">{tool.description}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <button
-              className={
-                'w-13 h-13 rounded-full bg-foreground flex items-center justify-center shrink-0 hover:bg-foreground/80 transition-colors'
-              }
-            >
-              <ArrowUpRight className={'w-6 h-6 text-background'} />
-            </button>
           </div>
         </div>
       </div>
+
+      <EditOrderModal open={editModalOpen} onOpenChange={setEditModalOpen} />
+      <OrderConfirmModal open={confirmModalOpen} onOpenChange={setConfirmModalOpen} />
     </div>
   );
 }
