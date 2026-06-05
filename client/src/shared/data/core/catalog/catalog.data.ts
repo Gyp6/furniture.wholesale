@@ -11,6 +11,8 @@ export const ProductCardData = {
   image: ROUTES.S3('marketplace/table-1.png'),
 };
 export const BundleCardData = {
+  id: 'bundle-1',
+  title: 'Modern Executive Suite',
   name: 'Modern Executive Suite',
   vendor: 'Noble Furniture Co.',
   description:
@@ -75,6 +77,22 @@ export const MOCK_TAGS = [
   { id: 'tag-4', title: 'Modern', slug: 'modern' },
 ];
 
+export const StyleOptions = [
+  'Nordic',
+  'Industrial',
+  'Minimalist',
+  'Modern',
+  'Classic',
+];
+
+export const SpaceTypeOptions = [
+  'Cafe',
+  'Restaurant',
+  'Hotel',
+  'Coworking',
+  'Office',
+  'Retail',
+];
 // export const MOCK_PRODUCTS: IProduct[] = [
 //   {
 //     id: '1',
