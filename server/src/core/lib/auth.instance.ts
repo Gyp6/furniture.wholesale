@@ -8,6 +8,8 @@ import { MailService } from '@/infrastructure/mail/mail.service';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 import { RedisService } from '@/infrastructure/redis/redis.service';
 
+import { betterAuthLoggingPlugin } from '../infrastructure/plugins';
+
 export const createAuth = (
   prismaService: PrismaService,
   configService: ConfigService,
@@ -75,6 +77,7 @@ export const createAuth = (
     },
 
     plugins: [
+      betterAuthLoggingPlugin(),
       admin({
         isDefaultAdmin: user => user.role === 'ADMIN',
         defaultRole: ROLES.RETAILER,

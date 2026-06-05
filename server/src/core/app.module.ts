@@ -2,9 +2,15 @@ import { AuthModule } from '@auth/auth.module';
 import { S3Client } from '@aws-sdk/client-s3';
 import { BundleModule } from '@bundle/bundle.module';
 import { CatalogModule } from '@catalog/catalog.module';
+import { LoggingMiddleware } from '@core/infrastructure/middleware';
 import { IdentityModule } from '@identity/identity.module';
 import { BullModule } from '@nestjs/bullmq';
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import {
@@ -106,4 +112,10 @@ import { createAuth } from './lib';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggingMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}

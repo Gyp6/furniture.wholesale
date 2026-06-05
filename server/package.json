@@ -2,9 +2,12 @@
   "name": "server",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": {
+    "name": "Yanbellq",
+    "email": "yanbellq@gmail.com"
+  },
   "private": true,
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "scripts": {
     "dev": "nest start --watch",
     "build": "nest build",

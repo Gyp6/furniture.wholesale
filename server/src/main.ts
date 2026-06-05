@@ -1,3 +1,10 @@
+import { LoggingInterceptor } from '@core/application/interceptors';
+import {
+  getExcludedRoutesConfig,
+  getFastifyCorsConfig,
+  getValidationPipeConfig,
+} from '@core/infrastructure/config';
+import { LoggingPlugin } from '@core/infrastructure/plugins';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -10,12 +17,6 @@ import { apiReference } from '@scalar/nestjs-api-reference';
 import { useContainer } from 'class-validator';
 
 import { AppModule } from './core/app.module';
-import { LoggingInterceptor } from './core/application/interceptors';
-import {
-  getExcludedRoutesConfig,
-  getFastifyCorsConfig,
-  getValidationPipeConfig,
-} from './core/infrastructure/config';
 
 async function bootstrap() {
   const adapter = new FastifyAdapter({
@@ -45,6 +46,11 @@ async function bootstrap() {
 
   const config = app.get(ConfigService);
   const logger = new Logger();
+  const fastifyInstance = adapter.getInstance();
+
+  // Викликається, коли запит повністю завершено і відправлено клієнту
+  // fastifyInstance.addHook('onResponse', LoggingPlugin());
+  await app.register(() => LoggingPlugin(fastifyInstance));
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
