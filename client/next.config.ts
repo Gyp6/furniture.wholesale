@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
         port: '4566',
         pathname: '/furniture-wholesale-bucket/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'furniture.wholesale',
+        pathname: '/uploads/**',
+      },
     ],
   },
   turbopack: {

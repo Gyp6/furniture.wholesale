@@ -5,7 +5,7 @@ export const ROUTES = {
   PLACEHOLDER: '#',
 
   UI: (url: string) => `${UI_URL}/${url}`,
-  S3: (url: string) => `${S3_URL}/furniture-wholesale-bucket/${url}`,
+  S3: (url: string) => `${S3_URL}/${url}`,
 
   GITHUB: {
     ORGANIZATION: 'https://github.com/Gyp6',

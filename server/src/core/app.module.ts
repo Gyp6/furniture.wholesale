@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import {
   AuthGuard as BetterAuthGuard,
   AuthModule as BetterAuthModule,
@@ -91,6 +92,17 @@ import { createAuth } from './lib';
       }),
       inject: [PrismaService, ConfigService, MailService, RedisService],
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 minute
+        limit: 100,
+      },
+      {
+        name: 'auth',
+        ttl: 900000, // 15 minutes
+        limit: 5,
+      },
+    ]),
     AuthModule,
     CaslModule,
     IdentityModule,
@@ -102,6 +114,10 @@ import { createAuth } from './lib';
   controllers: [HealthController],
   providers: [
     HealthService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: BetterAuthGuard,

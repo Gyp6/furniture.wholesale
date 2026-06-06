@@ -3,7 +3,8 @@ import { ROUTES } from '@/constants';
 export const ProfileData = {
   companyName: 'Noble Furniture Co.',
   location: 'Milan, Italy',
-  description: 'Crafting sustainable, high-end modular furniture for the modern contract market. Our pieces are designed for longevity and architectural purity.',
+  description:
+    'Crafting sustainable, high-end modular furniture for the modern contract market. Our pieces are designed for longevity and architectural purity.',
   email: 'contact@noblefurniture.com',
   address: 'Via della Spiga, 15, Milan',
   leadTime: '4-8 Weeks',
@@ -13,7 +14,7 @@ export const ProfileData = {
   preview: ROUTES.S3('profile/preview.jpg'),
   termsOfUse: ROUTES.S3('profile/terms.pdf'),
   curatorsType: [
-    { label: 'Restaurant'},
+    { label: 'Restaurant' },
     { label: 'Hotel' },
     { label: 'Coworking' },
   ],

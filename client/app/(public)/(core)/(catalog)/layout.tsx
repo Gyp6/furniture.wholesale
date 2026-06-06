@@ -9,8 +9,8 @@ export default function CatalogLayout({
   return (
     <div className={'flex flex-col min-h-screen bg-white'}>
       <HeroBg
-        title={'Marketplace'}
-        image={ROUTES.S3('marketplace/hero-bg.png')}
+        title={'Catalog'}
+        image={ROUTES.S3('catalog/background.png')}
       />
       <main className={'relative -top-18 px-10'}>
         <section

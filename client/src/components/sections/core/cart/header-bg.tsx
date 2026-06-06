@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+
+import { ShareModal } from '@/components/sections/core/cart/share-file';
 import { Button } from '@/components/ui/shadcn/button';
 import { ICONS } from '@/shared/data/icons';
-import { ShareModal } from '@/components/sections/core/cart/share-file';
 
 type TProjectHeaderProps = {
   title?: string;
@@ -19,8 +20,8 @@ export function ProjectHeader({
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className={'flex items-center justify-between'}>
+        <div className={'flex items-center gap-3'}>
           {isEditing ? (
             <input
               autoFocus
@@ -28,22 +29,30 @@ export function ProjectHeader({
               onChange={e => setTitle(e.target.value)}
               onBlur={() => setIsEditing(false)}
               onKeyDown={e => e.key === 'Enter' && setIsEditing(false)}
-              className="text-2xl font-bold tracking-tight border-b border-neutral-300 outline-none bg-transparent"
+              className={
+                'text-2xl font-bold tracking-tight border-b border-neutral-300 outline-none bg-transparent'
+              }
             />
           ) : (
-            <h1 className="text-4xl font-medium tracking-tight">{title}</h1>
+            <h1 className={'text-4xl font-medium tracking-tight'}>{title}</h1>
           )}
           <button
             onClick={() => setIsEditing(true)}
-            className="w-10 h-10 rounded-4xl bg-white flex items-center justify-center hover:bg-neutral-50 transition-colors border-0 shadow-sm"
+            className={
+              'w-10 h-10 rounded-4xl bg-white flex items-center justify-center hover:bg-neutral-50 transition-colors border-0 shadow-sm'
+            }
           >
-            <ICONS.PenFigma size={20} color="currentColor" className="text-secondary" />
+            <ICONS.PenFigma
+              size={20}
+              color={'currentColor'}
+              className={'text-secondary'}
+            />
           </button>
         </div>
 
         <Button
-          variant="default"
-          className="rounded-full gap-2"
+          variant={'default'}
+          className={'rounded-full gap-2'}
           style={{ width: '240px', height: '56px' }}
           onClick={() => setShareOpen(true)}
         >
@@ -52,7 +61,10 @@ export function ProjectHeader({
         </Button>
       </div>
 
-      <ShareModal open={shareOpen} onOpenChange={setShareOpen} />
+      <ShareModal
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+      />
     </>
   );
 }

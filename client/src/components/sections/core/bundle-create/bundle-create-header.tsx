@@ -18,18 +18,24 @@ export function BundleCreateHeader({ itemsCount }: TBundleCreateHeaderProps) {
   };
 
   return (
-    <div className="flex items-center justify-between">
-      <h1 className="text-3xl font-bold">Create new Space Bundle</h1>
-      <div className="flex items-center gap-3">
-        <Button variant="outline" className="rounded-full h-11 px-6 text-sm">
+    <div className={'flex items-center justify-between'}>
+      <h1 className={'text-3xl font-bold'}>Create new Space Bundle</h1>
+      <div className={'flex items-center gap-3'}>
+        <Button
+          variant={'outline'}
+          className={'rounded-full h-11 px-6 text-sm'}
+        >
           Cancel
         </Button>
         <Button
-          variant="default"
+          variant={'default'}
           className={`rounded-full h-11 px-6 text-sm gap-2 ${!canPublish ? 'opacity-50 cursor-not-allowed' : ''}`}
           onClick={handlePublish}
         >
-          <ICONS.Bundles size={16} color="currentColor" />
+          <ICONS.Bundles
+            size={16}
+            color={'currentColor'}
+          />
           Publish Space Bundle
         </Button>
       </div>

@@ -18,10 +18,12 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { ApiValidationErrorResponse } from '@/common/validators';
 
 @ApiTags('Auth')
+@Throttle({ auth: { limit: 5, ttl: 900000 } })
 @Controller('auth')
 export class AuthController {
   @ApiOperation({ summary: 'Register a new user endpoint' })
