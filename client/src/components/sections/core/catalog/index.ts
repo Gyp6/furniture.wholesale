@@ -5,6 +5,6 @@ export * from './sort';
 export * from './search';
 export * from './filter-badge-grid';
 export * from './catalog-content';
-export * from './bundles-grid';
 export * from './catalog-footer';
-// export * from './catalog-header'
+export * from './bundle-detail-modal';
+export * from './active-bundle-bar';

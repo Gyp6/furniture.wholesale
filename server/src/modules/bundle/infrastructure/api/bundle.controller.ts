@@ -13,10 +13,14 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
+
+import { BundleType } from '@prisma/client';
 
 import { IReqUser } from '@/common/types';
 import { CurrentAbility } from '@/core/decorators';
@@ -32,8 +36,27 @@ export class BundleController {
   })
   @ApiOkResponse({ type: [BundleResponse] })
   @Get('my')
-  findMy(@Req() { user: { id } }: { user: IReqUser }) {
-    return this.bundleService.findAllByUser(id);
+  @SkipThrottle()
+  findMy(
+    @Req() { user: { id } }: { user: IReqUser },
+    @Query('type') type?: BundleType,
+  ) {
+    return this.bundleService.findAllByUser(id, type);
+  }
+
+  // ── GET /bundles/supplier ─────────────────────────────────────
+  @ApiOperation({
+    summary: 'Get all active supplier bundles (available for purchase)',
+  })
+  @ApiOkResponse({ type: [BundleResponse] })
+  @Get('supplier')
+  @SkipThrottle()
+  @AllowAnonymous()
+  findAllSuppliers(
+    @Query('supplierId') supplierId?: string,
+    @Query('companyId') companyId?: string,
+  ) {
+    return this.bundleService.findAllSuppliers({ supplierId, companyId });
   }
 
   // ── GET /bundles/share/:token — публічно, без авторизації ─────
@@ -42,6 +65,7 @@ export class BundleController {
   })
   @ApiOkResponse({ type: BundleResponse })
   @Get('share/:token')
+  @SkipThrottle()
   @AllowAnonymous()
   findByShareToken(@Param('token') token: string) {
     return this.bundleService.findByShareToken(token);
@@ -51,6 +75,7 @@ export class BundleController {
   @ApiOperation({ summary: 'Get bundle by ID' })
   @ApiOkResponse({ type: BundleResponse })
   @Get(':id')
+  @SkipThrottle()
   findOne(@Param('id') id: string) {
     return this.bundleService.findById(id);
   }

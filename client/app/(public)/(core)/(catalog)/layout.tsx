@@ -7,15 +7,15 @@ export default function CatalogLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className={'flex flex-col min-h-screen bg-white'}>
+    <div className={'flex flex-col bg-[#F8F8FA]'}>
       <HeroBg
-        title={'Catalog'}
+        title={'Marketplace'}
         image={ROUTES.S3('catalog/background.png')}
       />
-      <main className={'relative -top-18 px-10'}>
+      <main className={'-mt-18 px-10 relative z-10'}>
         <section
           className={
-            'rounded-t-4xl bg-white p-10 flex flex-col items-center gap-10 w-full'
+            'rounded-t-4xl bg-[#F8F8FA] p-10 flex flex-col items-center gap-10 w-full'
           }
         >
           {children}

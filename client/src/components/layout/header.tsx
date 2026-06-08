@@ -1,22 +1,30 @@
+'use client';
+
 import { Skeleton } from '@shadcn/skeleton';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { Button } from '@/components/ui/shadcn/button';
 import { ROUTES } from '@/constants';
-import { getServerSession } from '@/services/session.service';
+import { authClient } from '@/lib';
 import { LOGO } from '@/shared/data/icons';
 
 import { HeaderNav } from './header-nav';
 import { HeaderSearch } from './header-search';
 
-export async function HeaderContent() {
-  const { user, session } = (await getServerSession()) || {};
+export function HeaderContent() {
+  const { data: sessionData, isPending } = authClient.useSession();
+  const session = sessionData?.session;
+  const user = sessionData?.user;
+
+  if (isPending) {
+    return <HeaderSkeleton />;
+  }
 
   return (
     <div className={'flex items-center justify-end gap-2 min-w-80'}>
       {session ? (
-        <Suspense fallback={<div>hui</div>}>
+        <Suspense fallback={<HeaderSkeleton />}>
           <HeaderSearch user={user || null} />
         </Suspense>
       ) : (
@@ -56,6 +64,13 @@ export function HeaderSkeleton() {
 }
 
 export function Header() {
+  const { data: sessionData, isPending } = authClient.useSession();
+  const user = sessionData?.user;
+
+  if (isPending) {
+    return <HeaderSkeleton />;
+  }
+
   return (
     <header
       className={
@@ -75,11 +90,9 @@ export function Header() {
         </span>
       </Link>
 
-      <HeaderNav />
+      <HeaderNav user={user || null} />
 
-      <Suspense fallback={<HeaderSkeleton />}>
-        <HeaderContent />
-      </Suspense>
+      <HeaderContent />
     </header>
   );
 }

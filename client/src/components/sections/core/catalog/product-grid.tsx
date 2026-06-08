@@ -11,34 +11,20 @@ import {
 } from '@shadcn/empty';
 import { Skeleton } from '@shadcn/skeleton';
 import { PackageSearch } from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { ProductCard } from '@/components/ui';
-import { useGetProducts } from '@/hooks/queries';
+import { IProduct } from '@/shared/types';
 
 interface Props {
   isAuthorized: boolean;
+  products?: IProduct[];
+  isLoading: boolean;
 }
 
-export function ProductGrid({ isAuthorized }: Props) {
+export function ProductGrid({ isAuthorized, products, isLoading }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const params = {
-    search: searchParams.get('search') || undefined,
-    categories: searchParams.get('categories')?.split(',').filter(Boolean),
-    spaces: searchParams.get('spaces')?.split(',').filter(Boolean),
-    tags: searchParams.get('tags')?.split(',').filter(Boolean),
-    minPrice: Number(searchParams.get('minPrice')) || undefined,
-    maxPrice: Number(searchParams.get('maxPrice')) || undefined,
-    sort: searchParams.get('sort') || undefined,
-    page: Number(searchParams.get('page')) || 1,
-    limit: 10,
-  };
-
-  const { data: response, isLoading } = useGetProducts(params);
-  const products = response?.items;
 
   const clearAll = () => {
     router.push(pathname, { scroll: false });

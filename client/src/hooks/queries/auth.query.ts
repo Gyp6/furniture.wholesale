@@ -9,14 +9,12 @@ export const authKeys = {
 };
 
 export const useVerifyEmail = () => {
-  const { setUser } = useUserStore();
-
   return useMutation({
     mutationKey: authKeys.verify(),
     mutationFn: (code: string) => authService.verifyEmail(code),
     onSuccess: data => {
       if (data.user) {
-        setUser(data.user);
+        useUserStore.getState().setUser(data.user);
       }
     },
   });

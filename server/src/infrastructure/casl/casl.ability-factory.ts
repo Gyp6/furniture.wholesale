@@ -1,17 +1,19 @@
 import { Ability, AbilityBuilder, InferSubjects } from '@casl/ability';
 import { createPrismaAbility, PrismaQuery } from '@casl/prisma';
 import { Injectable } from '@nestjs/common';
-import { Bundle, Company, Product, Profile, Role, User } from '@prisma/client';
+import { Bundle, Company, Product, Profile, Role, User, Order, SubOrder } from '@prisma/client';
 
 import { ECalsAction } from '@/common/enums';
 
 type AppSubjects =
-  | InferSubjects<User | Company | Profile | Product | Bundle>
+  | InferSubjects<User | Company | Profile | Product | Bundle | Order | SubOrder>
   | 'User'
   | 'Company'
   | 'Profile'
   | 'Product'
   | 'Bundle'
+  | 'Order'
+  | 'SubOrder'
   | 'all';
 
 export type AppAbility = Ability<[ECalsAction, AppSubjects], PrismaQuery>;

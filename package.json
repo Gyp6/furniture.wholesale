@@ -2,8 +2,13 @@
   "name": "furniture.wholesale",
   "version": "1.0.0",
   "description": "furniture wholesale",
+  "author": "@Gyp6.sale",
+  "license": "Apache-2.0",
   "directories": {
-    "doc": "docs"
+    "doc": "docs",
+    "server": "server",
+    "client": "client",
+    "deploy": "deploy"
   },
   "scripts": {
     "prepare": "husky"
@@ -13,8 +18,6 @@
     "url": "git+https://github.com/Gyp6/furniture.wholesale.git"
   },
   "keywords": [],
-  "author": "@Gyp6.sale",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Gyp6/furniture.wholesale/issues"
   },

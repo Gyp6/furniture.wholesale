@@ -49,6 +49,10 @@ s3-setup:
 	@powershell -Command "aws --endpoint-url=http://localhost:4566 s3 mb s3://$(S3_BUCKET_NAME)"
 	@echo "Bucket '$(S3_BUCKET_NAME)' created successfully."
 
+s3-cors:
+	@powershell -Command "aws --endpoint-url=http://localhost:4566 s3api put-bucket-cors --bucket $(S3_BUCKET_NAME) --cors-configuration file://deploy/s3-cors.json"
+	@echo "CORS configured for bucket '$(S3_BUCKET_NAME)'."
+
 s3-ls:
 	@powershell -Command "aws --endpoint-url=http://localhost:4566 s3 ls s3://$(S3_BUCKET_NAME) --recursive"
 

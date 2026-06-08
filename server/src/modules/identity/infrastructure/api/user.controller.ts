@@ -6,6 +6,7 @@ import {
 import { UserService } from '@identity/application/services';
 import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { AuthService } from '@thallesp/nestjs-better-auth';
 
 import { MESSAGE } from '@/common/constants';
@@ -28,6 +29,7 @@ export class UserController {
   @ApiOkResponse({ type: UserResponse })
   @ApiAuthenticationErrorResponse()
   @Get('me')
+  @SkipThrottle()
   async getMe(
     @Req() { user: { id } }: { user: IReqUser },
   ): Promise<UserResponse> {
@@ -47,6 +49,7 @@ export class UserController {
   })
   @ApiAuthenticationErrorResponse()
   @Get('check-session')
+  @SkipThrottle()
   async checkSession(@Req() req: Request) {
     return await this.authService.api.getSession({ headers: req.headers });
   }

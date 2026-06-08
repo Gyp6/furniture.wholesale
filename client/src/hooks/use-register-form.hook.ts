@@ -1,6 +1,7 @@
 'use client';
 
 import { useForm } from '@tanstack/react-form-nextjs';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -15,8 +16,11 @@ type SignUpOptions = Parameters<typeof authClient.signUp.email>[0];
 
 export function useRegisterForm() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  const { user, setUser } = useUserStore();
+  const user = useUserStore(state => state.user);
+  const setUser = (u: IUser | null) => useUserStore.getState().setUser(u);
+
   const {
     role,
     setRole,
@@ -39,18 +43,18 @@ export function useRegisterForm() {
   const form = useForm({
     ...registerFormOpts,
     onSubmit: async ({ value }) => {
-      console.log('hui');
-      const { passwordConfirm, ...cleanValue } = value;
+      const { passwordConfirm, taxId, ...cleanValue } = value;
 
       const registerPromise = authClient.signUp
         .email({
           type: role,
+          taxCode: taxId,
           ...cleanValue,
         } as SignUpOptions & {
           type: TRole;
           specialisations: string[];
           companyName: string;
-          taxId: string;
+          taxCode: string;
         })
         .then(result => {
           if (result.error) {
@@ -77,14 +81,6 @@ export function useRegisterForm() {
     },
   });
 
-  useEffect(() => {
-    console.log('DEBUG: role', role);
-  }, [role, form]);
-
-  useEffect(() => {
-    console.log('DEBUG: user', user);
-  }, [user]);
-
   const STEP1_FIELDS = [
     'name',
     'email',
@@ -105,8 +101,6 @@ export function useRegisterForm() {
       f => (form.state.fieldMeta[f]?.errors?.length ?? 0) > 0,
     );
 
-    console.log('hasErrors:', hasErrors, form.state.fieldMeta);
-
     if (!hasErrors) storeGoNext();
   };
 
@@ -116,6 +110,7 @@ export function useRegisterForm() {
 
   const onOtpSuccess = () => {
     setShowOtpModal(false);
+    queryClient.clear();
     router.push(ROUTES.DASHBOARD);
   };
 

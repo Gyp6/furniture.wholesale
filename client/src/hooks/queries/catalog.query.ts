@@ -1,11 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
   categoryService,
   IProductParams,
   productService,
   productTagService,
+  spaceService,
 } from '@/services';
+import { useAuthStatus } from '@/hooks/use-auth-status.hook';
 
 export const useGetCategories = () =>
   useQuery({
@@ -19,6 +21,12 @@ export const useGetTags = () =>
     queryFn: () => productTagService.getAll(),
   });
 
+export const useGetSpaces = () =>
+  useQuery({
+    queryKey: ['spaces'],
+    queryFn: () => spaceService.getAll(),
+  });
+
 export const useGetProducts = (params: IProductParams) =>
   useQuery({
     queryKey: ['products', params],
@@ -30,3 +38,22 @@ export const useGetProduct = (id: string) =>
     queryKey: ['product', id],
     queryFn: () => productService.getOne(id),
   });
+
+export const useGetMyProducts = () => {
+  const { user } = useAuthStatus();
+  return useQuery({
+    queryKey: ['products', 'my', user?.id],
+    queryFn: () => productService.getMyProducts(),
+    enabled: !!user?.id && (user.role === 'SUPPLIER' || user.role === 'ADMIN'),
+  });
+};
+
+export const useCreateProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: any) => productService.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+};

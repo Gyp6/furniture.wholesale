@@ -7,6 +7,7 @@ import {
   InputGroupInput,
 } from '@shadcn/input-group';
 import type { User } from 'better-auth';
+import { useQueryClient } from '@tanstack/react-query';
 import { LogOut, Search } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -14,6 +15,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ROUTES } from '@/constants';
 import { authClient } from '@/lib';
 import { cn } from '@/lib/cn';
+import { useUserStore } from '@/store';
 
 import {
   DropdownMenu,
@@ -26,6 +28,7 @@ import {
 
 export function HeaderSearch({ user }: { user: User | null }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -63,6 +66,8 @@ export function HeaderSearch({ user }: { user: User | null }) {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
+          useUserStore.getState().clearUser();
+          queryClient.clear();
           router.push(ROUTES.AUTH.LOGIN);
           router.refresh();
         },

@@ -1,15 +1,12 @@
 'use client';
 
-import { Checkbox } from '@shadcn/checkbox';
-import { Label } from '@shadcn/label';
 import { Separator } from '@shadcn/separator';
 import { Slider } from '@shadcn/slider';
 import { ChevronDown } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { SPACE_TYPES } from '@/constants';
-import { useGetCategories, useGetTags } from '@/hooks/queries';
+import { useGetCategories, useGetTags, useGetSpaces } from '@/hooks/queries';
 import { cn } from '@/lib/cn';
 import { IFilter } from '@/shared/types';
 
@@ -28,12 +25,12 @@ export function AccordionSection({
     <div>
       <button
         onClick={() => setOpen(!open)}
-        className={'flex justify-between items-center w-full py-1 outline-none'}
+        className={'flex justify-between items-center w-full py-1.5 outline-none cursor-pointer group'}
       >
-        <span className={'text-base font-semibold'}>{title}</span>
+        <span className={'text-base font-semibold text-neutral-800 group-hover:text-neutral-900'}>{title}</span>
         <ChevronDown
           className={cn(
-            'size-4 text-muted-foreground transition-transform duration-200',
+            'size-4 text-neutral-400 transition-transform duration-200 group-hover:text-neutral-500',
             { 'rotate-180': open },
           )}
         />
@@ -50,49 +47,61 @@ export function AccordionSection({
   );
 }
 
-export function CheckboxFilterGroup({
-  title,
-  defaultOpen = true,
-  items,
-  selectedItems,
-  onItemChange,
-  isLoading,
-}: Readonly<{
+interface FilterGroupProps {
   title: string;
-  defaultOpen?: boolean;
   items: IFilter[];
   selectedItems: string[];
   onItemChange: (id: string, checked: boolean) => void;
   isLoading?: boolean;
-}>) {
+}
+
+function RadioFilterGroup({
+  title,
+  items,
+  selectedItems,
+  onItemChange,
+  isLoading,
+}: FilterGroupProps) {
   return (
-    <AccordionSection
-      title={title}
-      defaultOpen={defaultOpen}
-    >
-      <div className={'space-y-2.5'}>
+    <AccordionSection title={title}>
+      <div className={'space-y-3.5'}>
         {isLoading ? (
-          <div className={'text-sm text-muted-foreground'}>Loading...</div>
+          <div className={'text-sm text-neutral-400 animate-pulse'}>Loading...</div>
         ) : (
-          items.map(item => (
-            <div
-              key={item.id}
-              id={item.slug}
-              className={'flex items-center space-x-2.5'}
-            >
-              <Checkbox
-                id={item.id}
-                checked={selectedItems.includes(item.id)}
-                onCheckedChange={checked => onItemChange(item.id, !!checked)}
-              />
-              <Label
-                htmlFor={item.id}
-                className={'text-sm text-muted-foreground cursor-pointer'}
+          items.map(item => {
+            const isSelected = selectedItems.includes(item.slug);
+            return (
+              <div
+                key={item.slug}
+                onClick={() => onItemChange(item.slug, !isSelected)}
+                className={'flex items-center gap-3 cursor-pointer group'}
               >
-                {item.title}
-              </Label>
-            </div>
-          ))
+                {/* Custom Radio Circle selector */}
+                <div
+                  className={cn(
+                    'w-[18px] h-[18px] rounded-full border flex items-center justify-center transition-all shrink-0',
+                    isSelected
+                      ? 'bg-blue-600 border-blue-600 text-white'
+                      : 'border-neutral-300 group-hover:border-neutral-400 bg-white',
+                  )}
+                >
+                  {isSelected && (
+                    <div className={'w-1.5 h-1.5 rounded-full bg-white'} />
+                  )}
+                </div>
+                <span
+                  className={cn(
+                    'text-sm transition-colors select-none',
+                    isSelected
+                      ? 'text-neutral-900 font-semibold'
+                      : 'text-neutral-500 group-hover:text-neutral-700',
+                  )}
+                >
+                  {item.title}
+                </span>
+              </div>
+            );
+          })
         )}
       </div>
     </AccordionSection>
@@ -104,11 +113,10 @@ export function CatalogSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [priceRange, setPriceRange] = useState([4000, 16000]);
-
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategories();
   const { data: tags, isLoading: isTagsLoading } = useGetTags();
+  const { data: spaces, isLoading: isSpacesLoading } = useGetSpaces();
 
   const selectedSpaces =
     searchParams.get('spaces')?.split(',').filter(Boolean) || [];
@@ -116,8 +124,15 @@ export function CatalogSidebar() {
     searchParams.get('categories')?.split(',').filter(Boolean) || [];
   const selectedTags =
     searchParams.get('tags')?.split(',').filter(Boolean) || [];
+
   const minPrice = Number(searchParams.get('minPrice')) || 0;
-  const maxPrice = Number(searchParams.get('maxPrice')) || 50000;
+  const maxPrice = Number(searchParams.get('maxPrice')) || 20000;
+
+  const [priceRange, setPriceRange] = useState([minPrice, maxPrice]);
+
+  useEffect(() => {
+    setPriceRange([minPrice, maxPrice]);
+  }, [minPrice, maxPrice]);
 
   const createQueryString = useCallback(
     (params: Record<string, string | null>) => {
@@ -130,7 +145,6 @@ export function CatalogSidebar() {
           newSearchParams.set(key, value);
         }
       }
-      // Reset page on filter change
       if (!params.page) newSearchParams.delete('page');
 
       return newSearchParams.toString();
@@ -162,17 +176,17 @@ export function CatalogSidebar() {
   };
 
   return (
-    <aside className={'w-full lg:w-60 shrink-0 space-y-4'}>
+    <aside className={'w-full lg:w-60 shrink-0 space-y-6'}>
       <h4
         className={
-          'text-sm font-bold uppercase tracking-widest text-muted-foreground'
+          'text-xs font-bold uppercase tracking-widest text-neutral-400'
         }
       >
         Filters
       </h4>
 
       <div className={'space-y-6'}>
-        <CheckboxFilterGroup
+        <RadioFilterGroup
           title={'Category'}
           items={categories || []}
           selectedItems={selectedCategories}
@@ -182,9 +196,9 @@ export function CatalogSidebar() {
           isLoading={isCategoriesLoading}
         />
 
-        <Separator />
+        <Separator className={'bg-neutral-100'} />
 
-        <CheckboxFilterGroup
+        <RadioFilterGroup
           title={'Style'}
           items={tags || []}
           selectedItems={selectedTags}
@@ -194,48 +208,84 @@ export function CatalogSidebar() {
           isLoading={isTagsLoading}
         />
 
-        <Separator />
+        <Separator className={'bg-neutral-100'} />
 
-        <CheckboxFilterGroup
-          title={'Space Type'}
-          items={SPACE_TYPES.map(s => ({ id: s, title: s, slug: s }))}
-          selectedItems={selectedSpaces}
-          onItemChange={(id, checked) =>
-            handleFilterChange('spaces', selectedSpaces, id, checked)
-          }
-        />
+        <AccordionSection title={'Space type'}>
+          <div className={'flex items-center gap-2 flex-wrap py-1.5'}>
+            {isSpacesLoading ? (
+              <div className={'text-sm text-neutral-400 animate-pulse'}>Loading...</div>
+            ) : (
+              (spaces || []).map(space => {
+                const isSelected = selectedSpaces.includes(space.slug);
+                return (
+                  <button
+                    key={space.slug}
+                    onClick={() => {
+                      const isChecked = !isSelected;
+                      const newSelected = isChecked
+                        ? [...selectedSpaces, space.slug]
+                        : selectedSpaces.filter(s => s !== space.slug);
+                      router.push(
+                        `${pathname}?${createQueryString({ spaces: newSelected.length ? newSelected.join(',') : null })}`,
+                        { scroll: false },
+                      );
+                    }}
+                    className={cn(
+                      'px-4 py-2 rounded-full text-xs font-semibold border transition-all cursor-pointer shadow-sm outline-none',
+                      isSelected
+                        ? 'bg-neutral-900 border-neutral-900 text-white hover:bg-neutral-800'
+                        : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50',
+                    )}
+                  >
+                    {space.title}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </AccordionSection>
 
-        <Separator />
+        <Separator className={'bg-neutral-100'} />
 
         <AccordionSection title={'Price'}>
-          <div
-            className={
-              'flex justify-between text-xs text-muted-foreground mb-2'
-            }
-          >
-            <Label className={'text-sm text-muted-foreground'}>
-              ${priceRange[0]}
-            </Label>
-            <Label className={'text-sm text-muted-foreground'}>
-              ${priceRange[1]}
-            </Label>
-          </div>
-          <div className={'space-y-4 py-4 px-1'}>
+          <div className={'space-y-4 py-2 px-1'}>
+            <div className={'flex items-center gap-2'}>
+              <div className={'relative flex-1'}>
+                <input
+                  type={'text'}
+                  value={new Intl.NumberFormat('en-US').format(priceRange[0])}
+                  disabled
+                  className={
+                    'w-full text-center border border-neutral-200 rounded-xl py-2 px-3 text-sm bg-white text-neutral-800 font-semibold'
+                  }
+                />
+              </div>
+              <span className={'text-xs text-neutral-400 font-medium select-none'}>to</span>
+              <div className={'relative flex-1'}>
+                <input
+                  type={'text'}
+                  value={new Intl.NumberFormat('en-US').format(priceRange[1])}
+                  disabled
+                  className={
+                    'w-full text-center border border-neutral-200 rounded-xl py-2 px-3 text-sm bg-white text-neutral-800 font-semibold'
+                  }
+                />
+              </div>
+            </div>
+
             <Slider
               value={priceRange}
               onValueChange={setPriceRange}
-              defaultValue={[minPrice, maxPrice]}
+              min={0}
               max={20000}
               step={100}
               onValueCommit={handlePriceChange}
+              className={'py-2 cursor-pointer'}
             />
-            <div
-              className={
-                'items-center justify-between text-sm text-muted-foreground hidden'
-              }
-            >
-              <span>${minPrice}</span>
-              <span>${maxPrice}</span>
+
+            <div className={'flex justify-between text-xs text-neutral-400 font-semibold select-none'}>
+              <span>$0k</span>
+              <span>$20k</span>
             </div>
           </div>
         </AccordionSection>

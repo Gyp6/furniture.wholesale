@@ -1,46 +1,82 @@
+'use client';
+
+import { useState } from 'react';
 import { Mail, MapPin } from 'lucide-react';
+import { CompanyProfileEditState } from '@/components/pages/core/profile/profile';
+import { ROUTES } from '@/constants';
 
-import { ProfileData } from '@/shared/data/core/profile-data/profile-data';
+interface ProfilePreviewProps {
+  formData: CompanyProfileEditState;
+  companyTaxCode?: string;
+}
 
-export function ProfilePreview() {
+export function ProfilePreview({ formData, companyTaxCode }: ProfilePreviewProps) {
+  const [bannerFailed, setBannerFailed] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
+
+  const companyBanner = companyTaxCode
+    ? ROUTES.S3(`identity/company/${companyTaxCode}/banner.png`)
+    : null;
+
+  const companyLogo = companyTaxCode
+    ? ROUTES.S3(`identity/company/${companyTaxCode}/logo.png`)
+    : null;
+
   return (
     <div className={'flex flex-col gap-4'}>
       <div
         className={
-          'rounded-2xl overflow-hidden w-full h-[200px] bg-neutral-100'
+          'rounded-2xl overflow-hidden w-full h-[200px] bg-neutral-100 relative'
         }
       >
-        <img
-          src={ProfileData.preview}
-          alt={ProfileData.companyName}
-          className={'w-full h-full object-cover'}
-        />
+        {companyBanner && !bannerFailed ? (
+          <img
+            src={companyBanner}
+            alt={formData.name || 'Company Profile Preview'}
+            className={'w-full h-full object-cover'}
+            onError={() => setBannerFailed(true)}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center">
+            <span className="text-sm text-muted-foreground">No banner uploaded</span>
+          </div>
+        )}
+        {companyLogo && !logoFailed && (
+          <div className="absolute bottom-3 left-3 w-12 h-12 rounded-xl bg-white shadow-lg overflow-hidden">
+            <img
+              src={companyLogo}
+              alt="Logo"
+              className="w-full h-full object-cover"
+              onError={() => setLogoFailed(true)}
+            />
+          </div>
+        )}
       </div>
 
       <div>
-        <p className={'text-xl font-bold'}>{ProfileData.companyName}</p>
+        <p className={'text-xl font-bold'}>{formData.name || 'Company Name'}</p>
         <p
           className={
             'text-[12px] uppercase tracking-widest text-muted-foreground mt-0.5'
           }
         >
-          {ProfileData.location}
+          {formData.showroomAddress?.split(',').pop()?.trim() || 'Location unknown'}
         </p>
       </div>
 
       <p className={'text-sm text-muted-foreground leading-relaxed'}>
-        {ProfileData.description}
+        {formData.description || 'No description provided.'}
       </p>
 
       <div className={'flex flex-wrap gap-1.5'}>
-        {ProfileData.curatorsType.map(tag => (
+        {formData.specializations.map(tag => (
           <span
-            key={tag.label}
+            key={tag}
             className={
               'text-[12px] font-semibold px-2.5 py-1 rounded-full bg-secondary/10 text-secondary'
             }
           >
-            {tag.label}
+            {tag}
           </span>
         ))}
       </div>
@@ -53,27 +89,41 @@ export function ProfilePreview() {
         >
           Lead Time
         </p>
-        <p className={'text-sm font-semibold'}>{ProfileData.leadTime}</p>
-        <button
-          className={
-            'text-sm text-secondary underline underline-offset-2 text-left'
-          }
-        >
-          Company's Terms of Use
-        </button>
+        <p className={'text-sm font-semibold'}>{formData.leadTime || '4-8 Weeks'}</p>
+        {companyTaxCode && (
+          <a
+            href={ROUTES.S3(`identity/company/${companyTaxCode}/terms-of-use.pdf`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={
+              'text-sm text-secondary underline underline-offset-2 text-left'
+            }
+          >
+            Company's Terms of Use
+          </a>
+        )}
+        {!companyTaxCode && (
+          <button
+            className={
+              'text-sm text-secondary underline underline-offset-2 text-left'
+            }
+          >
+            Company's Terms of Use
+          </button>
+        )}
       </div>
 
       <div className={'flex flex-col gap-2'}>
         <div className={'flex items-center gap-2'}>
           <MapPin className={'w-3.5 h-3.5 text-muted-foreground'} />
           <span className={'text-sm text-muted-foreground'}>
-            {ProfileData.address}
+            {formData.showroomAddress || 'Address not provided'}
           </span>
         </div>
         <div className={'flex items-center gap-2'}>
           <Mail className={'w-3.5 h-3.5 text-muted-foreground'} />
           <span className={'text-sm text-muted-foreground'}>
-            {ProfileData.email}
+            {formData.businessEmail || 'contact@company.com'}
           </span>
         </div>
       </div>

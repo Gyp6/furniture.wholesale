@@ -1,6 +1,7 @@
 'use client';
 
 import { useForm } from '@tanstack/react-form-nextjs';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -13,7 +14,7 @@ import { useUserStore } from '@/store';
 
 export function useLoginForm() {
   const router = useRouter();
-  const { setUser } = useUserStore();
+  const queryClient = useQueryClient();
 
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
@@ -40,7 +41,8 @@ export function useLoginForm() {
         success: data => {
           const user = data.user as unknown as IUser;
 
-          setUser(user);
+          queryClient.clear();
+          useUserStore.getState().setUser(user);
 
           setTimeout(() => {
             router.push(ROUTES.DASHBOARD);

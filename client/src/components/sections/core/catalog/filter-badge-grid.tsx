@@ -4,7 +4,7 @@ import { FilterBadge } from '@ui/filter-badge';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Button } from '@/components/ui/shadcn/button';
-import { useGetCategories, useGetTags } from '@/hooks/queries';
+import { useGetCategories, useGetTags, useGetSpaces } from '@/hooks/queries';
 
 export function FilterBadgeGrid() {
   const router = useRouter();
@@ -13,6 +13,7 @@ export function FilterBadgeGrid() {
 
   const { data: categories } = useGetCategories();
   const { data: tags } = useGetTags();
+  const { data: dbSpaces } = useGetSpaces();
 
   const spaces = searchParams.get('spaces')?.split(',').filter(Boolean) || [];
   const selectedCategories =
@@ -63,32 +64,35 @@ export function FilterBadgeGrid() {
         />
       )}
 
-      {selectedCategories.map(catId => {
-        const cat = categories?.find(c => c.id === catId);
+      {selectedCategories.map(catSlug => {
+        const cat = categories?.find(c => c.slug === catSlug);
         return (
           <FilterBadge
-            key={catId}
-            title={cat?.title || catId}
-            action={() => removeFilter('categories', catId, selectedCategories)}
+            key={catSlug}
+            title={cat?.title || catSlug}
+            action={() => removeFilter('categories', catSlug, selectedCategories)}
           />
         );
       })}
 
-      {spaces.map(space => (
-        <FilterBadge
-          key={space}
-          title={space}
-          action={() => removeFilter('spaces', space, spaces)}
-        />
-      ))}
-
-      {selectedTags.map(tagId => {
-        const tag = tags?.find(t => t.id === tagId);
+      {spaces.map(spaceSlug => {
+        const space = dbSpaces?.find(s => s.slug === spaceSlug);
         return (
           <FilterBadge
-            key={tagId}
-            title={tag?.title || tagId}
-            action={() => removeFilter('tags', tagId, selectedTags)}
+            key={spaceSlug}
+            title={space?.title || spaceSlug}
+            action={() => removeFilter('spaces', spaceSlug, spaces)}
+          />
+        );
+      })}
+
+      {selectedTags.map(tagSlug => {
+        const tag = tags?.find(t => t.slug === tagSlug);
+        return (
+          <FilterBadge
+            key={tagSlug}
+            title={tag?.title || tagSlug}
+            action={() => removeFilter('tags', tagSlug, selectedTags)}
           />
         );
       })}

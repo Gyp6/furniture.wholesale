@@ -26,7 +26,23 @@ export type PrismaBundleWithItems = Prisma.BundleGetPayload<{
           };
         };
         nestedBundle: {
-          include: { items: true };
+          include: {
+            spaceType: true;
+            items: {
+              include: {
+                product: {
+                  include: {
+                    manufacturer: true;
+                    supplier: true;
+                    category: true;
+                    dimension: true;
+                    spaces: { include: { spaceType: true } };
+                    tags: { include: { tag: true } };
+                  };
+                };
+              };
+            };
+          };
         };
       };
     };

@@ -39,12 +39,30 @@ services:
 
   backend:
     image: furniture-api:latest
-    container_name: backend
-    ports:
-      - "4200:4200"
+    container_name: api
     env_file:
       - env/.env.api
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    depends_on:
+      - postgres
+      - redis
+      - s3
+    restart: always
+
+  frontend:
+    image: furniture-web:latest
+    container_name: web
+    ports:
+      - "3000:3000"
+    env_file:
+      - env/.env.web
+    environment:
+      - NODE_ENV=production
+      - API_URL=http://api:4200
+      - S3_URL=http://s3:4566
+    depends_on:
+      - api
+      - s3
     restart: always

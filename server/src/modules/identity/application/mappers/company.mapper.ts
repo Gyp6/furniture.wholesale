@@ -27,6 +27,7 @@ export class CompanyMapper {
 
   static toResponse(entity: Company): CompanyResponse {
     return {
+      id: entity.id,
       name: entity.name,
       abbreviation: entity.abbreviation,
       taxCode: entity.taxCode,

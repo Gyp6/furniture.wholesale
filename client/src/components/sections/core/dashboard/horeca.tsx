@@ -10,16 +10,17 @@ import {
   CarouselItem,
   CarouselNext,
 } from '@/components/ui/shadcn/carousel';
+import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import { ORDER_STATUS_STYLES } from '@/constants/dashboard.const';
+import { useRouter } from 'next/navigation';
+
+import { useGetMyBundles, useGetMyOrders } from '@/hooks/queries';
 import { authClient } from '@/lib';
-import {
-  CurationToolsData,
-  HoRecaStatsData,
-  OrdersData,
-  ProjectsData,
-} from '@/shared/data/dashboard';
+import { CurationToolsData, HoRecaStatsData } from '@/shared/data/dashboard';
 import { ICONS } from '@/shared/data/icons';
 import { EOrderStatus } from '@/shared/enums/dashboard.enum';
+import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
+import { useUnsavedChangesStore } from '@/store/use-unsaved-changes.store';
 
 import { OrderDetailsModal } from './order-details-modal';
 
@@ -62,9 +63,49 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 };
 
 export function HoRecaDashboardPage() {
+  const router = useRouter();
+  const setActiveBundle = useSpaceBundleStore(state => state.setActiveBundle);
+  const clearBundle = useSpaceBundleStore(state => state.clearBundle);
+  const items = useSpaceBundleStore(state => state.items);
+  const activeBundleId = useSpaceBundleStore(state => state.activeBundleId);
+  const showUnsavedChanges = useUnsavedChangesStore(state => state.show);
+
   const { data: session } = authClient.useSession();
   const name = session?.user?.name?.split(' ')[0] ?? 'there';
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+
+  const { data: orders, isLoading: ordersLoading } = useGetMyOrders();
+  const { data: bundles, isLoading: bundlesLoading } = useGetMyBundles('USER');
+
+  // Derive live stats from real data
+  const liveStats = [
+    {
+      label: 'Total Orders',
+      value: orders?.length ?? '—',
+      icon: 'Cart',
+      badge: '+5%',
+      badgeColor: 'bg-green-100 text-green-700',
+    },
+    {
+      label: 'Active Bundles',
+      value: bundles?.length ?? '—',
+      icon: 'Bundles',
+      badge: 'New',
+      badgeColor: 'bg-blue-100 text-blue-700',
+    },
+    {
+      label: 'Total Spend',
+      value: orders
+        ? `$${orders.reduce((s, o) => s + (o.totalAmount ?? 0), 0).toLocaleString()}`
+        : '—',
+      icon: 'WalletFigma',
+      badge: 'YTD',
+      badgeColor: 'bg-purple-100 text-purple-700',
+    },
+  ];
+
+  const statsToShow = liveStats.length > 0 ? liveStats : HoRecaStatsData;
 
   return (
     <div className={'h-[calc(100dvh-64px)] overflow-hidden flex flex-col'}>
@@ -88,6 +129,17 @@ export function HoRecaDashboardPage() {
         <Button
           className={'rounded-full gap-2'}
           variant={'default'}
+          onClick={() => {
+            if (items.length > 0 && activeBundleId === null) {
+              showUnsavedChanges('/catalog', () => {
+                clearBundle();
+                router.push('/catalog');
+              });
+            } else {
+              clearBundle();
+              router.push('/catalog');
+            }
+          }}
         >
           <ICONS.Bundle
             size={16}
@@ -127,16 +179,23 @@ export function HoRecaDashboardPage() {
               ))}
             </div>
             <div className={'overflow-y-auto scrollbar-hide flex-1'}>
-              {OrdersData.map((order, i) => (
+              {ordersLoading ? (
+                <div className={'flex flex-col gap-2 p-4'}>
+                  {[...Array(5)].map((_, i) => (
+                    <Skeleton key={i} className={'h-12 rounded-xl'} />
+                  ))}
+                </div>
+              ) : orders && orders.length > 0 ? (
+                orders.map((order, i) => (
                 <div
-                  key={i}
+                  key={order.id || i}
                   className={
                     'grid grid-cols-[0.8fr_0.8fr_1fr_1fr_0.8fr_1fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors cursor-pointer'
                   }
-                  onClick={() => setModalOpen(true)}
+                  onClick={() => { setSelectedOrderId(order.id); setModalOpen(true); }}
                 >
                   <span className={'text-sm font-medium text-muted-foreground'}>
-                    {order.id}
+                    #{order.id.slice(0, 8).toUpperCase()}
                   </span>
 
                   <div className={'flex items-center gap-1'}>
@@ -146,34 +205,24 @@ export function HoRecaDashboardPage() {
                           'w-6 h-6 rounded-full bg-neutral-300 border-2 border-white'
                         }
                       />
-                      <div
-                        className={
-                          'w-6 h-6 rounded-full bg-neutral-400 border-2 border-white'
-                        }
-                      />
                     </div>
-                    {order.items > 0 && (
-                      <span
-                        className={'text-[14px] text-muted-foreground ml-0.5'}
-                      >
-                        +{order.items}
-                      </span>
-                    )}
+                    <span className={'text-[14px] text-muted-foreground ml-0.5'}>
+                      {order.subOrders?.reduce((s, so) => s + so.items.length, 0) ?? 0} items
+                    </span>
                   </div>
 
                   <span className={'text-sm text-muted-foreground'}>
-                    {order.date}
+                    {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </span>
 
                   <span
-                    className={`inline-flex w-fit px-2.5 py-0.5 rounded-full text-[14px] font-bold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status as EOrderStatus]}`}
+                    className={`inline-flex w-fit px-2.5 py-0.5 rounded-full text-[14px] font-bold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status as EOrderStatus] ?? 'bg-neutral-100 text-neutral-700'}`}
                   >
                     {order.status}
                   </span>
 
                   <span className={'text-sm font-semibold'}>
-                    $
-                    {order.total.toLocaleString('en-US', {
+                    ${(order.totalAmount ?? 0).toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                     })}
                   </span>
@@ -193,7 +242,12 @@ export function HoRecaDashboardPage() {
                     Order again
                   </Button>
                 </div>
-              ))}
+                ))
+              ) : (
+                <div className={'flex items-center justify-center h-full py-12 text-muted-foreground text-sm'}>
+                  No orders yet. Start shopping!
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -202,7 +256,7 @@ export function HoRecaDashboardPage() {
           <div>
             <h2 className={'text-2xl font-semibold mb-3'}>Statistics</h2>
             <div className={'grid grid-cols-3 gap-3'}>
-              {HoRecaStatsData.map(stat => (
+              {statsToShow.map(stat => (
                 <div
                   key={stat.label}
                   className={
@@ -237,49 +291,66 @@ export function HoRecaDashboardPage() {
           </div>
 
           <div>
-            <h2 className={'text-2xl font-semibold mb-3'}>Active Projects</h2>
-            <Carousel
-              opts={{ align: 'start', dragFree: true }}
-              className={'w-full'}
-            >
-              <CarouselContent className={'-ml-3'}>
-                {ProjectsData.map((project, i) => (
-                  <CarouselItem
-                    key={i}
-                    className={'pl-2 basis-[150px]'}
-                  >
-                    <div
-                      className={
-                        'rounded-2xl border border-neutral-100 p-4 bg-white flex flex-col justify-between min-h-[160px] shadow-[0_8px_40px_rgba(0,0,0,0.08)]'
-                      }
+            <h2 className={'text-2xl font-semibold mb-3'}>Active Bundles</h2>
+            {bundlesLoading ? (
+              <div className={'flex gap-2'}>
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} className={'w-[150px] h-[160px] rounded-2xl shrink-0'} />
+                ))}
+              </div>
+            ) : bundles && bundles.length > 0 ? (
+              <Carousel
+                opts={{ align: 'start', dragFree: true }}
+                className={'w-full'}
+              >
+                <CarouselContent className={'-ml-3'}>
+                  {bundles.map((bundle, i) => (
+                    <CarouselItem
+                      key={bundle.id || i}
+                      className={'pl-2 basis-[150px]'}
                     >
-                      <div className={'flex justify-end'}>
-                        <div
-                          className={
-                            'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center'
-                          }
-                        >
-                          <ArrowUpRight className={'w-4 h-4 text-secondary'} />
+                      <div
+                        className={
+                          'rounded-2xl border border-neutral-100 p-4 bg-white flex flex-col justify-between min-h-[160px] shadow-[0_8px_40px_rgba(0,0,0,0.08)] cursor-pointer hover:bg-secondary/5 transition-colors'
+                        }
+                        onClick={() => {
+                          setActiveBundle(bundle);
+                          router.push('/cart');
+                        }}
+                      >
+                        <div className={'flex justify-end'}>
+                          <div
+                            className={
+                              'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center'
+                            }
+                          >
+                            <ArrowUpRight className={'w-4 h-4 text-secondary'} />
+                          </div>
+                        </div>
+                        <div>
+                          <p className={'text-sm font-semibold leading-tight line-clamp-2'}>
+                            {bundle.name}
+                          </p>
+                          <p className={'text-xs text-muted-foreground mt-1'}>
+                            {bundle.items.length} Items
+                          </p>
+                          <p className={'text-xs font-bold text-secondary mt-1'}>
+                            ${bundle.totalPrice.toLocaleString()}
+                          </p>
                         </div>
                       </div>
-                      <div>
-                        <p className={'text-xl font-semibold leading-tight'}>
-                          {project.title}
-                        </p>
-                        <p className={'text-sm text-muted-foreground mt-1'}>
-                          {project.units} Units
-                        </p>
-                      </div>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselNext
-                className={
-                  'right-0 top-1/2 w-10 h-10 bg-secondary/10 border-none hover:bg-secondary/20 text-secondary'
-                }
-              />
-            </Carousel>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselNext
+                  className={
+                    'right-0 top-1/2 w-10 h-10 bg-secondary/10 border-none hover:bg-secondary/20 text-secondary'
+                  }
+                />
+              </Carousel>
+            ) : (
+              <p className={'text-sm text-muted-foreground'}>No active bundles yet.</p>
+            )}
           </div>
 
           <div>
@@ -315,6 +386,7 @@ export function HoRecaDashboardPage() {
       <OrderDetailsModal
         open={modalOpen}
         onOpenChange={setModalOpen}
+        orderId={selectedOrderId}
       />
     </div>
   );

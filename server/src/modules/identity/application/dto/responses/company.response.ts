@@ -5,6 +5,7 @@ import {
   IsCompanyName,
   IsCompanyRatingAvg,
   IsEmail,
+  IsHash,
   IsLeadTime,
   IsSpecialisations,
   IsTaxCode,
@@ -13,6 +14,9 @@ import {
 } from '@/common/validators';
 
 export class CompanyResponse {
+  @IsHash({ title: 'id' })
+  id!: string;
+
   @IsCompanyName()
   name!: string;
 

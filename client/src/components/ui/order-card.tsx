@@ -23,6 +23,7 @@ type TOrderCardProps = {
   image: string;
   onDelete?: () => void;
   onImageClick?: () => void;
+  onUpdateQuantity?: (quantity: number) => void;
 };
 
 export function OrderCard({
@@ -31,14 +32,19 @@ export function OrderCard({
   category,
   minPieces,
   pricePerUnit,
-  quantity: initialQuantity,
+  quantity,
   image,
   onDelete,
   onImageClick,
+  onUpdateQuantity,
 }: TOrderCardProps) {
-  const [quantity, setQuantity] = useState(initialQuantity);
-
   const totalPrice = pricePerUnit * quantity;
+
+  const handleUpdateQuantity = (newQty: number) => {
+    if (onUpdateQuantity) {
+      onUpdateQuantity(newQty);
+    }
+  };
 
   return (
     <Card
@@ -124,7 +130,9 @@ export function OrderCard({
               }
             >
               <button
-                onClick={() => setQuantity(q => Math.max(minPieces, q - 1))}
+                onClick={() =>
+                  handleUpdateQuantity(Math.max(minPieces, quantity - 1))
+                }
                 className={
                   'text-secondary font-bold text-base hover:opacity-70 transition-opacity'
                 }
@@ -139,7 +147,7 @@ export function OrderCard({
                 {String(quantity).padStart(2, '0')}
               </span>
               <button
-                onClick={() => setQuantity(q => q + 1)}
+                onClick={() => handleUpdateQuantity(quantity + 1)}
                 className={
                   'text-secondary font-bold text-base hover:opacity-70 transition-opacity'
                 }

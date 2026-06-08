@@ -24,7 +24,7 @@ export const ROUTES = {
   BUNDLES: '/bundles',
   DASHBOARD: '/dashboard',
   PRODUCT: (id: string) => `/product/${id}`,
-  PROFILE: (id: string) => `/profile/${id}`,
+  PROFILE: '/profile',
 
   API: {
     CORE: {

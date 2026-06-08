@@ -1,5 +1,4 @@
 import { HeroBg } from '@/components/layout';
-import { ROUTES } from '@/constants';
 
 export default function DashboardLayout({
   children,
@@ -7,13 +6,10 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className={'flex flex-col min-h-screen bg-white'}>
-      <HeroBg
-        title={'Dashboard'}
-        image={ROUTES.S3('marketplace/hero-bg.png')}
-      />
+    <div className={'flex flex-col min-h-screen bg-secondary/10'}>
+      <HeroBg title={'Dashboard'} />
       <main className={'relative -top-18 px-10'}>
-        <section className={'rounded-t-4xl bg-white p-10 w-full'}>
+        <section className={'rounded-t-4xl bg-secondary/10 p-10 w-full'}>
           {children}
         </section>
       </main>

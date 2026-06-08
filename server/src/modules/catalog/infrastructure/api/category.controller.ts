@@ -8,6 +8,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { AllowAnonymous, Roles } from '@thallesp/nestjs-better-auth';
 
 import { ROLES } from '@/common/constants';
@@ -20,6 +21,7 @@ export class CategoryController {
   @ApiOperation({ summary: 'Get all root categories with children' })
   @ApiOkResponse({ type: [CategoryResponse] })
   @Get()
+  @SkipThrottle()
   @AllowAnonymous()
   async findAll(): Promise<CategoryResponse[]> {
     return this.categoryService.findAll();
@@ -28,6 +30,7 @@ export class CategoryController {
   @ApiOperation({ summary: 'Get category by slug' })
   @ApiOkResponse({ type: CategoryResponse })
   @Get(':slug')
+  @SkipThrottle()
   @AllowAnonymous()
   async findOne(@Param('slug') slug: string): Promise<CategoryResponse> {
     return this.categoryService.findBySlug(slug);

@@ -11,10 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/shadcn/dialog';
-import {
-  BundleCardData,
-  OrderCardData,
-} from '@/shared/data/core/catalog/catalog.data';
+import { BundleCardData, OrderCardData } from '@/shared/data/core/catalog';
 
 type TOrderConfirmModalProps = {
   open: boolean;
@@ -66,11 +63,11 @@ export function OrderConfirmModal({
               image={OrderCardData.image}
             />
           ))}
-          <BundleCard
+          {/* <BundleCard
             isAuthorized={true}
             bundle={BundleCardData}
             hideButton={true}
-          />
+          /> */}
         </div>
 
         <div

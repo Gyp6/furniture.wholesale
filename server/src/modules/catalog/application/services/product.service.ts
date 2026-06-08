@@ -47,6 +47,11 @@ export class ProductService {
     return entities.map(p => ProductMapper.toResponse(p, this.s3Url));
   }
 
+  async findMyProducts(userId: string): Promise<ProductResponse[]> {
+    const entities = await this.productRepository.findBySupplier(userId);
+    return entities.map(p => ProductMapper.toResponse(p, this.s3Url));
+  }
+
   async findById(id: string): Promise<ProductResponse> {
     const entity = await this.productRepository.findOne(id);
     if (!entity) throw new NotFoundException(`Product ${id} not found`);

@@ -21,7 +21,6 @@ export function BundleCreatePage() {
       <BundleCreateHeader itemsCount={itemsCount} />
       <BundleCreateForm />
       <BundleCreateItems onItemsCountChange={setItemsCount} />
-      <Footer />
     </div>
   );
 }

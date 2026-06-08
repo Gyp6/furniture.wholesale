@@ -30,10 +30,10 @@ export function CatalogContent({ isAuthorized }: Props) {
     maxPrice: Number(searchParams.get('maxPrice')) || undefined,
     sort: searchParams.get('sort') || undefined,
     page: Number(searchParams.get('page')) || 1,
-    limit: 30,
+    limit: 10,
   };
 
-  const { data: response } = useGetProducts(params);
+  const { data: response, isLoading } = useGetProducts(params);
 
   const handlePageChange = (newPage: number) => {
     const newParams = new URLSearchParams(searchParams.toString());
@@ -44,7 +44,11 @@ export function CatalogContent({ isAuthorized }: Props) {
   return (
     <>
       {type === CatalogTypes.catalog ? (
-        <ProductGrid isAuthorized={isAuthorized} />
+        <ProductGrid
+          isAuthorized={isAuthorized}
+          products={response?.items}
+          isLoading={isLoading}
+        />
       ) : (
         <BundlesGrid isAuthorized={isAuthorized} />
       )}

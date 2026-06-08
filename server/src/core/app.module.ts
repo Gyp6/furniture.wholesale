@@ -4,6 +4,7 @@ import { BundleModule } from '@bundle/bundle.module';
 import { CatalogModule } from '@catalog/catalog.module';
 import { LoggingMiddleware } from '@core/infrastructure/middleware';
 import { IdentityModule } from '@identity/identity.module';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { BullModule } from '@nestjs/bullmq';
 import {
   MiddlewareConsumer,
@@ -35,6 +36,8 @@ import { AbilitiesGuard } from './application/guards';
 import { HealthService } from './application/services';
 import { HealthController } from './infrastructure/api';
 import { createAuth } from './lib';
+
+import { OrderModule } from '@order/order.module';
 
 @Module({
   imports: [
@@ -92,22 +95,25 @@ import { createAuth } from './lib';
       }),
       inject: [PrismaService, ConfigService, MailService, RedisService],
     }),
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000, // 1 minute
-        limit: 100,
-      },
-      {
-        name: 'auth',
-        ttl: 900000, // 15 minutes
-        limit: 5,
-      },
-    ]),
+    ThrottlerModule.forRootAsync({
+      // Ін'єктуємо наш RedisService
+      imports: [RedisModule],
+      inject: [RedisService],
+      useFactory: (redisService: RedisService) => ({
+        throttlers: [
+          { name: 'default', ttl: 60000, limit: 1000 },
+          { name: 'auth', ttl: 900000, limit: 30 },
+        ],
+        // Передаємо існуючий інстанс редіса
+        storage: new ThrottlerStorageRedisService(redisService),
+      }),
+    }),
     AuthModule,
     CaslModule,
     IdentityModule,
     CatalogModule,
     BundleModule,
+    OrderModule,
     OtpModule,
     SmartSkuModule,
   ],

@@ -44,6 +44,10 @@
       "@identity/*": [
         "./src/modules/identity/*",
         "./src/modules/identity/*/index.ts"
+      ],
+      "@order/*": [
+        "./src/modules/order/*",
+        "./src/modules/order/*/index.ts"
       ]
     },
     "types": ["node", "jest", "bun"]

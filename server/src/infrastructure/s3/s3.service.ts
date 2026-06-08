@@ -40,4 +40,23 @@ export class S3Service {
 
     return { uploadUrl, publicUrl, key };
   }
+
+  async getPresignedUploadUrlWithKey(
+    key: string,
+    contentType: string,
+  ): Promise<{ uploadUrl: string; publicUrl: string; key: string }> {
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+      ContentType: contentType,
+    });
+
+    const uploadUrl = await getSignedUrl(this.s3Client, command, {
+      expiresIn: 300,
+    });
+
+    const publicUrl = `${this.endpoint}/${this.bucket}/${key}`;
+
+    return { uploadUrl, publicUrl, key };
+  }
 }

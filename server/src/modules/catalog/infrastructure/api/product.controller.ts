@@ -28,6 +28,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { AllowAnonymous, Roles } from '@thallesp/nestjs-better-auth';
 
 import { ROLES } from '@/common/constants';
@@ -47,14 +48,25 @@ export class ProductController {
   @ApiOperation({ summary: 'Get all active products' })
   @ApiOkResponse({ type: [ProductResponse] })
   @Get()
+  @SkipThrottle()
   @AllowAnonymous()
   async findAll(@Req() { user }: { user: IReqUser | null }) {
     return this.productService.findAll(user);
   }
 
+  @ApiOperation({ summary: 'Get my products (supplier only)' })
+  @ApiOkResponse({ type: [ProductResponse] })
+  @Get('my')
+  @SkipThrottle()
+  @Roles([ROLES.SUPPLIER, ROLES.ADMIN])
+  async findMy(@Req() { user }: { user: IReqUser }): Promise<ProductResponse[]> {
+    return this.productService.findMyProducts(user.id);
+  }
+
   @ApiOperation({ summary: 'Get product by id' })
   @ApiOkResponse({ type: ProductResponse })
   @Get(':id')
+  @SkipThrottle()
   @AllowAnonymous()
   async findOne(@Param('id') id: string): Promise<ProductResponse> {
     return this.productService.findById(id);

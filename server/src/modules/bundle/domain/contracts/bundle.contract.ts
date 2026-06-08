@@ -7,8 +7,14 @@ import { TProductStatusValues } from '@/common/types';
 export const BUNDLE_REPOSITORY: unique symbol = Symbol('BUNDLE_REPOSITORY');
 export type BUNDLE_REPOSITORY = typeof BUNDLE_REPOSITORY;
 
+import { BundleType } from '@prisma/client';
+
 export interface IBundleRepository {
-  findAllByUserId(userId: string): Promise<Bundle[]>;
+  findAllByUserId(userId: string, type?: BundleType): Promise<Bundle[]>;
+  findAllSuppliers(params?: {
+    userId?: string;
+    companyId?: string;
+  }): Promise<Bundle[]>;
   findById(id: string): Promise<Bundle | null>;
   findByShareToken(token: string): Promise<Bundle | null>;
   findRaw(id: string): Promise<PrismaBundle | null>;

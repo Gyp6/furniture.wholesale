@@ -7,10 +7,12 @@ import {
 import { HealthService } from '@core/application/services';
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 
 @ApiTags('Health')
 @Controller()
+@SkipThrottle()
 @AllowAnonymous()
 export class HealthController {
   constructor(private readonly healthService: HealthService) {}

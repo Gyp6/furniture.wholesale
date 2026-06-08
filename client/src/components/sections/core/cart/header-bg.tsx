@@ -2,21 +2,84 @@
 
 import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { ShareModal } from '@/components/sections/core/cart/share-file';
 import { Button } from '@/components/ui/shadcn/button';
+import { bundleService } from '@/services';
 import { ICONS } from '@/shared/data/icons';
+import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
 
 type TProjectHeaderProps = {
   title?: string;
 };
 
-export function ProjectHeader({
-  title: initialTitle = 'Project Bundle #1',
-}: TProjectHeaderProps) {
+export function ProjectHeader() {
+  const store = useSpaceBundleStore();
+  const name = store.name || 'New Project Bundle';
   const [isEditing, setIsEditing] = useState(false);
-  const [title, setTitle] = useState(initialTitle);
+  const [title, setTitle] = useState<string>(String(name));
   const [shareOpen, setShareOpen] = useState(false);
+  const [shareLink, setShareLink] = useState<string>('');
+
+  const handleSave = () => {
+    setIsEditing(false);
+    if (title.trim()) {
+      useSpaceBundleStore.setState({ name: title.trim() });
+    }
+  };
+
+  const handleShareClick = async () => {
+    if (store.items.length === 0) {
+      toast.error('Кошик порожній. Немає чого поширювати.');
+      return;
+    }
+
+    if (!store.activeBundleId) {
+      toast.warning('Будь ласка, збережіть проєкт перед тим, як ділитися ним.');
+      return;
+    }
+
+    const sharePromise = (async () => {
+      // 1. Fetch current bundle state from database
+      const dbBundle = await bundleService.getOne(store.activeBundleId!);
+
+      // 2. Compare database state with store state to check for unsaved changes
+      const hasChanges =
+        dbBundle.name !== store.name ||
+        dbBundle.items.length !== store.items.length ||
+        store.items.some(storeItem => {
+          const dbItem = dbBundle.items.find(
+            di =>
+              (storeItem.productId && di.product?.id === storeItem.productId) ||
+              (storeItem.nestedBundleId &&
+                di.nestedBundle?.id === storeItem.nestedBundleId),
+          );
+          return !dbItem || dbItem.quantity !== storeItem.quantity;
+        });
+
+      if (hasChanges) {
+        throw new Error('UNSAVED_CHANGES');
+      }
+
+      // 3. Request sharing token
+      const updatedBundle = await bundleService.share(store.activeBundleId!);
+      const link = `${window.location.origin}/bundle/share/${updatedBundle.shareToken}`;
+      setShareLink(link);
+      setShareOpen(true);
+    })();
+
+    toast.promise(sharePromise, {
+      loading: 'Створення публічного посилання...',
+      success: 'Посилання створено!',
+      error: (err: any) => {
+        if (err?.message === 'UNSAVED_CHANGES') {
+          return 'У вас є незбережені зміни. Будь ласка, збережіть проєкт перед тим, як ділитися ним.';
+        }
+        return 'Не вдалося створити посилання.';
+      },
+    });
+  };
 
   return (
     <>
@@ -25,10 +88,10 @@ export function ProjectHeader({
           {isEditing ? (
             <input
               autoFocus
-              value={title}
+              value={title || ''}
               onChange={e => setTitle(e.target.value)}
-              onBlur={() => setIsEditing(false)}
-              onKeyDown={e => e.key === 'Enter' && setIsEditing(false)}
+              onBlur={handleSave}
+              onKeyDown={e => e.key === 'Enter' && handleSave()}
               className={
                 'text-2xl font-bold tracking-tight border-b border-neutral-300 outline-none bg-transparent'
               }
@@ -54,7 +117,7 @@ export function ProjectHeader({
           variant={'default'}
           className={'rounded-full gap-2'}
           style={{ width: '240px', height: '56px' }}
-          onClick={() => setShareOpen(true)}
+          onClick={handleShareClick}
         >
           Share Project
           <ExternalLink size={16} />
@@ -64,6 +127,7 @@ export function ProjectHeader({
       <ShareModal
         open={shareOpen}
         onOpenChange={setShareOpen}
+        link={shareLink}
       />
     </>
   );

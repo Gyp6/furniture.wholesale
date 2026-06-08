@@ -10,18 +10,44 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/shadcn/dialog';
-import { OrderCardData } from '@/shared/data/core/catalog/catalog.data';
+import { useGetOrder } from '@/hooks/queries';
 import { ICONS } from '@/shared/data/icons';
+import { Skeleton } from '@/components/ui/shadcn/skeleton';
 
 type TOrderDetailsModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  orderId: string | null;
 };
 
 export function OrderDetailsModal({
   open,
   onOpenChange,
+  orderId,
 }: TOrderDetailsModalProps) {
+  const { data: order, isLoading } = useGetOrder(orderId || '');
+
+  // Flatten items across all sub-orders in the order, or display directly if it is a single sub-order (supplier view)
+  const orderItems = order
+    ? ('subOrders' in order && order.subOrders
+        ? (order.subOrders as any[]).flatMap((sub) =>
+            (sub.items as any[]).map((item) => ({
+              ...item,
+              supplierName:
+                sub.supplier?.profile?.company?.name ||
+                sub.supplier?.name ||
+                'Supplier',
+            }))
+          )
+        : ((order as any).items as any[] || []).map((item) => ({
+            ...item,
+            supplierName:
+              (order as any).supplier?.profile?.company?.name ||
+              (order as any).supplier?.name ||
+              'Supplier',
+          })))
+    : [];
+
   return (
     <Dialog
       open={open}
@@ -41,29 +67,41 @@ export function OrderDetailsModal({
         </button>
         <DialogHeader>
           <DialogTitle className={'text-lg font-semibold'}>
-            Order Details
+            Order Details {order && `#${order.id.slice(0, 8).toUpperCase()}`}
           </DialogTitle>
         </DialogHeader>
-        \{' '}
-        <div
-          className={
-            'grid grid-cols-3 gap-4 overflow-y-auto max-h-[500px] scrollbar-hide'
-          }
-        >
-          {[...Array(6)].map((_, i) => (
-            <OrderCard
-              key={i}
-              name={OrderCardData.name}
-              vendor={OrderCardData.vendor}
-              category={OrderCardData.category}
-              minPieces={OrderCardData.minPieces}
-              pricePerUnit={OrderCardData.pricePerUnit}
-              quantity={OrderCardData.quantity}
-              image={OrderCardData.image}
-            />
-          ))}
-        </div>
-        \{' '}
+
+        {isLoading ? (
+          <div className="grid grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-[200px] rounded-2xl" />
+            ))}
+          </div>
+        ) : orderItems.length > 0 ? (
+          <div
+            className={
+              'grid grid-cols-3 gap-4 overflow-y-auto max-h-[500px] scrollbar-hide'
+            }
+          >
+            {orderItems.map((item) => (
+              <OrderCard
+                key={item.id}
+                name={item.titleSnapshot}
+                vendor={item.supplierName}
+                category={item.product?.category?.title || 'Furniture'}
+                minPieces={item.product?.minSellUnits || 1}
+                pricePerUnit={item.priceSnapshot}
+                quantity={item.quantity}
+                image={item.product?.images?.[0] || ''}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground text-sm">
+            No items found in this order.
+          </div>
+        )}
+
         <div
           className={'flex items-center gap-3 pt-2 border-t border-neutral-100'}
         >
@@ -72,17 +110,18 @@ export function OrderDetailsModal({
             className={'rounded-full h-11 flex-1'}
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            Close
           </Button>
           <Button
             variant={'default'}
             className={'rounded-full h-11 flex-1 gap-2'}
+            disabled
           >
             <ICONS.RefreshLoading
               size={16}
               color={'currentColor'}
             />
-            Order again
+            Reorder
           </Button>
         </div>
       </DialogContent>

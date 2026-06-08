@@ -12,6 +12,7 @@ export type PRODUCT_REPOSITORY = typeof PRODUCT_REPOSITORY;
 
 export interface IProductRepository {
   findAll(): Promise<Product[]>;
+  findBySupplier(supplierId: string): Promise<Product[]>;
   findOne(id: string): Promise<Product | null>;
   findRaw(id: string): Promise<PrismaProduct | null>;
   countBySupplierId(

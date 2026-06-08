@@ -48,6 +48,16 @@ export class ProductRepository implements IProductRepository {
     return raws.map(raw => ProductMapper.toDomain(raw));
   }
 
+  async findBySupplier(supplierId: string): Promise<Product[]> {
+    const raws = await this.prisma.product.findMany({
+      where: { supplierId },
+      include: this.include,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return raws.map(raw => ProductMapper.toDomain(raw));
+  }
+
   async findRaw(id: string): Promise<PrismaProduct | null> {
     return this.prisma.product.findUnique({ where: { id } });
   }

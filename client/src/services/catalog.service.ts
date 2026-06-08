@@ -39,44 +39,47 @@ export const productService = {
   async getAll(params: IProductParams = {}): Promise<IProductResponse> {
     const { data } = await api.get(ROUTES.API.CATALOG.PRODUCT.GET_ALL);
 
-    let products: IProduct[] = data.data;
-
-    console.log(products);
+    // API structure might be { data: { items: [], total: ... } } or just { items: [] }
+    let products: IProduct[] = (
+      Array.isArray(data) ? data : data.items || data.data || data
+    ) as IProduct[];
 
     if (params.search) {
       const search = params.search.toLowerCase();
       products = products.filter(
         p =>
           p.title.toLowerCase().includes(search) ||
-          p.vendor.toLowerCase().includes(search),
+          (p.manufacturer?.name?.toLowerCase?.() || '').includes(search),
       );
     }
 
     // Category filter
     if (params.categories && params.categories.length > 0) {
       products = products.filter(p =>
-        params.categories?.includes(p.categoryId),
+        p.category?.slug ? params.categories?.includes(p.category.slug) : false,
       );
     }
 
     // Space filter
     if (params.spaces && params.spaces.length > 0) {
-      products = products.filter(p => params.spaces?.includes(p.spaceType));
+      products = products.filter(p =>
+        p.spaces?.some(s => s.slug && params.spaces?.includes(s.slug)),
+      );
     }
 
     // Tag (Style) filter
     if (params.tags && params.tags.length > 0) {
       products = products.filter(p =>
-        p.tags.some(t => params.tags?.includes(t.slug)),
+        p.tags?.some(t => t.slug && params.tags?.includes(t.slug)),
       );
     }
 
     // Price filter
     if (params.minPrice !== undefined) {
-      products = products.filter(p => p.price >= params.minPrice!);
+      products = products.filter(p => p.price === undefined || Number(p.price) >= params.minPrice!);
     }
     if (params.maxPrice !== undefined) {
-      products = products.filter(p => p.price <= params.maxPrice!);
+      products = products.filter(p => p.price === undefined || Number(p.price) <= params.maxPrice!);
     }
 
     // Sort
@@ -113,5 +116,43 @@ export const productService = {
   async getOne(id: string): Promise<IProduct> {
     const { data } = await api.get(ROUTES.API.CATALOG.PRODUCT.GET_ONE(id));
     return data;
+  },
+
+  async getMyProducts(): Promise<IProduct[]> {
+    const { data } = await api.get('/products/my');
+    return data;
+  },
+
+  async create(dto: any): Promise<IProduct> {
+    const { data } = await api.post('/products', dto);
+    return data;
+  },
+
+  async getUploadUrl(mimeType: string): Promise<{ url: string; key: string }> {
+    const { data } = await api.post('/products/upload-url', { mimeType });
+    return data;
+  },
+
+  async uploadToS3(url: string, file: File): Promise<void> {
+    await fetch(url, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': file.type,
+      },
+    });
+  },
+};
+
+export interface ISpace {
+  id: string;
+  title: string;
+  slug: string;
+}
+
+export const spaceService = {
+  async getAll(): Promise<ISpace[]> {
+    const { data } = await api.get('/spaces');
+    return Array.isArray(data) ? data : data.items || [];
   },
 };

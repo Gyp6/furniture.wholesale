@@ -33,12 +33,12 @@ export function SupplierBundles() {
                 className={'shadow-[0_8px_40px_rgba(0,0,0,0.08)]'}
                 style={{ height: '340px' }}
               >
-                <BundleCard
+                {/* <BundleCard
                   isAuthorized={true}
                   bundle={BundleCardData}
                   hideButton={true}
                   onAdd={() => router.push(ROUTES.CATALOG)}
-                />
+                /> */}
               </div>
             </CarouselItem>
           ))}

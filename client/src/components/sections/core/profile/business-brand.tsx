@@ -1,7 +1,8 @@
 'use client';
 
-import { ChevronDown, Plus, X } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { ChevronDown, Plus, X, Loader2, CheckCircle2, Upload, FileText } from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -10,17 +11,70 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/shadcn/dropdown-menu';
 import { LeadTimeOptions } from '@/shared/data/core/profile-data/profile-data';
+import { CompanyProfileEditState } from '@/components/pages/core/profile/profile';
+import { companyService } from '@/services';
 
-export function BusinessTerms() {
-  const [segments, setSegments] = useState([
-    'Restaurant',
-    'Coworking',
-    'Retail',
-  ]);
-  const [selectedLeadTime, setSelectedLeadTime] = useState(LeadTimeOptions[0]);
+interface BusinessTermsProps {
+  formData: CompanyProfileEditState;
+  onChange: (updates: Partial<CompanyProfileEditState>) => void;
+}
+
+const AVAILABLE_SEGMENTS = [
+  'Restaurant',
+  'Coworking',
+  'Hotel Room',
+  'Retail',
+  'Office',
+  'Residential',
+];
+
+export function BusinessTerms({ formData, onChange }: BusinessTermsProps) {
+  const termsInputRef = useRef<HTMLInputElement>(null);
+  const [termsUploading, setTermsUploading] = useState(false);
+  const [termsUploaded, setTermsUploaded] = useState(false);
+  const [termsFileName, setTermsFileName] = useState<string | null>(null);
 
   const removeSegment = (segment: string) => {
-    setSegments(segments.filter(s => s !== segment));
+    onChange({
+      specializations: formData.specializations.filter(s => s !== segment),
+    });
+  };
+
+  const addSegment = (segment: string) => {
+    if (!formData.specializations.includes(segment)) {
+      onChange({
+        specializations: [...formData.specializations, segment],
+      });
+    }
+  };
+
+  const handleTermsUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast.error('Only PDF files are allowed for Terms of Use.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be under 5MB.');
+      return;
+    }
+
+    try {
+      setTermsUploading(true);
+      setTermsUploaded(false);
+      const { uploadUrl } = await companyService.getTermsUploadUrl();
+      await companyService.uploadFileToS3(uploadUrl, file, 'application/pdf');
+      setTermsFileName(file.name);
+      setTermsUploaded(true);
+      toast.success('Terms of Use uploaded successfully!');
+    } catch {
+      toast.error('Failed to upload Terms of Use.');
+    } finally {
+      setTermsUploading(false);
+    }
   };
 
   return (
@@ -46,21 +100,48 @@ export function BusinessTerms() {
             >
               Company's Terms of Use
             </span>
+            <input
+              ref={termsInputRef}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={handleTermsUpload}
+            />
             <div
               className={
-                'rounded-2xl border-2 border-dashed border-neutral-200 bg-secondary/5 flex flex-col items-center justify-center gap-2 h-[120px] cursor-pointer hover:bg-secondary/10 transition-colors'
+                'rounded-2xl border-2 border-dashed border-neutral-200 bg-secondary/5 flex flex-col items-center justify-center gap-2 h-[120px] cursor-pointer hover:bg-secondary/10 transition-colors relative'
               }
+              onClick={() => termsInputRef.current?.click()}
             >
-              <div
-                className={
-                  'w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center'
-                }
-              >
-                <span className={'text-secondary text-lg'}>↑</span>
-              </div>
-              <p className={'text-[12px] text-muted-foreground text-center'}>
-                PDF. Max 5MB.
-              </p>
+              {termsUploading ? (
+                <Loader2 className="w-6 h-6 text-secondary animate-spin" />
+              ) : termsUploaded && termsFileName ? (
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-6 h-6 text-secondary" />
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  </div>
+                  <p className="text-[12px] text-muted-foreground text-center truncate max-w-[200px]">
+                    {termsFileName}
+                  </p>
+                  <p className="text-[11px] text-secondary font-medium">
+                    Click to replace
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div
+                    className={
+                      'w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center'
+                    }
+                  >
+                    <Upload className="w-4 h-4 text-secondary" />
+                  </div>
+                  <p className={'text-[12px] text-muted-foreground text-center'}>
+                    PDF only. Max 5MB.
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
@@ -79,14 +160,14 @@ export function BusinessTerms() {
                     'w-full rounded-full border border-neutral-200 bg-neutral-50 px-5 py-3 text-sm outline-none flex items-center justify-between hover:bg-neutral-100 transition-colors cursor-pointer'
                   }
                 >
-                  {selectedLeadTime}
+                  {formData.leadTime || 'Select standard lead time'}
                   <ChevronDown className={'w-4 h-4 text-muted-foreground'} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className={'w-[280px]'}>
                   {LeadTimeOptions.map(option => (
                     <DropdownMenuItem
                       key={option}
-                      onClick={() => setSelectedLeadTime(option)}
+                      onClick={() => onChange({ leadTime: option })}
                       className={'text-sm cursor-pointer'}
                     >
                       {option}
@@ -105,7 +186,7 @@ export function BusinessTerms() {
                 Focus Segments
               </span>
               <div className={'flex items-center gap-2 flex-wrap'}>
-                {segments.map(segment => (
+                {formData.specializations.map(segment => (
                   <div
                     key={segment}
                     className={
@@ -118,13 +199,29 @@ export function BusinessTerms() {
                     </button>
                   </div>
                 ))}
-                <button
-                  className={
-                    'flex items-center gap-1 bg-secondary/10 text-secondary rounded-full px-3 py-1.5 text-sm font-medium hover:bg-secondary/20 transition-colors'
-                  }
-                >
-                  More <Plus className={'w-3 h-3'} />
-                </button>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    className={
+                      'flex items-center gap-1 bg-secondary/10 text-secondary rounded-full px-3 py-1.5 text-sm font-medium hover:bg-secondary/20 transition-colors outline-none cursor-pointer'
+                    }
+                  >
+                    More <Plus className={'w-3 h-3'} />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {AVAILABLE_SEGMENTS.filter(
+                      seg => !formData.specializations.includes(seg),
+                    ).map(seg => (
+                      <DropdownMenuItem
+                        key={seg}
+                        onClick={() => addSegment(seg)}
+                        className={'text-sm cursor-pointer'}
+                      >
+                        {seg}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>

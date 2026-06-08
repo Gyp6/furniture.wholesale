@@ -37,7 +37,7 @@ export function ProductRelatedCard({ product }: Props) {
             'absolute top-3 left-3 bg-white text-muted-foreground text-xs font-medium p-3 shadow-sm border-0'
           }
         >
-          {product.spaceType}
+          {product.spaces.join(', ')}
         </Badge>
       </div>
 
@@ -50,14 +50,14 @@ export function ProductRelatedCard({ product }: Props) {
           >
             {product.title}
           </CardTitle>
-          <CardDescription className={'text-s'}>
-            {product.vendor}
+          <CardDescription className={'text-sm text-muted-foreground'}>
+            {product.manufacturer.name}
           </CardDescription>
         </CardHeader>
 
         <div className={'flex items-center justify-between'}>
           <span className={'text-s text-muted-foreground'}>
-            min. {product.minSellQuantity} pieces
+            min. {product.minSellUnits} pieces
           </span>
           <span className={'text-base font-bold'}>
             ${new Intl.NumberFormat('en-US').format(product.price)}

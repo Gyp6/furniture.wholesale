@@ -1,13 +1,16 @@
 import { CatalogSidebar } from '@/components/layout';
 import {
   BundlesGrid,
-  CatalogContent,
   CatalogHeader,
   FilterBadgeGrid,
   Sort,
 } from '@/components/sections/core/catalog';
+import { getServerSession } from '@/services/session.service';
 
-export function CatalogBundlesPage() {
+export async function CatalogBundlesPage() {
+  const { session } = (await getServerSession()) || {};
+  const isAuthorized = !!session;
+
   return (
     <>
       <CatalogHeader title={'Catalog with Prebuilt Bundles'} />
@@ -20,12 +23,11 @@ export function CatalogBundlesPage() {
             className={'flex items-center justify-between mb-6 gap-4 flex-wrap'}
           >
             <FilterBadgeGrid />
+            <div></div>
             <Sort />
           </div>
 
-          {/* <CatalogContent>
-            <BundlesGrid />
-          </CatalogContent> */}
+          <BundlesGrid isAuthorized={isAuthorized} />
         </div>
       </div>
     </>

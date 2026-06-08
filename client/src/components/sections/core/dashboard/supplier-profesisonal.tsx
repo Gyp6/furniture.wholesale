@@ -2,21 +2,23 @@
 
 import { ArrowUpRight, Check, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/shadcn/button';
+import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import {
   CATEGORY_STYLES,
-  INVENTORY_STATUS_STYLES,
   ORDER_STATUS_STYLES,
 } from '@/constants/dashboard.const';
+import { useGetMyBundles, useGetReceivedOrders, useUpdateOrderStatus } from '@/hooks/queries';
+import { useGetMyProducts } from '@/hooks/queries/catalog.query';
 import { authClient } from '@/lib';
-import {
-  InventoryData,
-  OrdersData,
-  SupplierStatsData,
-} from '@/shared/data/dashboard';
+import { CurationToolsData } from '@/shared/data/dashboard';
 import { ICONS } from '@/shared/data/icons';
-import { EInventoryStatus, EOrderStatus } from '@/shared/enums/dashboard.enum';
+import { EOrderStatus } from '@/shared/enums/dashboard.enum';
+
+import { OrderDetailsModal } from './order-details-modal';
+import { ROUTES } from '@/constants';
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   Cart: (
@@ -47,6 +49,51 @@ export function SupplierProfessionalDashboardPage() {
   const name = session?.user?.name?.split(' ')[0] ?? 'there';
   const router = useRouter();
 
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [showProducts, setShowProducts] = useState(false);
+
+  const { data: rawOrders, isLoading: ordersLoading } = useGetReceivedOrders();
+  const orders = rawOrders as any[] | undefined;
+  const { data: bundles, isLoading: bundlesLoading } = useGetMyBundles('SUPPLIER');
+  const { data: products, isLoading: productsLoading } = useGetMyProducts();
+  const { mutate: updateStatus } = useUpdateOrderStatus();
+
+  // Compute stats dynamically from real data
+  const totalSales = orders
+    ? orders
+        .filter(o => o.status !== 'CANCELLED')
+        .reduce((sum: number, o: any) => sum + o.items.reduce((s: number, it: any) => s + (it.priceSnapshot * it.quantity), 0), 0)
+    : 0;
+
+  const activeBundlesCount = bundles
+    ? bundles.filter(b => b.status === 'ACTIVE').length
+    : 0;
+
+  const totalOrders = orders?.length ?? 0;
+
+  const liveStats = [
+    {
+      label: 'Total Sales',
+      value: `$${totalSales.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+      icon: 'Market',
+      badge: '+18%',
+      badgeColor: 'bg-green-100 text-green-700',
+    },
+    {
+      label: 'Active Bundles',
+      value: activeBundlesCount,
+      icon: 'OrganizationFigma',
+    },
+    {
+      label: 'Orders Received',
+      value: totalOrders,
+      icon: 'Cart',
+      badge: 'New',
+      badgeColor: 'bg-blue-100 text-blue-700',
+    },
+  ];
+
   return (
     <div className={'h-[calc(100dvh-64px)] overflow-hidden flex flex-col'}>
       <div
@@ -66,17 +113,30 @@ export function SupplierProfessionalDashboardPage() {
             Welcome back, {name}!
           </h1>
         </div>
-        <Button
-          className={'rounded-full gap-2'}
-          variant={'default'}
-          onClick={() => router.push('/bundle-create')}
-        >
-          <ICONS.Bundles
-            size={16}
-            color={'currentColor'}
-          />
-          Add New Bundle
-        </Button>
+        <div className={'flex items-center gap-3'}>
+          <Button
+            className={'rounded-full gap-2'}
+            variant={'outline'}
+            onClick={() => router.push('/product/create')}
+          >
+            <ICONS.Cart
+              size={16}
+              color={'currentColor'}
+            />
+            Add New Product
+          </Button>
+          <Button
+            className={'rounded-full gap-2'}
+            variant={'default'}
+            onClick={() => router.push('/bundle-create')}
+          >
+            <ICONS.Bundles
+              size={16}
+              color={'currentColor'}
+            />
+            Add New Bundle
+          </Button>
+        </div>
       </div>
 
       <div
@@ -94,10 +154,10 @@ export function SupplierProfessionalDashboardPage() {
           >
             <div
               className={
-                'grid grid-cols-[0.8fr_0.8fr_1fr_1fr_0.8fr_1fr] px-5 py-3 border-b border-neutral-100 shrink-0'
+                'grid grid-cols-[0.8fr_1.2fr_0.8fr_1fr_1fr_0.8fr_1.2fr] px-5 py-3 border-b border-neutral-100 shrink-0'
               }
             >
-              {['ORDER ID', 'ITEMS', 'DATE', 'STATUS', 'TOTAL', ''].map(col => (
+              {['ORDER ID', 'CLIENT', 'ITEMS', 'DATE', 'STATUS', 'TOTAL', 'ACTIONS'].map(col => (
                 <span
                   key={col}
                   className={
@@ -110,78 +170,130 @@ export function SupplierProfessionalDashboardPage() {
             </div>
 
             <div className={'overflow-y-auto scrollbar-hide flex-1'}>
-              {OrdersData.map((order, i) => (
-                <div
-                  key={i}
-                  className={
-                    'grid grid-cols-[0.8fr_0.8fr_1fr_1fr_0.8fr_1fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors'
-                  }
-                >
-                  <span className={'text-sm font-medium text-muted-foreground'}>
-                    {order.id}
-                  </span>
-
-                  <div className={'flex items-center gap-1'}>
-                    <div className={'flex -space-x-2'}>
-                      <div
-                        className={
-                          'w-6 h-6 rounded-full bg-neutral-300 border-2 border-white'
-                        }
-                      />
-                      <div
-                        className={
-                          'w-6 h-6 rounded-full bg-neutral-400 border-2 border-white'
-                        }
-                      />
-                    </div>
-                    {order.items > 0 && (
-                      <span
-                        className={'text-[14px] text-muted-foreground ml-0.5'}
-                      >
-                        +{order.items}
-                      </span>
-                    )}
-                  </div>
-
-                  <span className={'text-sm text-muted-foreground'}>
-                    {order.date}
-                  </span>
-
-                  <span
-                    className={`inline-flex w-fit px-2.5 py-0.5 rounded-full text-[14px] font-bold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status as EOrderStatus]}`}
-                  >
-                    {order.status}
-                  </span>
-
-                  <span className={'text-sm font-semibold'}>
-                    $
-                    {order.total.toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                    })}
-                  </span>
-
-                  {order.status === EOrderStatus.PENDING ? (
-                    <div className={'flex items-center gap-2'}>
-                      <button
-                        className={
-                          'w-10 h-10 rounded-full bg-green-100 flex items-center justify-center hover:bg-green-200 transition-colors'
-                        }
-                      >
-                        <Check className={'w-5 h-5 text-green-600'} />
-                      </button>
-                      <button
-                        className={
-                          'w-10 h-10 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors'
-                        }
-                      >
-                        <X className={'w-5 h-5 text-red-500'} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div />
-                  )}
+              {ordersLoading ? (
+                <div className={'flex flex-col gap-2 p-4'}>
+                  {[...Array(5)].map((_, i) => (
+                    <Skeleton key={i} className={'h-12 rounded-xl'} />
+                  ))}
                 </div>
-              ))}
+              ) : orders && orders.length > 0 ? (
+                orders.map((order, i) => {
+                  const subTotal = order.items.reduce(
+                    (sum: number, item: any) => sum + item.priceSnapshot * item.quantity,
+                    0,
+                  );
+                  return (
+                    <div
+                      key={order.id || i}
+                      className={
+                        'grid grid-cols-[0.8fr_1.2fr_0.8fr_1fr_1fr_0.8fr_1.2fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors cursor-pointer'
+                      }
+                      onClick={() => {
+                        setSelectedOrderId(order.id);
+                        setDetailsOpen(true);
+                      }}
+                    >
+                      <span className={'text-sm font-medium text-muted-foreground'}>
+                        #{order.id.slice(0, 8).toUpperCase()}
+                      </span>
+
+                      <div className={'flex flex-col min-w-0'}>
+                        <span className={'text-sm font-semibold text-neutral-800 truncate'}>
+                          {order.buyer?.profile?.company?.name || order.buyer?.name || 'Individual client'}
+                        </span>
+                        <span className={'text-[11px] text-muted-foreground truncate'}>
+                          {order.buyer?.email}
+                        </span>
+                      </div>
+
+                      <div className={'flex items-center gap-1'}>
+                        <div className={'flex -space-x-2'}>
+                          <div
+                            className={
+                              'w-6 h-6 rounded-full bg-neutral-300 border-2 border-white'
+                            }
+                          />
+                        </div>
+                        <span className={'text-[14px] text-muted-foreground ml-0.5'}>
+                          {order.items?.length || 0} items
+                        </span>
+                      </div>
+
+                      <span className={'text-sm text-muted-foreground'}>
+                        {new Date(order.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </span>
+
+                      <span
+                        className={`inline-flex w-fit px-2.5 py-0.5 rounded-full text-[14px] font-bold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status] ?? 'bg-neutral-100 text-neutral-700'}`}
+                      >
+                        {order.status}
+                      </span>
+
+                      <span className={'text-sm font-semibold'}>
+                        ${subTotal.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                        })}
+                      </span>
+
+                      {order.status === 'NEW' ? (
+                        <div
+                          className={'flex items-center gap-2'}
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <button
+                            className={
+                              'w-10 h-10 rounded-full bg-green-100 flex items-center justify-center hover:bg-green-200 transition-colors'
+                            }
+                            onClick={() =>
+                              updateStatus({ id: order.id, status: 'PROCESSING' })
+                            }
+                          >
+                            <Check className={'w-5 h-5 text-green-600'} />
+                          </button>
+                          <button
+                            className={
+                              'w-10 h-10 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors'
+                            }
+                            onClick={() =>
+                              updateStatus({ id: order.id, status: 'CANCELLED' })
+                            }
+                          >
+                            <X className={'w-5 h-5 text-red-500'} />
+                          </button>
+                        </div>
+                      ) : order.status === 'PROCESSING' ? (
+                        <div
+                          className={'flex items-center'}
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <Button
+                            variant={'outline'}
+                            size={'sm'}
+                            className={
+                              'rounded-2xl text-[12px] h-8 bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                            }
+                            onClick={() =>
+                              updateStatus({ id: order.id, status: 'COMPLETED' })
+                            }
+                          >
+                            Complete
+                          </Button>
+                        </div>
+                      ) : (
+                        <div />
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className={'flex items-center justify-center h-full py-12 text-muted-foreground text-sm'}>
+                  No orders received yet.
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -196,16 +308,18 @@ export function SupplierProfessionalDashboardPage() {
             <div
               className={'flex items-center justify-between px-5 py-4 shrink-0'}
             >
-              <h2 className={'text-xl font-semibold'}>Bundles Inventory</h2>
+              <h2 className={'text-xl font-semibold'}>
+                {showProducts ? 'Items Inventory' : 'Bundles Inventory'}
+              </h2>
               <Button
                 variant={'secondary'}
                 className={
                   'rounded-full bg-secondary/10 text-secondary hover:bg-secondary/20 border-0'
                 }
                 style={{ width: '178px', height: '48px' }}
-                onClick={() => router.push('/dashboard')}
+                onClick={() => setShowProducts(!showProducts)}
               >
-                Items Inventory
+                {showProducts ? 'Bundles Inventory' : 'Items Inventory'}
               </Button>
             </div>
 
@@ -233,79 +347,184 @@ export function SupplierProfessionalDashboardPage() {
             </div>
 
             <div className={'overflow-y-auto scrollbar-hide flex-1'}>
-              {InventoryData.map((item, i) => (
-                <div
-                  key={i}
-                  className={
-                    'grid grid-cols-[2fr_1fr_0.8fr_0.8fr_0.6fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors'
-                  }
-                >
-                  <div className={'flex items-center gap-2'}>
-                    <div
-                      className={'w-7 h-7 rounded-lg bg-neutral-100 shrink-0'}
-                    />
-                    <span
-                      className={
-                        'text-sm font-medium text-muted-foreground leading-tight'
-                      }
-                    >
-                      {item.name}
-                    </span>
-                  </div>
-
-                  <span
-                    className={`inline-flex w-fit px-2 py-0.5 rounded-full text-[12px] font-semibold ${CATEGORY_STYLES[item.category] ?? 'bg-neutral-100 text-neutral-600'}`}
-                  >
-                    {item.category}
-                  </span>
-
-                  <span className={'text-sm text-muted-foreground'}>
-                    {item.stock} units
-                  </span>
-
-                  <div className={'flex items-center gap-1'}>
-                    <div
-                      className={`w-1.5 h-1.5 rounded-full ${item.status === EInventoryStatus.ACTIVE ? 'bg-green-500' : 'bg-neutral-300'}`}
-                    />
-                    <span
-                      className={`text-sm ${INVENTORY_STATUS_STYLES[item.status]}`}
-                    >
-                      {item.status}
-                    </span>
-                  </div>
-
-                  <div className={'flex items-center gap-2'}>
-                    <button
-                      className={
-                        'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors'
-                      }
-                      onClick={() => router.push('/bundle-edit')}
-                    >
-                      <ICONS.PenFigma
-                        size={14}
-                        color={'currentColor'}
-                        className={'text-secondary'}
-                      />
-                    </button>
-                    <button
-                      className={
-                        'w-8 h-8 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors'
-                      }
-                    >
-                      <ICONS.TrashFigma
-                        size={14}
-                        color={'currentColor'}
-                        className={'text-red-500'}
-                      />
-                    </button>
-                  </div>
+              {(showProducts ? productsLoading : bundlesLoading) ? (
+                <div className={'flex flex-col gap-2 p-4'}>
+                  {[...Array(3)].map((_, i) => (
+                    <Skeleton key={i} className={'h-10 rounded-xl'} />
+                  ))}
                 </div>
-              ))}
+              ) : showProducts ? (
+                products && products.length > 0 ? (
+                  products.map((product, i) => {
+                    const categoryTitle = product.category?.title || 'Uncategorized';
+                    return (
+                      <div
+                        key={product.id || i}
+                        className={
+                          'grid grid-cols-[2fr_1fr_0.8fr_0.8fr_0.6fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors cursor-pointer'
+                        }
+                        onClick={() => {
+                          // TODO: Open product edit modal
+                          console.log('Edit product:', product.id);
+                        }}
+                      >
+                        <div className={'flex items-center gap-2'}>
+                          <div
+                            className={'w-7 h-7 rounded-lg bg-neutral-100 shrink-0'}
+                          />
+                          <span
+                            className={
+                              'text-sm font-medium text-muted-foreground leading-tight line-clamp-1'
+                            }
+                          >
+                            {product.title}
+                          </span>
+                        </div>
+
+                        <span
+                          className={`inline-flex w-fit px-2 py-0.5 rounded-full text-[12px] font-semibold ${CATEGORY_STYLES[categoryTitle] ?? 'bg-neutral-100 text-neutral-600'}`}
+                        >
+                          {categoryTitle}
+                        </span>
+
+                        <span className={'text-sm text-muted-foreground'}>
+                          {product.minSellUnits || 1} units
+                        </span>
+
+                        <div className={'flex items-center gap-1'}>
+                          <div
+                            className={`w-1.5 h-1.5 rounded-full ${product.status === 'ACTIVE' ? 'bg-green-500' : 'bg-neutral-300'}`}
+                          />
+                          <span
+                            className={`text-sm ${product.status === 'ACTIVE' ? 'text-green-600' : 'text-neutral-400'}`}
+                          >
+                            {product.status}
+                          </span>
+                        </div>
+
+                        <div className={'flex items-center gap-2'}>
+                          <button
+                            className={
+                              'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors'
+                            }
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // TODO: Open edit modal
+                            }}
+                          >
+                            <ICONS.PenFigma
+                              size={14}
+                              color={'currentColor'}
+                              className={'text-secondary'}
+                            />
+                          </button>
+                          <button
+                            className={
+                              'w-8 h-8 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors'
+                            }
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // TODO: Delete product
+                            }}
+                          >
+                            <ICONS.TrashFigma
+                              size={14}
+                              color={'currentColor'}
+                              className={'text-red-500'}
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className={'flex items-center justify-center h-full py-8 text-muted-foreground text-sm'}>
+                    No products in inventory.
+                  </div>
+                )
+              ) : bundles && bundles.length > 0 ? (
+                bundles.map((bundle, i) => {
+                  const itemsCount = bundle.items?.length || 0;
+                  const categoryTitle = bundle.space?.title || 'Hotel Room';
+                  return (
+                    <div
+                      key={bundle.id || i}
+                      className={
+                        'grid grid-cols-[2fr_1fr_0.8fr_0.8fr_0.6fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors'
+                      }
+                    >
+                      <div className={'flex items-center gap-2'}>
+                        <div
+                          className={'w-7 h-7 rounded-lg bg-neutral-100 shrink-0'}
+                        />
+                        <span
+                          className={
+                            'text-sm font-medium text-muted-foreground leading-tight line-clamp-1'
+                          }
+                        >
+                          {bundle.name}
+                        </span>
+                      </div>
+
+                      <span
+                        className={`inline-flex w-fit px-2 py-0.5 rounded-full text-[12px] font-semibold ${CATEGORY_STYLES[categoryTitle] ?? 'bg-neutral-100 text-neutral-600'}`}
+                      >
+                        {categoryTitle}
+                      </span>
+
+                      <span className={'text-sm text-muted-foreground'}>
+                        {itemsCount} units
+                      </span>
+
+                      <div className={'flex items-center gap-1'}>
+                        <div
+                          className={`w-1.5 h-1.5 rounded-full ${bundle.status === 'ACTIVE' ? 'bg-green-500' : 'bg-neutral-300'}`}
+                        />
+                        <span
+                          className={`text-sm ${bundle.status === 'ACTIVE' ? 'text-green-600' : 'text-neutral-400'}`}
+                        >
+                          {bundle.status}
+                        </span>
+                      </div>
+
+                      <div className={'flex items-center gap-2'}>
+                        <button
+                          className={
+                            'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors'
+                          }
+                          onClick={() => router.push(`/bundle-edit`)}
+                        >
+                          <ICONS.PenFigma
+                            size={14}
+                            color={'currentColor'}
+                            className={'text-secondary'}
+                          />
+                        </button>
+                        <button
+                          className={
+                            'w-8 h-8 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors'
+                          }
+                        >
+                          <ICONS.TrashFigma
+                            size={14}
+                            color={'currentColor'}
+                            className={'text-red-500'}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className={'flex items-center justify-center h-full py-8 text-muted-foreground text-sm'}>
+                  No bundles in inventory.
+                </div>
+              )}
             </div>
           </div>
 
           <div className={'grid grid-cols-3 gap-4 shrink-0'}>
-            {SupplierStatsData.map(stat => (
+            {liveStats.map(stat => (
               <div
                 key={stat.label}
                 className={
@@ -355,12 +574,19 @@ export function SupplierProfessionalDashboardPage() {
               className={
                 'w-11 h-11 rounded-full bg-foreground flex items-center justify-center shrink-0 hover:bg-foreground/80 transition-colors'
               }
+              onClick={() => router.push(ROUTES.PROFILE)}
             >
               <ArrowUpRight className={'w-5 h-5 text-background'} />
             </button>
           </div>
         </div>
       </div>
+
+      <OrderDetailsModal
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+        orderId={selectedOrderId}
+      />
     </div>
   );
 }
