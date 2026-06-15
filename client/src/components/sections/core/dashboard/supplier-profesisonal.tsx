@@ -3,9 +3,18 @@
 import { ArrowUpRight, Check, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/shadcn/button';
 import { Skeleton } from '@/components/ui/shadcn/skeleton';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/shadcn/select';
 import {
   CATEGORY_STYLES,
   ORDER_STATUS_STYLES,
@@ -13,6 +22,7 @@ import {
 import { useGetMyBundles, useGetReceivedOrders, useUpdateOrderStatus } from '@/hooks/queries';
 import { useGetMyProducts } from '@/hooks/queries/catalog.query';
 import { authClient } from '@/lib';
+import { bundleService, productService } from '@/services';
 import { CurationToolsData } from '@/shared/data/dashboard';
 import { ICONS } from '@/shared/data/icons';
 import { EOrderStatus } from '@/shared/enums/dashboard.enum';
@@ -58,6 +68,30 @@ export function SupplierProfessionalDashboardPage() {
   const { data: bundles, isLoading: bundlesLoading } = useGetMyBundles('SUPPLIER');
   const { data: products, isLoading: productsLoading } = useGetMyProducts();
   const { mutate: updateStatus } = useUpdateOrderStatus();
+
+  const queryClient = useQueryClient();
+
+  const handleBundleStatusChange = async (bundleId: string, newStatus: string) => {
+    try {
+      await bundleService.update(bundleId, { status: newStatus } as any);
+      queryClient.invalidateQueries({ queryKey: ['bundles'] });
+      toast.success(`Bundle status updated to ${newStatus}`);
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || 'Failed to update status');
+    }
+  };
+
+  const handleProductStatusChange = async (productId: string, newStatus: string) => {
+    try {
+      await productService.updateStatus(productId, newStatus);
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast.success(`Product status updated to ${newStatus}`);
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || 'Failed to update status');
+    }
+  };
 
   // Compute stats dynamically from real data
   const totalSales = orders
@@ -248,9 +282,21 @@ export function SupplierProfessionalDashboardPage() {
                             className={
                               'w-10 h-10 rounded-full bg-green-100 flex items-center justify-center hover:bg-green-200 transition-colors'
                             }
-                            onClick={() =>
-                              updateStatus({ id: order.id, status: 'PROCESSING' })
-                            }
+                            onClick={() => {
+                              toast.promise(
+                                new Promise((resolve, reject) => {
+                                  updateStatus(
+                                    { id: order.id, status: 'PROCESSING' },
+                                    { onSuccess: resolve, onError: reject },
+                                  );
+                                }),
+                                {
+                                  loading: 'Confirming order...',
+                                  success: 'Order confirmed! Stock has been updated.',
+                                  error: 'Failed to confirm order.',
+                                },
+                              );
+                            }}
                           >
                             <Check className={'w-5 h-5 text-green-600'} />
                           </button>
@@ -258,9 +304,21 @@ export function SupplierProfessionalDashboardPage() {
                             className={
                               'w-10 h-10 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors'
                             }
-                            onClick={() =>
-                              updateStatus({ id: order.id, status: 'CANCELLED' })
-                            }
+                            onClick={() => {
+                              toast.promise(
+                                new Promise((resolve, reject) => {
+                                  updateStatus(
+                                    { id: order.id, status: 'CANCELLED' },
+                                    { onSuccess: resolve, onError: reject },
+                                  );
+                                }),
+                                {
+                                  loading: 'Rejecting order...',
+                                  success: 'Order has been rejected.',
+                                  error: 'Failed to reject order.',
+                                },
+                              );
+                            }}
                           >
                             <X className={'w-5 h-5 text-red-500'} />
                           </button>
@@ -274,13 +332,25 @@ export function SupplierProfessionalDashboardPage() {
                             variant={'outline'}
                             size={'sm'}
                             className={
-                              'rounded-2xl text-[12px] h-8 bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                              'rounded-2xl text-[12px] h-8 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
                             }
-                            onClick={() =>
-                              updateStatus({ id: order.id, status: 'COMPLETED' })
-                            }
+                            onClick={() => {
+                              toast.promise(
+                                new Promise((resolve, reject) => {
+                                  updateStatus(
+                                    { id: order.id, status: 'SHIPPED' },
+                                    { onSuccess: resolve, onError: reject },
+                                  );
+                                }),
+                                {
+                                  loading: 'Marking as shipped...',
+                                  success: 'Order marked as shipped!',
+                                  error: 'Failed to update order.',
+                                },
+                              );
+                            }}
                           >
-                            Complete
+                            Mark Shipped
                           </Button>
                         </div>
                       ) : (
@@ -298,7 +368,7 @@ export function SupplierProfessionalDashboardPage() {
           </div>
         </div>
 
-        <div className={'w-[600px] shrink-0 flex flex-col gap-4 min-h-0'}>
+        <div className={'lg:w-[600px] w-full shrink-0 flex flex-col gap-4 min-h-0'}>
           <div
             className={
               'rounded-2xl bg-white overflow-hidden flex flex-col shadow-[0_8px_40px_rgba(0,0,0,0.08)]'
@@ -364,14 +434,10 @@ export function SupplierProfessionalDashboardPage() {
                           'grid grid-cols-[2fr_1fr_0.8fr_0.8fr_0.6fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors cursor-pointer'
                         }
                         onClick={() => {
-                          // TODO: Open product edit modal
-                          console.log('Edit product:', product.id);
+                          router.push(`/product/${product.id}/edit`);
                         }}
                       >
                         <div className={'flex items-center gap-2'}>
-                          <div
-                            className={'w-7 h-7 rounded-lg bg-neutral-100 shrink-0'}
-                          />
                           <span
                             className={
                               'text-sm font-medium text-muted-foreground leading-tight line-clamp-1'
@@ -388,18 +454,28 @@ export function SupplierProfessionalDashboardPage() {
                         </span>
 
                         <span className={'text-sm text-muted-foreground'}>
-                          {product.minSellUnits || 1} units
+                          {product.stock} units
                         </span>
 
-                        <div className={'flex items-center gap-1'}>
-                          <div
-                            className={`w-1.5 h-1.5 rounded-full ${product.status === 'ACTIVE' ? 'bg-green-500' : 'bg-neutral-300'}`}
-                          />
-                          <span
-                            className={`text-sm ${product.status === 'ACTIVE' ? 'text-green-600' : 'text-neutral-400'}`}
+                        <div className={'flex items-center'} onClick={(e) => e.stopPropagation()}>
+                          <Select
+                            value={product.status}
+                            onValueChange={(value) => handleProductStatusChange(product.id, value)}
                           >
-                            {product.status}
-                          </span>
+                            <SelectTrigger className={"h-7 w-[110px] text-xs border-0 bg-transparent px-1 gap-1"}>
+                              <div className={"flex items-center gap-1"}>
+                                <div
+                                  className={`w-1.5 h-1.5 rounded-full ${product.status === 'ACTIVE' ? 'bg-green-500' : product.status === 'DRAFT' ? 'bg-yellow-500' : 'bg-neutral-300'}`}
+                                />
+                                <SelectValue />
+                              </div>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value={"ACTIVE"}>Active</SelectItem>
+                              <SelectItem value={"INACTIVE"}>Inactive</SelectItem>
+                              <SelectItem value={"DRAFT"}>Draft</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
 
                         <div className={'flex items-center gap-2'}>
@@ -409,7 +485,7 @@ export function SupplierProfessionalDashboardPage() {
                             }
                             onClick={(e) => {
                               e.stopPropagation();
-                              // TODO: Open edit modal
+                              router.push(`/product/${product.id}/edit`);
                             }}
                           >
                             <ICONS.PenFigma
@@ -476,15 +552,25 @@ export function SupplierProfessionalDashboardPage() {
                         {itemsCount} units
                       </span>
 
-                      <div className={'flex items-center gap-1'}>
-                        <div
-                          className={`w-1.5 h-1.5 rounded-full ${bundle.status === 'ACTIVE' ? 'bg-green-500' : 'bg-neutral-300'}`}
-                        />
-                        <span
-                          className={`text-sm ${bundle.status === 'ACTIVE' ? 'text-green-600' : 'text-neutral-400'}`}
+                      <div className={'flex items-center'}>
+                        <Select
+                          value={bundle.status}
+                          onValueChange={(value) => handleBundleStatusChange(bundle.id, value)}
                         >
-                          {bundle.status}
-                        </span>
+                          <SelectTrigger className={"h-7 w-[110px] text-xs border-0 bg-transparent px-1 gap-1"}>
+                            <div className={"flex items-center gap-1"}>
+                              <div
+                                className={`w-1.5 h-1.5 rounded-full ${bundle.status === 'ACTIVE' ? 'bg-green-500' : bundle.status === 'DRAFT' ? 'bg-yellow-500' : 'bg-neutral-300'}`}
+                              />
+                              <SelectValue />
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={"ACTIVE"}>Active</SelectItem>
+                            <SelectItem value={"INACTIVE"}>Inactive</SelectItem>
+                            <SelectItem value={"DRAFT"}>Draft</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className={'flex items-center gap-2'}>
@@ -492,7 +578,7 @@ export function SupplierProfessionalDashboardPage() {
                           className={
                             'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors'
                           }
-                          onClick={() => router.push(`/bundle-edit`)}
+                          onClick={() => router.push(`/bundle-edit/${bundle.id}`)}
                         >
                           <ICONS.PenFigma
                             size={14}

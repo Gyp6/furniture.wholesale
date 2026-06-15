@@ -1,25 +1,24 @@
 import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
-import { OrderStatus } from '@prisma/client';
-
-import { IReqUser } from '@/common/types';
 import { CreateOrderRequest } from '@order/application/dto/requests/create-order.request';
 import { OrderResponse } from '@order/application/dto/responses/order.response';
 import { OrderService } from '@order/application/services/order.service';
+import { OrderStatus } from '@prisma/client';
+
+import { IReqUser } from '@/common/types';
 
 @ApiTags('Orders')
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @ApiOperation({ summary: 'Create a new order from active space bundle items' })
+  @ApiOperation({
+    summary: 'Create a new order from active space bundle items',
+  })
   @ApiOkResponse({ type: OrderResponse })
   @Post()
-  create(
-    @Req() { user }: { user: IReqUser },
-    @Body() dto: CreateOrderRequest,
-  ) {
+  create(@Req() { user }: { user: IReqUser }, @Body() dto: CreateOrderRequest) {
     return this.orderService.create(user, dto);
   }
 
@@ -40,10 +39,7 @@ export class OrderController {
   @ApiOperation({ summary: 'Get details of a single order or sub-order' })
   @SkipThrottle()
   @Get(':id')
-  findOne(
-    @Param('id') id: string,
-    @Req() { user }: { user: IReqUser },
-  ) {
+  findOne(@Param('id') id: string, @Req() { user }: { user: IReqUser }) {
     return this.orderService.findOne(id, user);
   }
 
@@ -56,5 +52,14 @@ export class OrderController {
     @Req() { user }: { user: IReqUser },
   ) {
     return this.orderService.updateStatus(id, status, user);
+  }
+
+  @ApiOperation({ summary: 'Check stock availability for items' })
+  @SkipThrottle()
+  @Post('check-stock')
+  checkStock(
+    @Body('items') items: Array<{ productId: string; quantity: number }>,
+  ) {
+    return this.orderService.checkStock(items);
   }
 }

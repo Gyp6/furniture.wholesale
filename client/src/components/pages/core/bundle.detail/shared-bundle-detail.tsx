@@ -71,8 +71,8 @@ export function SharedBundleDetailPage({ params }: Props) {
             <Button
               onClick={handleFork}
               disabled={isForking}
-              size="lg"
-              variant="outline"
+              size={"lg"}
+              variant={"outline"}
               className={'flex items-center gap-2'}
             >
               <GitFork className={'w-4 h-4'} />

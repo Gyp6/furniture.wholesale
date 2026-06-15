@@ -80,7 +80,7 @@ export function ProductCard({ isAuthorized, product }: TProductCardProps) {
           </Badge>
 
           {/* Heart Icon button overlay on top-right */}
-          <button
+          {/* <button
             onClick={handleToggleFavorite}
             className={cn(
               'absolute top-3 right-3 w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm cursor-pointer border-0 hover:scale-105 transition-all outline-none',
@@ -91,7 +91,7 @@ export function ProductCard({ isAuthorized, product }: TProductCardProps) {
               className={'w-4.5 h-4.5'}
               fill={isFavorite ? 'currentColor' : 'none'}
             />
-          </button>
+          </button> */}
         </div>
 
         <div className={'flex flex-col flex-1 mt-3 justify-between'}>

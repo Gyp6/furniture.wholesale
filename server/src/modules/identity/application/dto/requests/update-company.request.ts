@@ -1,4 +1,5 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional } from 'class-validator';
+
 import {
   IsAddress,
   IsCompanyDescription,

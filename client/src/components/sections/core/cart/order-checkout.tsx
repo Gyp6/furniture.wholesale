@@ -3,9 +3,17 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { MapPin, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/shadcn/button';
-import { useCreateOrder, useGetSpaces } from '@/hooks/queries';
+import { Input } from '@/components/ui/shadcn/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/shadcn/dialog';
+import { useCreateOrder, useGetSpaces, useCheckStock } from '@/hooks/queries';
 import { ICONS } from '@/shared/data/icons';
 import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
 import { bundleService } from '@/services';
@@ -18,7 +26,7 @@ function OrderSummaryContent() {
   const store = useSpaceBundleStore(state => state);
 
   if (!store) {
-    return <div className='h-40 animate-pulse bg-neutral-50 rounded-[60px]' />;
+    return <div className={"h-40 animate-pulse bg-neutral-50 rounded-[60px]"} />;
   }
 
   const { items, totalPrice } = store;
@@ -109,40 +117,73 @@ function OrderSummaryFooter() {
   const store = useSpaceBundleStore(state => state);
   const router = useRouter();
   const { mutateAsync: createOrder, isPending } = useCreateOrder();
+  const { mutateAsync: checkStock, isPending: isChecking } = useCheckStock();
   const { data: spaces } = useGetSpaces();
   const [isSavingProject, setIsSavingProject] = useState(false);
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
+  const [shippingAddress, setShippingAddress] = useState('');
 
   if (!store) return null;
   const { items, clearBundle } = store;
 
-  const handlePlaceOrder = async () => {
+  const handlePlaceOrderClick = async () => {
     if (items.length === 0) {
       toast.error('Your Space Bundle is empty');
       return;
     }
 
-    // Filter out bundles - only products can be ordered
-    const orderItems = items
-      .filter(item => item.productId) // Only include items with productId
-      .map(item => ({
-        productId: item.productId!,
-        quantity: item.quantity,
-        priceSnapshot: item.priceSnapshot,
-      }));
+    const productItems = items.filter(item => item.productId);
 
-    if (orderItems.length === 0) {
-      toast.error('Your cart contains only bundles. Please add products to place an order.');
+    if (productItems.length > 0) {
+      try {
+        const stockResults = await checkStock(
+          productItems.map(i => ({ productId: i.productId!, quantity: i.quantity })),
+        );
+
+        const outOfStock = stockResults.filter(r => !r.sufficient);
+        if (outOfStock.length > 0) {
+          const names = outOfStock
+            .map(r => `"${r.title}" (need ${r.requested}, have ${r.available})`)
+            .join(', ');
+          toast.error(`Insufficient stock: ${names}`, { duration: 6000 });
+          return;
+        }
+      } catch {
+        toast.error('Failed to verify stock availability. Please try again.');
+        return;
+      }
+    }
+
+    setAddressModalOpen(true);
+  };
+
+  const handleConfirmOrder = () => {
+    if (!shippingAddress.trim()) {
+      toast.error('Please enter a delivery address');
       return;
     }
 
-    const createPromise = createOrder({ items: orderItems });
+    const orderItems = items.map(item => ({
+      productId: item.productId,
+      bundleId: item.nestedBundleId,
+      quantity: item.quantity,
+      priceSnapshot: item.priceSnapshot,
+    }));
+
+    const createPromise = createOrder({
+      items: orderItems,
+      shippingAddress: shippingAddress.trim(),
+    });
+
+    setAddressModalOpen(false);
 
     toast.promise(createPromise, {
       loading: 'Placing your order...',
-      success: () => {
+      success: (data) => {
         clearBundle();
-        setTimeout(() => router.push('/orders'), 1500);
-        return 'Order placed successfully! Redirecting to orders...';
+        setShippingAddress('');
+        setTimeout(() => router.push(`/orders/${data.id}/confirmation`), 1500);
+        return 'Order placed successfully!';
       },
       error: err => err?.message || 'Failed to place order. Please try again.',
       position: 'top-center',
@@ -230,40 +271,98 @@ function OrderSummaryFooter() {
   };
 
   return (
-    <div
-      className={'flex flex-col sm:flex-row items-center justify-center gap-4'}
-    >
-      <Button
-        variant={'secondary'}
-        className={
-          'rounded-full px-8 gap-2 bg-secondary/10 text-secondary hover:bg-secondary/20 h-12 w-full sm:w-[220px]'
-        }
-        onClick={handleSaveToProjects}
-        disabled={items.length === 0 || isPending || isSavingProject}
+    <>
+      <div
+        className={'flex flex-col sm:flex-row items-center justify-center gap-4'}
       >
-        <ICONS.Bundles
-          size={20}
-          color={'currentColor'}
-        />
-        {isSavingProject
-          ? 'Saving...'
-          : store.activeBundleId
-            ? 'Update Project'
-            : 'Save to Projects'}
-      </Button>
-      <Button
-        variant={'default'}
-        className={'rounded-full px-8 gap-2 h-12 w-full sm:w-[280px]'}
-        onClick={handlePlaceOrder}
-        disabled={items.length === 0 || isPending || isSavingProject}
-      >
-        <ICONS.Bundle
-          size={20}
-          color={'currentColor'}
-        />
-        {isPending ? 'Placing Order...' : 'Confirm and Place Order'}
-      </Button>
-    </div>
+        <Button
+          variant={'secondary'}
+          className={
+            'rounded-full px-8 gap-2 bg-secondary/10 text-secondary hover:bg-secondary/20 h-12 w-full sm:w-[220px]'
+          }
+          onClick={handleSaveToProjects}
+          disabled={items.length === 0 || isPending || isSavingProject || isChecking}
+        >
+          <ICONS.Bundles
+            size={20}
+            color={'currentColor'}
+          />
+          {isSavingProject
+            ? 'Saving...'
+            : store.activeBundleId
+              ? 'Update Project'
+              : 'Save to Projects'}
+        </Button>
+        <Button
+          variant={'default'}
+          className={'rounded-full px-8 gap-2 h-12 w-full sm:w-[280px]'}
+          onClick={handlePlaceOrderClick}
+          disabled={items.length === 0 || isPending || isSavingProject || isChecking}
+        >
+          <ICONS.Bundle
+            size={20}
+            color={'currentColor'}
+          />
+          {isChecking ? 'Checking stock...' : isPending ? 'Placing Order...' : 'Confirm and Place Order'}
+        </Button>
+      </div>
+
+      <Dialog open={addressModalOpen} onOpenChange={setAddressModalOpen}>
+        <DialogContent
+          className={"rounded-2xl p-6 flex flex-col gap-5 sm:max-w-[500px]"}
+          showCloseButton={false}
+        >
+          <button
+            onClick={() => setAddressModalOpen(false)}
+            className={"absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center hover:bg-neutral-100 transition-colors"}
+          >
+            <X className={"w-4 h-4 text-muted-foreground"} />
+          </button>
+          <DialogHeader>
+            <DialogTitle className={"text-lg font-semibold"}>
+              Delivery Address
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className={"flex flex-col gap-4"}>
+            <p className={"text-sm text-muted-foreground"}>
+              Enter the delivery address for your order
+            </p>
+            <div className={"relative"}>
+              <MapPin className={"absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"} />
+              <Input
+                placeholder={"Enter full delivery address"}
+                value={shippingAddress}
+                onChange={e => setShippingAddress(e.target.value)}
+                className={"pl-10 h-12 rounded-xl"}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') handleConfirmOrder();
+                }}
+              />
+            </div>
+          </div>
+
+          <div className={"flex items-center gap-3 pt-2 border-t border-neutral-100"}>
+            <Button
+              variant={"outline"}
+              className={"rounded-full h-11 flex-1"}
+              onClick={() => setAddressModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={"default"}
+              className={"rounded-full h-11 flex-1 gap-2"}
+              onClick={handleConfirmOrder}
+              disabled={!shippingAddress.trim() || isPending}
+            >
+              <ICONS.Bundle size={16} color={"currentColor"} />
+              Place Order
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

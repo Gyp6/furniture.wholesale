@@ -10,11 +10,13 @@ export const NavSupplierConfig = [
       { label: 'Professional', href: '/professional' },
     ],
   },
+  { label: 'Orders', href: ROUTES.ORDERS },
   { label: 'Profile', href: '/profile' },
 ];
 
 export const NavConfig = [
   { label: 'Marketplace', href: ROUTES.HOME },
   { label: 'Dashboards', href: ROUTES.DASHBOARD },
+  { label: 'Orders', href: ROUTES.ORDERS },
   { label: 'Profile', href: '/profile' },
 ];

@@ -1,13 +1,28 @@
+import { UpdateCompanyRequest } from '@identity/application/dto/requests/update-company.request';
 import { CompanyResponse } from '@identity/application/dto/responses';
 import { CompanyService } from '@identity/application/services/company.service';
-import { Controller, Get, Param, Body, Patch, Post, Req, ForbiddenException } from '@nestjs/common';
-import { ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ProfileService } from '@identity/application/services/profile.service';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+} from '@nestjs/common';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
-import { UpdateCompanyRequest } from '@identity/application/dto/requests/update-company.request';
-import { ProfileService } from '@identity/application/services/profile.service';
-import { S3Service } from '@/infrastructure/s3/s3.service';
+
 import { IReqUser } from '@/common/types';
+import { S3Service } from '@/infrastructure/s3/s3.service';
 
 @ApiTags('Company')
 @Controller('company')
@@ -44,13 +59,13 @@ export class CompanyController {
     return await this.companyService.update(profile.companyId, dto);
   }
 
-  @ApiOperation({ summary: 'Get presigned URL for company logo upload (PNG only)' })
+  @ApiOperation({
+    summary: 'Get presigned URL for company logo upload (PNG only)',
+  })
   @ApiCreatedResponse()
   @Post('my/upload-url/logo')
   @SkipThrottle()
-  async getLogoUploadUrl(
-    @Req() { user }: { user: IReqUser },
-  ) {
+  async getLogoUploadUrl(@Req() { user }: { user: IReqUser }) {
     const profile = await this.profileService.getEntityByUserId(user.id);
     if (!profile.companyId) {
       throw new ForbiddenException('User is not associated with any company');
@@ -60,13 +75,13 @@ export class CompanyController {
     return this.s3Service.getPresignedUploadUrlWithKey(key, 'image/png');
   }
 
-  @ApiOperation({ summary: 'Get presigned URL for company banner upload (PNG only)' })
+  @ApiOperation({
+    summary: 'Get presigned URL for company banner upload (PNG only)',
+  })
   @ApiCreatedResponse()
   @Post('my/upload-url/banner')
   @SkipThrottle()
-  async getBannerUploadUrl(
-    @Req() { user }: { user: IReqUser },
-  ) {
+  async getBannerUploadUrl(@Req() { user }: { user: IReqUser }) {
     const profile = await this.profileService.getEntityByUserId(user.id);
     if (!profile.companyId) {
       throw new ForbiddenException('User is not associated with any company');
@@ -76,13 +91,13 @@ export class CompanyController {
     return this.s3Service.getPresignedUploadUrlWithKey(key, 'image/png');
   }
 
-  @ApiOperation({ summary: 'Get presigned URL for company terms upload (PDF only)' })
+  @ApiOperation({
+    summary: 'Get presigned URL for company terms upload (PDF only)',
+  })
   @ApiCreatedResponse()
   @Post('my/upload-url/terms')
   @SkipThrottle()
-  async getTermsUploadUrl(
-    @Req() { user }: { user: IReqUser },
-  ) {
+  async getTermsUploadUrl(@Req() { user }: { user: IReqUser }) {
     const profile = await this.profileService.getEntityByUserId(user.id);
     if (!profile.companyId) {
       throw new ForbiddenException('User is not associated with any company');

@@ -1,13 +1,12 @@
 import { UpdateBundleRequest } from '@bundle/application/dto/requests';
 import { Bundle, BundleItem } from '@bundle/domain/entities';
 import { Bundle as PrismaBundle } from '@prisma/client';
+import { BundleType } from '@prisma/client';
 
 import { TProductStatusValues } from '@/common/types';
 
 export const BUNDLE_REPOSITORY: unique symbol = Symbol('BUNDLE_REPOSITORY');
 export type BUNDLE_REPOSITORY = typeof BUNDLE_REPOSITORY;
-
-import { BundleType } from '@prisma/client';
 
 export interface IBundleRepository {
   findAllByUserId(userId: string, type?: BundleType): Promise<Bundle[]>;

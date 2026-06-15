@@ -46,7 +46,10 @@ export class BundleService {
     return this.configService.get<string>('BASE_URL') ?? '';
   }
 
-  async findAllByUser(userId: string, type?: BundleType): Promise<BundleResponse[]> {
+  async findAllByUser(
+    userId: string,
+    type?: BundleType,
+  ): Promise<BundleResponse[]> {
     const entities = await this.bundleRepository.findAllByUserId(userId, type);
     return entities.map(e => BundleMapper.toResponse(e, this.baseUrl));
   }

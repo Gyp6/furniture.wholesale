@@ -31,12 +31,12 @@ export function ProjectHeader() {
 
   const handleShareClick = async () => {
     if (store.items.length === 0) {
-      toast.error('Кошик порожній. Немає чого поширювати.');
+      toast.error('Cart is empty. There is nothing to share.');
       return;
     }
 
     if (!store.activeBundleId) {
-      toast.warning('Будь ласка, збережіть проєкт перед тим, як ділитися ним.');
+      toast.warning('Please save your project before sharing it.');
       return;
     }
 
@@ -70,13 +70,13 @@ export function ProjectHeader() {
     })();
 
     toast.promise(sharePromise, {
-      loading: 'Створення публічного посилання...',
-      success: 'Посилання створено!',
+      loading: 'Creating public link...',
+      success: 'Public link created!',
       error: (err: any) => {
         if (err?.message === 'UNSAVED_CHANGES') {
-          return 'У вас є незбережені зміни. Будь ласка, збережіть проєкт перед тим, як ділитися ним.';
+          return 'You have unsaved changes. Please save your project before sharing it.';
         }
-        return 'Не вдалося створити посилання.';
+        return 'Failed to create public link.';
       },
     });
   };

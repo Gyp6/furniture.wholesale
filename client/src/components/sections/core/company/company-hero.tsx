@@ -30,8 +30,8 @@ export function CompanyHero({ company }: CompanyHeroProps) {
             className={'w-full h-full object-cover'}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center">
-            <span className="text-sm text-muted-foreground">No banner uploaded</span>
+          <div className={"w-full h-full bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center"}>
+            <span className={"text-sm text-muted-foreground"}>No banner uploaded</span>
           </div>
         )}
 
@@ -51,8 +51,8 @@ export function CompanyHero({ company }: CompanyHeroProps) {
             >
             <img
               src={companyLogo}
-              alt="Logo"
-              className="w-full h-full object-cover"
+              alt={"Logo"}
+              className={"w-full h-full object-cover"}
             />
           </div>
         ) : (
@@ -89,6 +89,9 @@ export function CompanyHero({ company }: CompanyHeroProps) {
                 }`}
               />
             ))}
+            <p className={'text-sm text-neutral-600 font-medium'}>
+              {parseFloat(company.ratingAvg).toFixed(1)}
+            </p>
           </div>
         </div>
       </div>

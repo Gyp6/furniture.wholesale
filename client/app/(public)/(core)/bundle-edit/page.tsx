@@ -1,5 +1,5 @@
-import { BundleEditPage } from '@/components/pages/core/bundle-edit/bundle-edit';
+import { redirect } from 'next/navigation';
 
-export default function BundleEdit() {
-  return <BundleEditPage />;
+export default function BundleEditRedirect() {
+  redirect('/professional');
 }

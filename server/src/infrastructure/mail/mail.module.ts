@@ -21,7 +21,17 @@ export class MailModule {
 
     return {
       module: MailModule,
-      imports: [BullModule.registerQueue({ name: 'mail_queue' })],
+      imports: [
+        BullModule.registerQueue({
+          name: 'mail_queue',
+          defaultJobOptions: {
+            attempts: 3,
+            backoff: { type: 'fixed', delay: 300_000 },
+            removeOnComplete: true,
+            removeOnFail: false,
+          },
+        }),
+      ],
       providers: [optionsProvider, MailService, MailProcessor],
       exports: [MailService],
     };

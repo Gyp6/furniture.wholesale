@@ -385,6 +385,8 @@ async function seedProducts(
             title: productData.title,
             imagesCount: productData.imagesCount,
             price: productData.price,
+            stock:
+              (productData as any).stock ?? Math.floor(Math.random() * 80) + 20,
             minSellUnits: productData.minSellUnits,
             status: productData.status,
             categoryId,

@@ -37,16 +37,16 @@ export function ProfilePreview({ formData, companyTaxCode }: ProfilePreviewProps
             onError={() => setBannerFailed(true)}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center">
-            <span className="text-sm text-muted-foreground">No banner uploaded</span>
+          <div className={"w-full h-full bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center"}>
+            <span className={"text-sm text-muted-foreground"}>No banner uploaded</span>
           </div>
         )}
         {companyLogo && !logoFailed && (
-          <div className="absolute bottom-3 left-3 w-12 h-12 rounded-xl bg-white shadow-lg overflow-hidden">
+          <div className={"absolute bottom-3 left-3 w-12 h-12 rounded-xl bg-white shadow-lg overflow-hidden"}>
             <img
               src={companyLogo}
-              alt="Logo"
-              className="w-full h-full object-cover"
+              alt={"Logo"}
+              className={"w-full h-full object-cover"}
               onError={() => setLogoFailed(true)}
             />
           </div>
@@ -93,8 +93,8 @@ export function ProfilePreview({ formData, companyTaxCode }: ProfilePreviewProps
         {companyTaxCode && (
           <a
             href={ROUTES.S3(`identity/company/${companyTaxCode}/terms-of-use.pdf`)}
-            target="_blank"
-            rel="noopener noreferrer"
+            target={"_blank"}
+            rel={"noopener noreferrer"}
             className={
               'text-sm text-secondary underline underline-offset-2 text-left'
             }

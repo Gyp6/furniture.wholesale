@@ -9,6 +9,7 @@ import {
   IsLeadTime,
   IsMinSellUnits,
   IsPrice,
+  IsProductStatus,
   IsSku,
   IsStock,
   IsTitle,
@@ -58,6 +59,9 @@ export class ProductResponse {
 
   @IsLeadTime()
   leadTime!: string | null;
+
+  @IsProductStatus()
+  status!: string;
 
   @IsDate()
   createdAt!: Date;

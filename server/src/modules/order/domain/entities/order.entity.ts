@@ -1,5 +1,7 @@
 import { OrderStatus } from '@prisma/client';
+
 import { UserResponse } from '@/modules/identity/application/dto/responses';
+
 import { SubOrder } from './sub-order.entity';
 
 export class Order {
@@ -13,5 +15,6 @@ export class Order {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly buyer?: UserResponse,
+    public readonly shippingAddress?: string | null,
   ) {}
 }

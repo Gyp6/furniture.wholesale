@@ -18,9 +18,8 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
-import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
-
 import { BundleType } from '@prisma/client';
+import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 
 import { IReqUser } from '@/common/types';
 import { CurrentAbility } from '@/core/decorators';

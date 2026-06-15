@@ -1,5 +1,11 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 export class CreateOrderItemRequest {
   @IsString()
@@ -22,4 +28,8 @@ export class CreateOrderRequest {
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemRequest)
   items!: CreateOrderItemRequest[];
+
+  @IsString()
+  @IsOptional()
+  shippingAddress?: string;
 }

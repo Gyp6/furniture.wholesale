@@ -264,7 +264,7 @@ export function RegisterForm() {
                           }}
                           aria-invalid={isInvalid}
                           placeholder={'e.g. Interior Design'}
-                          items={[...specifications, ...horecaType]}
+                          items={[...horecaType]}
                         />
                         {isInvalid && (
                           <FieldError errors={field.state.meta.errors} />

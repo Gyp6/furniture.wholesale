@@ -1,6 +1,7 @@
-import { OrderStatus } from '@prisma/client';
-import { UserResponse } from '@/modules/identity/application/dto/responses';
 import { ProductResponse } from '@catalog/application/dto/responses';
+import { OrderStatus } from '@prisma/client';
+
+import { UserResponse } from '@/modules/identity/application/dto/responses';
 
 export class OrderItemResponse {
   id!: string;
@@ -31,6 +32,7 @@ export class OrderResponse {
   status!: OrderStatus;
   totalAmount!: number;
   platformFee!: number;
+  shippingAddress?: string | null;
   subOrders!: SubOrderResponse[];
   createdAt!: Date;
   updatedAt!: Date;

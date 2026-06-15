@@ -7,7 +7,7 @@ interface Props {
 
 export function HeroBg({ title, image }: Props) {
   return (
-    <div className={'relative w-full h-110 overflow-hidden bg-white'}>
+    <div className={'relative w-full h-110 overflow-hidden'}>
       {image ? (
         <>
           <Image

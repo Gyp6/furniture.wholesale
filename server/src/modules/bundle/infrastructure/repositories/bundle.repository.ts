@@ -3,7 +3,12 @@ import { BundleMapper } from '@bundle/application/mappers';
 import { IBundleRepository } from '@bundle/domain/contracts';
 import { Bundle, BundleItem } from '@bundle/domain/entities';
 import { Injectable } from '@nestjs/common';
-import { Prisma, Bundle as PrismaBundle, ProductStatus, BundleType } from '@prisma/client';
+import {
+  BundleType,
+  Prisma,
+  Bundle as PrismaBundle,
+  ProductStatus,
+} from '@prisma/client';
 
 import { BUNDLE_TYPES, PRODUCT_STATUSES } from '@/common/constants';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';

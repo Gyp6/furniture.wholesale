@@ -49,3 +49,10 @@ export const useUpdateOrderStatus = () => {
     },
   });
 };
+
+export const useCheckStock = () => {
+  return useMutation({
+    mutationFn: (items: Array<{ productId: string; quantity: number }>) =>
+      orderService.checkStock(items),
+  });
+};

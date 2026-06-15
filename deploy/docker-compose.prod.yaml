@@ -39,7 +39,7 @@ services:
 
   backend:
     image: furniture-api:latest
-    container_name: api
+    container_name: backend
     env_file:
       - env/.env.api
     environment:
@@ -48,21 +48,20 @@ services:
     depends_on:
       - postgres
       - redis
-      - s3
+      - localstack
     restart: always
 
   frontend:
     image: furniture-web:latest
-    container_name: web
+    container_name: frontend
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     env_file:
       - env/.env.web
     environment:
       - NODE_ENV=production
-      - API_URL=http://api:4200
-      - S3_URL=http://s3:4566
+      - API_URL=http://backend:4200
     depends_on:
-      - api
-      - s3
+      - backend
+      - localstack
     restart: always

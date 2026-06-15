@@ -144,7 +144,7 @@ export function ProductDetail({ id }: Props) {
                 'text-[11px] font-bold uppercase tracking-[0.15em] text-neutral-400 mb-2'
               }
             >
-              {"Curator's Description"}
+              Curator's Description
             </p>
             <p className={'text-sm text-neutral-500 leading-relaxed max-w-lg'}>
               {product.description || 'No description provided.'}

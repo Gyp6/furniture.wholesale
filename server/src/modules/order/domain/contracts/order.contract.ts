@@ -1,5 +1,9 @@
 import { Order, SubOrder } from '@order/domain/entities';
-import { OrderStatus, Order as PrismaOrder, SubOrder as PrismaSubOrder } from '@prisma/client';
+import {
+  OrderStatus,
+  Order as PrismaOrder,
+  SubOrder as PrismaSubOrder,
+} from '@prisma/client';
 
 export const ORDER_REPOSITORY: unique symbol = Symbol('ORDER_REPOSITORY');
 export type ORDER_REPOSITORY = typeof ORDER_REPOSITORY;

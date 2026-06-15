@@ -13,7 +13,7 @@ interface Props {
 
 export default async function Bundle({ params }: Props) {
   return (
-    <Suspense fallback={<div className="p-10 text-center text-muted-foreground">Loading bundle...</div>}>
+    <Suspense fallback={<div className={"p-10 text-center text-muted-foreground"}>Loading bundle...</div>}>
       <BundleDetailPage params={params} />
     </Suspense>
   );

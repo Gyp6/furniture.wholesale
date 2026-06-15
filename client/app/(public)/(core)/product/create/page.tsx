@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function CreateProduct() {
   return (
-    <Suspense fallback={<div className="p-10 text-center text-muted-foreground">Loading...</div>}>
+    <Suspense fallback={<div className={"p-10 text-center text-muted-foreground"}>Loading...</div>}>
       <ProductCreatePage />
     </Suspense>
   );

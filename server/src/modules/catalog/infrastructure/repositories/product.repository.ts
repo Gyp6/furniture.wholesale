@@ -87,7 +87,7 @@ export class ProductRepository implements IProductRepository {
     skuDto: Omit<CreateSkuRequest, 'sequence'>,
     dto: CreateProductRequest,
   ): Promise<Product> {
-    const { tags, spaces, dimension, ...rest } = dto;
+    const { tags, spaces, dimension, images, ...rest } = dto;
     const raw = await this.prisma.$transaction(async tx => {
       const currentCount = await this.countBySupplierId(supplierId, tx);
       const nextSequence = currentCount + 1;
@@ -103,6 +103,7 @@ export class ProductRepository implements IProductRepository {
       return tx.product.create({
         data: {
           ...rest,
+          imagesCount: images.length,
           sku: this.smartSkuService.generate({
             ...skuDto,
             sequence: nextSequence,
@@ -128,11 +129,12 @@ export class ProductRepository implements IProductRepository {
     id: string,
     dto: Partial<CreateProductRequest>,
   ): Promise<Product> {
-    const { tags, spaces, dimension, categoryId, ...rest } = dto;
+    const { tags, spaces, dimension, categoryId, images, ...rest } = dto;
     const raw = await this.prisma.product.update({
       where: { id },
       data: {
         ...rest,
+        ...(images && { imagesCount: images.length }),
         ...(categoryId && {
           category: {
             connect: { id: categoryId },

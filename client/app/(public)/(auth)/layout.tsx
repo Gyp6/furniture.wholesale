@@ -71,7 +71,7 @@ export default function PublicLayout({
                     'flex size-8 items-center justify-center rounded-full bg-white text-primary'
                   }
                 >
-                  <LOGO.LogoProject size={28} />
+                  <LOGO.LogoProject className={"text-black"} size={28} />
                 </div>
                 <span className={'text-sm font-medium'}>
                   Furniture.wholesale

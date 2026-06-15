@@ -116,6 +116,7 @@ export class ProductMapper {
       images: images,
       minSellUnits: entity.minSellUnits,
       leadTime: entity.leadTime,
+      status: entity.status,
 
       manufacturer: {
         ...manufacturerRest,
@@ -154,6 +155,7 @@ export class ProductMapper {
       description: entity.description,
       images: images,
       leadTime: entity.leadTime,
+      status: entity.status,
 
       manufacturer: {
         ...manufacturerRest,

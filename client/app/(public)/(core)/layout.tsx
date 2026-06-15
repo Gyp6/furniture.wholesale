@@ -1,6 +1,14 @@
+'use client';
+
+import dynamic from 'next/dynamic';
 import { Header, Footer } from '@/components/layout';
-import { ActiveBundleBar } from '@/components/sections/core/catalog';
 import { UnsavedChangesModal } from '@/components/ui/unsaved-changes-modal';
+
+// Замість звичайного import ActiveBundleBar from '...'
+const ActiveBundleBar = dynamic(
+  () => import('@/components/sections/core/catalog/active-bundle-bar').then(mod => mod.ActiveBundleBar),
+  { ssr: false }
+);
 
 export default function CoreLayout({
   children,

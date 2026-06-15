@@ -15,6 +15,7 @@ import {
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { OrderModule } from '@order/order.module';
 import {
   AuthGuard as BetterAuthGuard,
   AuthModule as BetterAuthModule,
@@ -36,8 +37,6 @@ import { AbilitiesGuard } from './application/guards';
 import { HealthService } from './application/services';
 import { HealthController } from './infrastructure/api';
 import { createAuth } from './lib';
-
-import { OrderModule } from '@order/order.module';
 
 @Module({
   imports: [

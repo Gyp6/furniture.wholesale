@@ -57,3 +57,14 @@ export const useCreateProduct = () => {
     },
   });
 };
+
+export const useUpdateProduct = (id: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: any) => productService.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product', id] });
+    },
+  });
+};

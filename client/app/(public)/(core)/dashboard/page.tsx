@@ -23,8 +23,8 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary" />
+      <div className={"flex items-center justify-center min-h-[400px]"}>
+        <div className={"animate-spin rounded-full h-8 w-8 border-b-2 border-secondary"} />
       </div>
     );
   }
@@ -42,10 +42,8 @@ export default function DashboardPage() {
       return <RetailorDashboardPage />;
     case 'HORECA':
       return <HoRecaDashboardPage />;
-    case 'ADMIN':
-      return <HoRecaDashboardPage />;
     default:
-      return <HoRecaDashboardPage />;
+      return <>Unsupported role: {user.role}</>;
   }
 }
 

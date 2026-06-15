@@ -1,7 +1,5 @@
 import type { NextConfig } from 'next';
 
-const BACKEND_URL = process.env.BACKEND_URL;
-
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -22,21 +20,9 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
   reactCompiler: true,
-  // cacheComponents: true,
-  // transpilePackages: ['lucide-react'],
-  async rewrites() {
-    return [
-      {
-        source: '/api/v1/auth/:path*',
-        destination: `${BACKEND_URL}/api/v1/auth/:path*`,
-      },
-      {
-        source: '/api/v1/:path*',
-        destination: `${BACKEND_URL}/api/v1/:path*`,
-      },
-    ];
-  },
-  // output: 'standalone',
+  cacheComponents: true,
+  transpilePackages: ['lucide-react'],
+  output: 'standalone', // Залишаємо суто standalone
 };
 
 export default nextConfig;

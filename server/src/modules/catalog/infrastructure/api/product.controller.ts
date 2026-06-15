@@ -59,7 +59,9 @@ export class ProductController {
   @Get('my')
   @SkipThrottle()
   @Roles([ROLES.SUPPLIER, ROLES.ADMIN])
-  async findMy(@Req() { user }: { user: IReqUser }): Promise<ProductResponse[]> {
+  async findMy(
+    @Req() { user }: { user: IReqUser },
+  ): Promise<ProductResponse[]> {
     return this.productService.findMyProducts(user.id);
   }
 

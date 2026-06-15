@@ -131,13 +131,13 @@ export function HoRecaDashboardPage() {
           variant={'default'}
           onClick={() => {
             if (items.length > 0 && activeBundleId === null) {
-              showUnsavedChanges('/catalog', () => {
+              showUnsavedChanges('/', () => {
                 clearBundle();
-                router.push('/catalog');
+                router.push('/');
               });
             } else {
               clearBundle();
-              router.push('/catalog');
+              router.push('/');
             }
           }}
         >
@@ -233,7 +233,11 @@ export function HoRecaDashboardPage() {
                     className={
                       'rounded-2xl gap-1 text-[14px] w-full h-10 px-3 bg-secondary/15 text-secondary hover:bg-secondary/25'
                     }
-                    onClick={e => e.stopPropagation()}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setSelectedOrderId(order.id);
+                      setModalOpen(true);
+                    }}
                   >
                     <ICONS.RefreshLoading
                       size={20}
@@ -252,7 +256,7 @@ export function HoRecaDashboardPage() {
           </div>
         </div>
 
-        <div className={'w-[600px] shrink-0 flex flex-col gap-4 min-h-0'}>
+        <div className={'lg:w-[600px] w-full shrink-0 flex flex-col gap-4 min-h-0'}>
           <div>
             <h2 className={'text-2xl font-semibold mb-3'}>Statistics</h2>
             <div className={'grid grid-cols-3 gap-3'}>

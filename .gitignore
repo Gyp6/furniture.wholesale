@@ -4,4 +4,5 @@ deploy/out
 deploy/env
 /out
 /.trash
+/.claude
 .env

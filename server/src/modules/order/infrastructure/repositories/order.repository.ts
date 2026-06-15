@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { OrderStatus, Prisma, Order as PrismaOrder, SubOrder as PrismaSubOrder } from '@prisma/client';
+import { OrderMapper } from '@order/application/mappers/order.mapper';
 import { IOrderRepository } from '@order/domain/contracts';
 import { Order, SubOrder } from '@order/domain/entities';
-import { OrderMapper } from '@order/application/mappers/order.mapper';
+import {
+  OrderStatus,
+  Prisma,
+  Order as PrismaOrder,
+  SubOrder as PrismaSubOrder,
+} from '@prisma/client';
+
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 
 @Injectable()
@@ -95,6 +101,7 @@ export class OrderRepository implements IOrderRepository {
         status: order.status,
         totalAmount: new Prisma.Decimal(order.totalAmount),
         platformFee: new Prisma.Decimal(order.platformFee),
+        shippingAddress: order.shippingAddress,
         subOrders: {
           create: order.subOrders.map(sub => ({
             id: sub.id,
@@ -132,17 +139,19 @@ export class OrderRepository implements IOrderRepository {
       where: { id },
       include: this.subOrderInclude,
     });
-    return raw ? OrderMapper.toDomain({
-      id: raw.orderId,
-      buyerId: raw.order?.buyerId ?? '',
-      status: raw.status,
-      totalAmount: 0,
-      platformFee: 0,
-      buyer: raw.order?.buyer,
-      subOrders: [raw as any],
-      createdAt: raw.createdAt,
-      updatedAt: raw.updatedAt,
-    } as any).subOrders[0] : null;
+    return raw
+      ? OrderMapper.toDomain({
+          id: raw.orderId,
+          buyerId: raw.order?.buyerId ?? '',
+          status: raw.status,
+          totalAmount: 0,
+          platformFee: 0,
+          buyer: raw.order?.buyer,
+          subOrders: [raw as any],
+          createdAt: raw.createdAt,
+          updatedAt: raw.updatedAt,
+        } as any).subOrders[0]
+      : null;
   }
 
   async findAllByBuyerId(buyerId: string): Promise<Order[]> {
@@ -160,17 +169,20 @@ export class OrderRepository implements IOrderRepository {
       include: this.subOrderInclude,
       orderBy: { createdAt: 'desc' },
     });
-    return raws.map(raw => OrderMapper.toDomain({
-      id: raw.orderId,
-      buyerId: raw.order?.buyerId ?? '',
-      status: raw.status,
-      totalAmount: 0,
-      platformFee: 0,
-      buyer: raw.order?.buyer,
-      subOrders: [raw as any],
-      createdAt: raw.createdAt,
-      updatedAt: raw.updatedAt,
-    } as any).subOrders[0]);
+    return raws.map(
+      raw =>
+        OrderMapper.toDomain({
+          id: raw.orderId,
+          buyerId: raw.order?.buyerId ?? '',
+          status: raw.status,
+          totalAmount: 0,
+          platformFee: 0,
+          buyer: raw.order?.buyer,
+          subOrders: [raw as any],
+          createdAt: raw.createdAt,
+          updatedAt: raw.updatedAt,
+        } as any).subOrders[0],
+    );
   }
 
   async updateStatus(id: string, status: OrderStatus): Promise<Order> {
@@ -182,7 +194,10 @@ export class OrderRepository implements IOrderRepository {
     return OrderMapper.toDomain(raw);
   }
 
-  async updateSubOrderStatus(id: string, status: OrderStatus): Promise<SubOrder> {
+  async updateSubOrderStatus(
+    id: string,
+    status: OrderStatus,
+  ): Promise<SubOrder> {
     const raw = await this.prisma.subOrder.update({
       where: { id },
       data: { status },

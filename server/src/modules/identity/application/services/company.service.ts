@@ -4,9 +4,9 @@ import {
 } from '@identity/domain/contracts';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
+import { UpdateCompanyRequest } from '../dto/requests/update-company.request';
 import { CompanyResponse } from '../dto/responses';
 import { CompanyMapper } from '../mappers';
-import { UpdateCompanyRequest } from '../dto/requests/update-company.request';
 
 @Injectable()
 export class CompanyService {
@@ -29,7 +29,10 @@ export class CompanyService {
     return CompanyMapper.toResponse(entity);
   }
 
-  async update(id: string, dto: UpdateCompanyRequest): Promise<CompanyResponse> {
+  async update(
+    id: string,
+    dto: UpdateCompanyRequest,
+  ): Promise<CompanyResponse> {
     const entity = await this.companyRepository.findById(id);
     if (!entity) throw new NotFoundException('Company not found');
 

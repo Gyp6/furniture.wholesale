@@ -128,9 +128,19 @@ export const productService = {
     return data;
   },
 
+  async update(id: string, dto: any): Promise<IProduct> {
+    const { data } = await api.patch(`/products/${id}`, dto);
+    return data;
+  },
+
+  async updateStatus(id: string, status: string): Promise<IProduct> {
+    const { data } = await api.patch(`/products/${id}/status`, { status });
+    return data;
+  },
+
   async getUploadUrl(mimeType: string): Promise<{ url: string; key: string }> {
     const { data } = await api.post('/products/upload-url', { mimeType });
-    return data;
+    return { url: data.uploadUrl, key: data.key };
   },
 
   async uploadToS3(url: string, file: File): Promise<void> {

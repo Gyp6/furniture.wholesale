@@ -1,6 +1,8 @@
 'use client';
 
 import { X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 import { OrderCard } from '@/components/ui/order-card';
 import { Button } from '@/components/ui/shadcn/button';
@@ -13,6 +15,7 @@ import {
 import { useGetOrder } from '@/hooks/queries';
 import { ICONS } from '@/shared/data/icons';
 import { Skeleton } from '@/components/ui/shadcn/skeleton';
+import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
 
 type TOrderDetailsModalProps = {
   open: boolean;
@@ -26,6 +29,8 @@ export function OrderDetailsModal({
   orderId,
 }: TOrderDetailsModalProps) {
   const { data: order, isLoading } = useGetOrder(orderId || '');
+  const router = useRouter();
+  const { clearBundle, addItem } = useSpaceBundleStore();
 
   // Flatten items across all sub-orders in the order, or display directly if it is a single sub-order (supplier view)
   const orderItems = order
@@ -72,9 +77,9 @@ export function OrderDetailsModal({
         </DialogHeader>
 
         {isLoading ? (
-          <div className="grid grid-cols-3 gap-4">
+          <div className={"grid grid-cols-3 gap-4"}>
             {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="h-[200px] rounded-2xl" />
+              <Skeleton key={i} className={"h-[200px] rounded-2xl"} />
             ))}
           </div>
         ) : orderItems.length > 0 ? (
@@ -97,7 +102,7 @@ export function OrderDetailsModal({
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-muted-foreground text-sm">
+          <div className={"text-center py-8 text-muted-foreground text-sm"}>
             No items found in this order.
           </div>
         )}
@@ -115,7 +120,21 @@ export function OrderDetailsModal({
           <Button
             variant={'default'}
             className={'rounded-full h-11 flex-1 gap-2'}
-            disabled
+            disabled={!order || orderItems.length === 0}
+            onClick={() => {
+              if (!order) return;
+              clearBundle();
+              for (const item of orderItems) {
+                if (!item.product) continue;
+                addItem({
+                  product: item.product,
+                  quantity: item.quantity,
+                });
+              }
+              onOpenChange(false);
+              toast.success('Items added to cart!');
+              router.push('/cart');
+            }}
           >
             <ICONS.RefreshLoading
               size={16}

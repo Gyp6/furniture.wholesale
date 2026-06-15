@@ -23,6 +23,7 @@ export const ROUTES = {
   CATALOG: '/catalog',
   BUNDLES: '/bundles',
   DASHBOARD: '/dashboard',
+  ORDERS: '/orders',
   PRODUCT: (id: string) => `/product/${id}`,
   PROFILE: '/profile',
 

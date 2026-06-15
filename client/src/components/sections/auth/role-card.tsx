@@ -29,7 +29,7 @@ export const RoleCard = ({
     >
       <Image
         fill
-        unoptimized={process.env.NODE_ENV === 'development'}
+        unoptimized
         src={image}
         alt={title}
         className={'absolute inset-0 h-full w-full object-cover'}

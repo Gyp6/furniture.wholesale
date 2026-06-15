@@ -1,5 +1,7 @@
 import { OrderStatus } from '@prisma/client';
+
 import { UserResponse } from '@/modules/identity/application/dto/responses';
+
 import { OrderItem } from './order-item.entity';
 
 export class SubOrder {

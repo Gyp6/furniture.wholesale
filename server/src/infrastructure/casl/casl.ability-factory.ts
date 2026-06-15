@@ -1,12 +1,23 @@
 import { Ability, AbilityBuilder, InferSubjects } from '@casl/ability';
 import { createPrismaAbility, PrismaQuery } from '@casl/prisma';
 import { Injectable } from '@nestjs/common';
-import { Bundle, Company, Product, Profile, Role, User, Order, SubOrder } from '@prisma/client';
+import {
+  Bundle,
+  Company,
+  Order,
+  Product,
+  Profile,
+  Role,
+  SubOrder,
+  User,
+} from '@prisma/client';
 
 import { ECalsAction } from '@/common/enums';
 
 type AppSubjects =
-  | InferSubjects<User | Company | Profile | Product | Bundle | Order | SubOrder>
+  | InferSubjects<
+      User | Company | Profile | Product | Bundle | Order | SubOrder
+    >
   | 'User'
   | 'Company'
   | 'Profile'

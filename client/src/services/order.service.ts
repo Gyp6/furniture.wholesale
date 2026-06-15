@@ -8,6 +8,7 @@ export interface CreateOrderRequest {
     quantity: number;
     priceSnapshot: number;
   }>;
+  shippingAddress?: string;
 }
 
 export interface OrderItemResponse {
@@ -75,6 +76,17 @@ export const orderService = {
 
   async updateStatus(id: string, status: string): Promise<any> {
     const { data } = await api.patch(`/orders/${id}/status`, { status });
+    return data;
+  },
+
+  async checkStock(items: Array<{ productId: string; quantity: number }>): Promise<Array<{
+    productId: string;
+    title: string;
+    requested: number;
+    available: number;
+    sufficient: boolean;
+  }>> {
+    const { data } = await api.post('/orders/check-stock', { items });
     return data;
   },
 };

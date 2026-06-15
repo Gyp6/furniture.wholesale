@@ -113,13 +113,13 @@ export function RetailorDashboardPage() {
           variant={'default'}
           onClick={() => {
             if (items.length > 0 && activeBundleId === null) {
-              showUnsavedChanges('/catalog', () => {
+              showUnsavedChanges('/', () => {
                 clearBundle();
-                router.push('/catalog');
+                router.push('/');
               });
             } else {
               clearBundle();
-              router.push('/catalog');
+              router.push('/');
             }
           }}
         >
@@ -248,7 +248,7 @@ export function RetailorDashboardPage() {
           </div>
         </div>
 
-        <div className={'w-[600px] shrink-0 flex flex-col gap-4 min-h-0'}>
+        <div className={'lg:w-[600px] w-full shrink-0 flex flex-col gap-4 min-h-0'}>
           <div>
             <h2 className={'text-2xl font-semibold mb-3'}>Statistics</h2>
             <div className={'grid grid-cols-2 gap-4'}>
