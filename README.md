@@ -180,44 +180,36 @@
 
 ## 🖥️ Вимоги для розробки
 
-### Обов'язково
+### Системні вимоги (Hardware)
+*   **Оперативна пам'ять (RAM):** Мінімум 4 GB (рекомендовано 8 GB або більше)
+*   **Процесор (CPU):** 2 ядра або більше (рекомендовано 4 ядра)
+*   **Дисковий простір:** ~5 GB вільного місця (з урахуванням Docker образів)
 
-- **Node.js**: 24.x або вище
-- **bun**: для управління залежностями
-- **Docker**: для контейнеризації сервісів
-- **Docker Compose**: для оркестрації локального стеку
-- **Git**: для контролю версій
+### Обов'язкове програмне забезпечення
+*   **Node.js**: `24.x` або вище
+*   **bun**: `1.3.x` або вище (використовується для управління залежностями та запуску)
+*   **Docker**: `24.x.x` або вище
+*   **Docker Compose**: `2.x.x` або вище
+*   **Git**: `2.x.x` або вище
 
-### Перевірка вимог
+### Перевірка встановлених версій
 
 ```bash
-# Node.js
-node --version  # v24.x.x
-
-# npm
-npm --version   # 10.x.x
-
-# bun
-bun --version   # 1.3.x
-
-# Docker
-docker --version        # Docker version 24.x.x
-docker-compose --version  # Docker Compose version 2.x.x
-
-# Git
-git --version   # git version 2.x.x
+node --version
+bun --version
+docker --version
+docker-compose --version
+git --version
 ```
 
 ### Опціонально
-
-- **Postman**: для тестування API
-- **PgAdmin**: для керування PostgreSQL (вже в docker-compose)
-- **VS Code**: рекомендується з розширеннями ESLint, Prettier, Prisma, Thunder
-  Client
+*   **Postman**: Для ручного тестування API
+*   **PgAdmin**: Для графічного керування PostgreSQL (вже вбудований у `docker-compose.prod.yaml`)
+*   **VS Code**: Рекомендовано з розширеннями ESLint, Prettier, Prisma, Tailwind CSS.
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start & Deployment Guide
 
 ### 1️⃣ Клонування репозиторію
 
@@ -228,88 +220,106 @@ cd furniture.wholesale
 
 ### 2️⃣ Встановлення залежностей
 
+Пакетний менеджер за замовчуванням — `bun` (дозволяє значно пришвидшити встановлення).
+
 ```bash
-# Root залежності
+# Встановлення залежностей у корені та у підпапках клієнта і сервера
 bun install --frozen-lockfile
-
-# Client залежності
 cd client && bun install --frozen-lockfile && cd ..
-
-# Server залежності
 cd server && bun install --frozen-lockfile && cd ..
 ```
 
-### 3️⃣ Налаштування змінних оточення
+### 3️⃣ Налаштування змінних оточення (.env)
+
+Створіть локальні файли `.env` на основі шаблонів `.env.example`:
 
 ```bash
-# Скопіюйте .env.example у .env (якщо вони існують)
+# Копіювання конфігураційних файлів
 cp server/.env.example server/.env
 cp client/.env.example client/.env
-
-
+cp .env.example .env
 ```
 
-`Заповніть необхідні змінні в server/.env та client/.env`
+*Примітка: Всі критичні параметри для локального запуску за замовчуванням уже мають робочі конфігурації. Для роботи OAuth або розсилки пошти необхідно буде надати власні ключі у `server/.env`.*
 
-### 4️⃣ Запуск локальної інфраструктури
+### 4️⃣ Запуск локальної інфраструктури (Docker)
+
+Переконайтеся, що Docker Daemon запущено.
 
 ```bash
-# Запустіть Docker контейнери (Redis, LocalStack)
+# Запуск контейнерів Redis та LocalStack (імітація S3)
 make env-up
 
-# Або без Makefile:
-docker-compose -f deploy/docker-compose.yaml up -d
+# Створення бакета S3 для меблів та встановлення правил CORS
+make s3-setup
+make s3-cors
 ```
 
-### 5️⃣ Міграції бази даних
+### 5️⃣ Ініціалізація та посів бази даних (PostgreSQL)
+
+Створіть базу даних PostgreSQL локально або скористайтеся контейнером, після чого виконайте команди:
 
 ```bash
 cd server
 
-# Перевірте статус міграцій
-bunx prisma migrate status
-
-# Запустіть міграції Prisma
+# Запуск міграцій та створення структури таблиць
 bunx prisma db push
 
-# Або очистіть БД та заново запустіть:
-bunx prisma migrate reset
+# Заповнення бази даних тестовими даними (користувачі, товари, бандли)
+bunx prisma db seed
 
 cd ..
 ```
 
 ### 6️⃣ Запуск у режимі розробки
 
+Запустіть обидві частини додатку в окремих вікнах терміналу:
+
 ```bash
-# Terminal 1: Backend (NestJS)
-cd server
-bun run dev
-# Backend запустився на http://localhost:4200
-# Swagger документація: http://localhost:4200/docs
+# Термінал 1: Backend (NestJS)
+cd server && bun run dev
 
-# Terminal 2: Frontend (Next.js)
-cd client
-bun run dev
-# Frontend запустився на http://localhost:3000
+# Термінал 2: Frontend (Next.js)
+cd client && bun run dev
 ```
-
-### ✅ Перевірка здоров'я
-
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:4200/api
-- **Swagger Docs**: http://localhost:4200/docs
-- **PostgreSQL**: localhost:5432 (user: postgres, пароль з .env)
-- **Redis**: localhost:6379
 
 ---
 
-### Запуск у режимі продакшену
+### 🔍 Перевірка здоров'я (Health Check)
+
+Коли додаток успішно запущено, сервіси доступні за адресами:
+*   **Next.js Frontend:** [http://localhost:3000](http://localhost:3000)
+*   **NestJS Backend API:** [http://localhost:4200/api](http://localhost:4200/api)
+*   **Swagger API Docs:** [http://localhost:4200/docs](http://localhost:4200/docs)
+*   **PostgreSQL Port:** `5432` (доступи вказані у вашому `.env`)
+*   **Redis Port:** `6379`
+
+---
+
+### 🔑 Тестові облікові записи (Credentials)
+
+Після успішного запуску посіву бази даних (`db seed`), використовуйте наступні облікові записи для перевірки різних рівнів доступу та кабінетів (всі акаунти використовують пароль `Password123`):
+
+| Роль | Email | Пароль | Опис можливостей ролі |
+| :--- | :--- | :--- | :--- |
+| **ADMIN** | `admin@gyp6.sale` | `Password123` | Повне керування (зміна статусів замовлень, модерація, видалення товарів). |
+| **SUPPLIER** | `supplier@gyp6.sale` | `Password123` | Постачальник меблів (додавання своїх продуктів, створення Supplier-бандлів). |
+| **DESIGNER** | `designer@gyp6.sale` | `Password123` | Дизайнер інтер'єрів (доступ до CRM, збірка складних User-бандлів, шаринг). |
+| **RETAILER** | `retailer@gyp6.sale` | `Password123` | Оптовий покупець (пошук меблів, оформлення замовлень, кабінет замовлень). |
+| **HORECA** | `horeca@gyp6.sale` | `Password123` | Хорека |
+
+
+---
+
+### 📦 Запуск у режимі продакшену (Docker Standalone)
+
+Для збірки та запуску всього стеку додатку в Docker-середовищі (включаючи PostgreSQL 18, Redis, LocalStack, Next.js Standalone та NestJS API) виконайте:
 
 ```bash
-# Зберіть та запустіть Docker Compose для продакшену
+# Збірка та запуск продакшен контейнерів
 make prod-up
 
-# Для перебудови без кешу:
+# Перезбірка без кешу:
 make prod-rebuild
 
 # Зупинка:
@@ -606,7 +616,7 @@ bunx prisma migrate status
 
 ## 📄 Ліцензія
 
-Цей проект ліцензований під [MIT License](LICENSE).
+Цей проект ліцензований під [Apache 2.0](LICENSE).
 
 Ви можете:
 

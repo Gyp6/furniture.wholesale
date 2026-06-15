@@ -292,8 +292,7 @@ async function main() {
   const spaceTypes = await seedSpaceTypes();
   const categories = await seedCategories();
   const users = await seedUsers();
-  const products = await seedProducts(users, categories, spaceTypes);
-  await seedBundles(users, products, spaceTypes);
+  const products = {};
   await seedCarts(users, products);
 
   console.log('\n✨ Seed completed successfully');

@@ -21,6 +21,7 @@ import { ECalsAction } from '@/common/enums';
 import { IReqUser, TProductStatusValues } from '@/common/types';
 import { AppAbility } from '@/infrastructure/casl/casl.ability-factory';
 import { ProfileService } from '@/modules/identity/application/services';
+import { S3Service } from '@/infrastructure/s3/s3.service';
 
 import { CategoryService } from './category.service';
 
@@ -32,10 +33,84 @@ export class ProductService {
     private readonly profileService: ProfileService,
     private readonly categoryService: CategoryService,
     private readonly configService: ConfigService,
+    private readonly s3Service: S3Service,
   ) {}
 
   private get s3Url(): string {
     return this.configService.get<string>('S3_URL') || '';
+  }
+
+  private async processProductImages(
+    sku: string,
+    images: string[],
+  ): Promise<void> {
+    const tempPrefix = `catalog/product/${sku}/temp`;
+    const finalPrefix = `catalog/product/${sku}`;
+
+    // Phase 1: Copy all source files to temporary files temp_i.png
+    const sourceKeys: string[] = [];
+    for (let i = 0; i < images.length; i++) {
+      const img = images[i];
+      let sourceKey = '';
+
+      if (img.startsWith('http://') || img.startsWith('https://')) {
+        // Parse key from URL. Example: http://localhost:4566/furniture-wholesale-bucket/catalog/product/GYP6-xxx/0.png
+        const match = img.match(/catalog\/product\/[^/]+\/\d+\.png/);
+        if (match) {
+          sourceKey = match[0];
+        }
+      } else if (img.startsWith('products/')) {
+        sourceKey = img;
+      }
+
+      if (sourceKey) {
+        sourceKeys.push(sourceKey);
+        const tempKey = `${tempPrefix}_${i}.png`;
+        try {
+          await this.s3Service.copyObject(sourceKey, tempKey);
+        } catch (error) {
+          console.error(
+            `Failed to copy to temp: ${sourceKey} -> ${tempKey}`,
+            error,
+          );
+        }
+      } else {
+        sourceKeys.push('');
+      }
+    }
+
+    // Phase 2: Delete existing files at catalog/product/sku/i.png (from 0 to 15)
+    for (let i = 0; i < 16; i++) {
+      const keyToDelete = `${finalPrefix}/${i}.png`;
+      try {
+        await this.s3Service.deleteObject(keyToDelete);
+      } catch (error) {
+        // Ignore errors if the file doesn't exist
+      }
+    }
+
+    // Phase 3: Move temp files to their final destination finalPrefix/i.png and cleanup
+    for (let i = 0; i < images.length; i++) {
+      const tempKey = `${tempPrefix}_${i}.png`;
+      const finalKey = `${finalPrefix}/${i}.png`;
+      const sourceKey = sourceKeys[i];
+
+      if (sourceKey) {
+        try {
+          // Copy temp file to final destination
+          await this.s3Service.copyObject(tempKey, finalKey);
+          // Delete temp file
+          await this.s3Service.deleteObject(tempKey);
+
+          // If the original source was a temporary upload (products/...), delete it as well
+          if (sourceKey.startsWith('products/')) {
+            await this.s3Service.deleteObject(sourceKey);
+          }
+        } catch (error) {
+          console.error(`Failed to finalize image ${i}:`, error);
+        }
+      }
+    }
   }
 
   async findAll(user: IReqUser | null) {
@@ -83,6 +158,9 @@ export class ProductService {
       skuDto,
       dto,
     );
+    if (dto.images && dto.images.length > 0) {
+      await this.processProductImages(entity.sku, dto.images);
+    }
     return ProductMapper.toResponse(entity, this.s3Url);
   }
 
@@ -99,6 +177,9 @@ export class ProductService {
     }
 
     const entity = await this.productRepository.update(id, dto);
+    if (dto.images) {
+      await this.processProductImages(entity.sku, dto.images);
+    }
     return ProductMapper.toResponse(entity, this.s3Url);
   }
 

@@ -96,13 +96,9 @@ export class ProductMapper {
   static toResponse(entity: Product, s3Url: string): ProductResponse {
     const { verificationStatus, ...manufacturerRest } = entity.manufacturer;
 
-    const isDev = process.env.NODE_ENV === 'development';
-
     const images = Array.from({ length: entity.imagesCount }).map(
       (_, index) => {
-        return isDev
-          ? `${s3Url}/catalog/test/${index}.png`
-          : `${s3Url}/catalog/product/${entity.sku}/${index}.png`;
+        return `${s3Url}/catalog/product/${entity.sku}/${index}.png`;
       },
     );
 
@@ -139,13 +135,9 @@ export class ProductMapper {
   > {
     const { verificationStatus, ...manufacturerRest } = entity.manufacturer;
 
-    const isDev = process.env.NODE_ENV === 'development';
-
     const images = Array.from({ length: entity.imagesCount }).map(
       (_, index) => {
-        return isDev
-          ? `${s3Url}/catalog/test/${index}.png`
-          : `${s3Url}/catalog/product/${entity.sku}/${index}.png`;
+        return `${s3Url}/catalog/product/${entity.sku}/${index}.png`;
       },
     );
 

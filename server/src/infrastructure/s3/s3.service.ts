@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { CopyObjectCommand, DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -58,5 +58,29 @@ export class S3Service {
     const publicUrl = `${this.endpoint}/${this.bucket}/${key}`;
 
     return { uploadUrl, publicUrl, key };
+  }
+
+  async copyObject(sourceKey: string, destinationKey: string): Promise<void> {
+    const command = new CopyObjectCommand({
+      Bucket: this.bucket,
+      CopySource: `${this.bucket}/${sourceKey}`,
+      Key: destinationKey,
+    });
+
+    await this.s3Client.send(command);
+  }
+
+  async deleteObject(key: string): Promise<void> {
+    const command = new DeleteObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+    });
+
+    await this.s3Client.send(command);
+  }
+
+  async moveObject(sourceKey: string, destinationKey: string): Promise<void> {
+    await this.copyObject(sourceKey, destinationKey);
+    await this.deleteObject(sourceKey);
   }
 }
