@@ -1,9 +1,9 @@
-Hrushko Maksym - Dev
+# Hrushko Maksym - `Dev`
 
-Stepanyatova Sophia - Dev
+# Stepanyatova Sophia - `Dev`
 
-Buriak Ivan - QA
+# Buriak Ivan - `QA`
 
-Mariia Hutsuliak - PM
+# Mariia Hutsuliak - `PM`
 
-Maksym Koka - DB
+# Maksym Koka - `DB`

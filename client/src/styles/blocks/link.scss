@@ -1,0 +1,30 @@
+.group:hover .link {
+  color: inherit !important;
+  &::after {
+    width: 100%;
+  }
+}
+
+.link {
+  position: relative;
+  text-decoration: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background: currentColor !important;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &:hover,
+  .group:hover & {
+    color: inherit !important;
+    &::after {
+      width: 100%;
+    }
+  }
+}

@@ -19,8 +19,10 @@
       }
     ],
     "paths": {
+      "@app/*": ["./app/*"],
       "@/*": ["./src/*"],
-      "@app/*": ["./app/*"]
+      "@ui/*": ["./src/components/ui/*"],
+      "@shadcn/*": ["./src/components/ui/shadcn/*"]
     }
   },
   "include": [
@@ -31,5 +33,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules, .trash"]
 }

@@ -1,6 +1,29 @@
-node_modules
-dist
-npm-debug.log
-Dockerfile
-.git
+# Секрети та конфіги (КРИТИЧНО)
 .env
+.env.*
+*.pem
+*.key
+
+# Папки збірки та залежностей
+node_modules/
+docs/
+test/
+
+# Логи
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+*.log
+
+# Git та Docker
+.git/
+.gitignore
+Dockerfile*
+.dockerignore
+
+# Різна поїбота (не потрібна в проді)
+README.md
+eslint.config.mjs
+prettier.config.mjs
+tsconfig.build.json
+tsconfig.test.json

@@ -1,129 +1,80 @@
-import * as React from "react"
+'use client';
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
+import { Button } from '@shadcn/button';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
-function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
-  return (
-    <nav
-      role="navigation"
-      aria-label="pagination"
-      data-slot="pagination"
-      className={cn("mx-auto flex w-full justify-center", className)}
-      {...props}
-    />
-  )
+import { cn } from '@/lib/cn';
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  className?: string;
 }
 
-function PaginationContent({
+export function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
   className,
-  ...props
-}: React.ComponentProps<"ul">) {
+}: Props) {
+  const formatPage = (num: number) => (num < 10 ? `0${num}` : num);
+
+  const handlePrev = () => {
+    if (currentPage > 1) onPageChange(currentPage - 1);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) onPageChange(currentPage + 1);
+  };
+
   return (
-    <ul
-      data-slot="pagination-content"
-      className={cn("flex items-center gap-0.5", className)}
-      {...props}
-    />
-  )
-}
-
-function PaginationItem({ ...props }: React.ComponentProps<"li">) {
-  return <li data-slot="pagination-item" {...props} />
-}
-
-type PaginationLinkProps = {
-  isActive?: boolean
-} & Pick<React.ComponentProps<typeof Button>, "size"> &
-  React.ComponentProps<"a">
-
-function PaginationLink({
-  className,
-  isActive,
-  size = "icon",
-  ...props
-}: PaginationLinkProps) {
-  return (
-    <Button
-      asChild
-      variant={isActive ? "outline" : "ghost"}
-      size={size}
-      className={cn(className)}
-    >
-      <a
-        aria-current={isActive ? "page" : undefined}
-        data-slot="pagination-link"
-        data-active={isActive}
-        {...props}
-      />
-    </Button>
-  )
-}
-
-function PaginationPrevious({
-  className,
-  text = "Previous",
-  ...props
-}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
-  return (
-    <PaginationLink
-      aria-label="Go to previous page"
-      size="default"
-      className={cn("pl-1.5!", className)}
-      {...props}
-    >
-      <ChevronLeftIcon data-icon="inline-start" />
-      <span className="hidden sm:block">{text}</span>
-    </PaginationLink>
-  )
-}
-
-function PaginationNext({
-  className,
-  text = "Next",
-  ...props
-}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
-  return (
-    <PaginationLink
-      aria-label="Go to next page"
-      size="default"
-      className={cn("pr-1.5!", className)}
-      {...props}
-    >
-      <span className="hidden sm:block">{text}</span>
-      <ChevronRightIcon data-icon="inline-end" />
-    </PaginationLink>
-  )
-}
-
-function PaginationEllipsis({
-  className,
-  ...props
-}: React.ComponentProps<"span">) {
-  return (
-    <span
-      aria-hidden
-      data-slot="pagination-ellipsis"
+    <div
       className={cn(
-        "flex size-8 items-center justify-center [&_svg:not([class*='size-'])]:size-4",
-        className
+        'flex items-center justify-between mt-10 text-base text-muted-foreground',
+        className,
       )}
-      {...props}
     >
-      <MoreHorizontalIcon
-      />
-      <span className="sr-only">More pages</span>
-    </span>
-  )
-}
+      <span className={'select-none font-medium'}>
+        Page {formatPage(currentPage)} — {formatPage(totalPages)}
+      </span>
+      <div className={'flex items-center gap-3'}>
+        {/* <button
+          className={
+            'w-8 h-8 rounded-full border border-neutral-200 flex items-center justify-center hover:bg-neutral-100'
+          }
+        >
+          <ArrowLeft className={'size-4'} />
+        </button>
+        <button
+          className={
+            'w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center'
+          }
+        >
+          <ArrowRight className={'size-4'} />
+        </button> */}
+        <Button
+          variant={'outline'}
+          size={'icon'}
+          onClick={handlePrev}
+          disabled={currentPage <= 1}
+          className={'rounded-full w-10 h-10 border-neutral-200'}
+        >
+          <ArrowLeft className={'size-4 text-foreground'} />
+          <span className={'sr-only'}>Previous page</span>
+        </Button>
 
-export {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
+        <Button
+          variant={'default'}
+          size={'icon'}
+          onClick={handleNext}
+          disabled={currentPage >= totalPages}
+          className={'rounded-full w-10 h-10'}
+        >
+          <ArrowRight className={'size-4'} />
+          <span className={'sr-only'}>Next page</span>
+        </Button>
+      </div>
+    </div>
+  );
 }

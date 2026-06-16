@@ -8,9 +8,12 @@ env-up:
 
 env-down:
 	docker compose -f deploy/docker-compose.yaml down
+	
+redis-up:
+	docker compose -f deploy/docker-compose.yaml up -d redis
 
 prod-up:
-	docker compose -f deploy/docker-compose.prod.yaml up -d --build
+	docker compose -f deploy/docker-compose.prod.yaml up -d
 
 prod-down:
 	docker compose -f deploy/docker-compose.prod.yaml down
@@ -46,6 +49,10 @@ s3-setup:
 	@powershell -Command "aws --endpoint-url=http://localhost:4566 s3 mb s3://$(S3_BUCKET_NAME)"
 	@echo "Bucket '$(S3_BUCKET_NAME)' created successfully."
 
+s3-cors:
+	@powershell -Command "aws --endpoint-url=http://localhost:4566 s3api put-bucket-cors --bucket $(S3_BUCKET_NAME) --cors-configuration file://deploy/s3-cors.json"
+	@echo "CORS configured for bucket '$(S3_BUCKET_NAME)'."
+
 s3-ls:
 	@powershell -Command "aws --endpoint-url=http://localhost:4566 s3 ls s3://$(S3_BUCKET_NAME) --recursive"
 
@@ -73,3 +80,30 @@ s3-test-upload:
 
 fix-explorer:
 	@powershell -Command "Stop-Process -Name explorer -Force; Start-Process explorer"
+
+prod-s3-mount:
+	@echo "Opening secure SSH tunnel and mounting S3 via PowerShell..."
+	@powershell -NoProfile -Command "\
+		Write-Host '1. Starting SSH Tunnel...'; \
+		$$SshPath = \"$$env:SystemRoot\System32\OpenSSH\ssh.exe\"; \
+		if (-not (Test-Path $$SshPath)) { $$SshPath = \"$$env:SystemRoot\Sysnative\OpenSSH\ssh.exe\" }; \
+		Start-Process $$SshPath -ArgumentList '-o StrictHostKeyChecking=no -N -L 4566:127.0.0.1:4566 -i C:\Users\Max\.ssh\id_ed25519 root@46.175.148.59' -WindowStyle Hidden; \
+		Start-Sleep -s 3; \
+		Write-Host '2. Mounting S3 via rclone...'; \
+		Start-Process '$(RCLONE_EXE)' -ArgumentList 'mount furniture_s3:furniture-wholesale-bucket P: --vfs-cache-mode full --links --network-mode --volname prod.gyp6.sale --attr-timeout 1s' -WindowStyle Hidden; \
+		Start-Sleep -s 5; \
+		if (Test-Path P:) { \
+			Write-Host 'SUCCESS: Production P: drive is READY!' -ForegroundColor Green; \
+		} else { \
+			Write-Host 'FAILED: Drive P: not found. Check if tunnel or rclone crashed.' -ForegroundColor Red; \
+		}"
+
+prod-s3-unmount:
+	@echo "Stopping rclone and closing SSH tunnel..."
+	@powershell -NoProfile -Command "\
+		$$rclone = Get-CimInstance Win32_Process -Filter \"Name = 'rclone.exe' AND CommandLine LIKE '%mount%P:%'\"; \
+		if ($$rclone) { Stop-Process -Id $$rclone.ProcessId -Force }; \
+		$$ssh = Get-CimInstance Win32_Process -Filter \"Name = 'ssh.exe' AND CommandLine LIKE '%4566:127.0.0.1:4566%'\"; \
+		if ($$ssh) { Stop-Process -Id $$ssh.ProcessId -Force }; \
+		net use P: /delete /y 2>$$null; \
+		Write-Host 'Production P: drive and tunnel completely removed' -ForegroundColor Green;"

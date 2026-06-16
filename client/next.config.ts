@@ -1,26 +1,28 @@
-import type { NextConfig } from "next";
-
-const BACKEND_URL = process.env.BACKEND_URL;
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '4566',
+        pathname: '/furniture-wholesale-bucket/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'furniture.wholesale',
+        pathname: '/uploads/**',
+      },
+    ],
+  },
+  turbopack: {
+    root: process.cwd(),
   },
   reactCompiler: true,
   cacheComponents: true,
-  async rewrites() {
-    return [
-      {
-        source: "/api/auth/:path*",
-        destination: `${BACKEND_URL}/api/auth/:path*`,
-      },
-      {
-        source: "/api/:path*",
-        destination: `${BACKEND_URL}/api/:path*`,
-      },
-    ];
-  },
-  output: "standalone",
+  transpilePackages: ['lucide-react'],
+  output: 'standalone', // Залишаємо суто standalone
 };
 
 export default nextConfig;

@@ -5,21 +5,51 @@
     "resolvePackageJsonExports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "declaration": true,
+    "declaration": false,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2023",
+    "target": "ESNext",
     "sourceMap": true,
+    "strict": true,
+    "rootDir": "./",
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@root/*": ["./"],
+      "@core/*": [
+        "./src/core/*",
+        "./src/core/*/index.ts"
+      ],
+      "@auth/*": [
+        "./src/modules/auth/*",
+        "./src/modules/auth/*/index.ts"
+      ],
+      "@catalog/*": [
+        "./src/modules/catalog/*",
+        "./src/modules/catalog/*/index.ts"
+      ],
+      "@bundle/*": [
+        "./src/modules/bundle/*",
+        "./src/modules/bundle/*/index.ts"
+      ],
+      "@identity/*": [
+        "./src/modules/identity/*",
+        "./src/modules/identity/*/index.ts"
+      ],
+      "@order/*": [
+        "./src/modules/order/*",
+        "./src/modules/order/*/index.ts"
+      ]
+    },
+    "types": ["node", "jest", "bun"]
   }
 }
