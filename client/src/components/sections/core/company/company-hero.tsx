@@ -11,7 +11,7 @@ interface CompanyHeroProps {
 
 export function CompanyHero({ company }: CompanyHeroProps) {
   const companyBanner = company.taxCode
-    ? ROUTES.S3(`identity/company/${company.taxCode}/banner.png`)
+    ? ROUTES.S3(`identity/company/${company.taxCode}/company-cover.png`)
     : null;
 
   const companyLogo = company.taxCode

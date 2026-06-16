@@ -105,7 +105,9 @@ export class OrderService {
         for (const bundleItem of bundle.items) {
           if (!bundleItem.product) continue;
 
-          const product = await this.productRepository.findOne(bundleItem.product.id);
+          const product = await this.productRepository.findOne(
+            bundleItem.product.id,
+          );
           if (!product) continue;
           if (product.status !== 'ACTIVE') {
             throw new BadRequestException(
@@ -145,16 +147,17 @@ export class OrderService {
 
     for (const [supplierId, items] of Object.entries(groupedItems)) {
       const subOrderId = nanoid();
-      const domainItems = items.map(item =>
-        new OrderItem(
-          nanoid(),
-          subOrderId,
-          item.productId,
-          item.quantity,
-          item.priceSnapshot,
-          item.titleSnapshot,
-          item.skuSnapshot,
-        ),
+      const domainItems = items.map(
+        item =>
+          new OrderItem(
+            nanoid(),
+            subOrderId,
+            item.productId,
+            item.quantity,
+            item.priceSnapshot,
+            item.titleSnapshot,
+            item.skuSnapshot,
+          ),
       );
 
       subOrders.push(
@@ -247,8 +250,10 @@ export class OrderService {
     // Check if it's a sub-order first (both suppliers and buyers interact with sub-orders)
     const subOrder = await this.orderRepository.findSubOrderById(id);
     if (subOrder) {
-      const isBuyer = subOrder.buyer?.id === user.id || (user.role as any) === 'ADMIN';
-      const isSupplier = subOrder.supplierId === user.id || (user.role as any) === 'ADMIN';
+      const isBuyer =
+        subOrder.buyer?.id === user.id || (user.role as any) === 'ADMIN';
+      const isSupplier =
+        subOrder.supplierId === user.id || (user.role as any) === 'ADMIN';
 
       if (isSupplier) {
         const allowedTransitions: Record<string, string[]> = {
@@ -286,7 +291,10 @@ export class OrderService {
       }
 
       if (isBuyer) {
-        if (subOrder.status !== OrderStatus.SHIPPED || status !== OrderStatus.DELIVERED) {
+        if (
+          subOrder.status !== OrderStatus.SHIPPED ||
+          status !== OrderStatus.DELIVERED
+        ) {
           throw new BadRequestException(
             `Buyers can only mark shipped sub-orders as delivered.`,
           );
@@ -313,7 +321,29 @@ export class OrderService {
       order &&
       (order.buyerId === user.id || (user.role as any) === 'ADMIN')
     ) {
-      if (order.status !== OrderStatus.SHIPPED || status !== OrderStatus.DELIVERED) {
+      if (status === OrderStatus.CANCELLED) {
+        if (order.status !== OrderStatus.NEW) {
+          throw new BadRequestException(
+            `Cannot cancel order with status ${order.status}. Only new orders can be cancelled.`,
+          );
+        }
+        for (const subOrder of order.subOrders) {
+          await this.orderRepository.updateSubOrderStatus(
+            subOrder.id,
+            OrderStatus.CANCELLED,
+          );
+        }
+        const updated = await this.orderRepository.updateStatus(
+          id,
+          OrderStatus.CANCELLED,
+        );
+        return OrderMapper.toResponse(updated, this.baseUrl);
+      }
+
+      if (
+        order.status !== OrderStatus.SHIPPED ||
+        status !== OrderStatus.DELIVERED
+      ) {
         throw new BadRequestException(
           `Cannot change order status from ${order.status} to ${status}. Buyers can only mark shipped orders as delivered.`,
         );
@@ -336,11 +366,22 @@ export class OrderService {
     let newStatus: OrderStatus | null = null;
     if (statuses.every(s => s === OrderStatus.DELIVERED)) {
       newStatus = OrderStatus.DELIVERED;
-    } else if (statuses.every(s => s === OrderStatus.SHIPPED || s === OrderStatus.DELIVERED)) {
+    } else if (
+      statuses.every(
+        s => s === OrderStatus.SHIPPED || s === OrderStatus.DELIVERED,
+      )
+    ) {
       newStatus = OrderStatus.SHIPPED;
     } else if (statuses.every(s => s === OrderStatus.CANCELLED)) {
       newStatus = OrderStatus.CANCELLED;
-    } else if (statuses.some(s => s === OrderStatus.PROCESSING || s === OrderStatus.SHIPPED || s === OrderStatus.DELIVERED)) {
+    } else if (
+      statuses.some(
+        s =>
+          s === OrderStatus.PROCESSING ||
+          s === OrderStatus.SHIPPED ||
+          s === OrderStatus.DELIVERED,
+      )
+    ) {
       newStatus = OrderStatus.PROCESSING;
     }
 

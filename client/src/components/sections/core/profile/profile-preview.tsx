@@ -15,7 +15,7 @@ export function ProfilePreview({ formData, companyTaxCode }: ProfilePreviewProps
   const [logoFailed, setLogoFailed] = useState(false);
 
   const companyBanner = companyTaxCode
-    ? ROUTES.S3(`identity/company/${companyTaxCode}/banner.png`)
+    ? ROUTES.S3(`identity/company/${companyTaxCode}/company-cover.png`)
     : null;
 
   const companyLogo = companyTaxCode

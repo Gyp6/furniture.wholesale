@@ -36,7 +36,12 @@ function renderItemsList(items: OrderStatusUpdateData['items']): string {
     .join('');
 }
 
-function buildEmail(title: string, headline: string, message: string, data: OrderStatusUpdateData): string {
+function buildEmail(
+  title: string,
+  headline: string,
+  message: string,
+  data: OrderStatusUpdateData,
+): string {
   const orderId = data.orderId.slice(0, 8).toUpperCase();
 
   return `

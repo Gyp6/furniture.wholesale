@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 
 import {
@@ -17,14 +18,17 @@ export class UpdateCompanyRequest {
 
   @IsOptional()
   @IsCompanyDescription()
+  @Transform(({ value }) => (value === '' ? null : value))
   description?: string | null;
 
   @IsOptional()
   @IsEmail()
+  @Transform(({ value }) => (value === '' ? null : value))
   businessEmail?: string | null;
 
   @IsOptional()
   @IsAddress()
+  @Transform(({ value }) => (value === '' ? null : value))
   showroomAddress?: string | null;
 
   @IsOptional()
@@ -33,9 +37,11 @@ export class UpdateCompanyRequest {
 
   @IsOptional()
   @IsLeadTime()
+  @Transform(({ value }) => (value === '' ? null : value))
   leadTime?: string | null;
 
   @IsOptional()
   @IsTerms()
+  @Transform(({ value }) => (value === '' ? null : value))
   terms?: string | null;
 }

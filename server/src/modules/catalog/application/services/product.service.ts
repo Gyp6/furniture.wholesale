@@ -20,8 +20,8 @@ import { ConfigService } from '@nestjs/config';
 import { ECalsAction } from '@/common/enums';
 import { IReqUser, TProductStatusValues } from '@/common/types';
 import { AppAbility } from '@/infrastructure/casl/casl.ability-factory';
-import { ProfileService } from '@/modules/identity/application/services';
 import { S3Service } from '@/infrastructure/s3/s3.service';
+import { ProfileService } from '@/modules/identity/application/services';
 
 import { CategoryService } from './category.service';
 
@@ -142,14 +142,18 @@ export class ProductService {
       throw new ForbiddenException('Supplier has no associated company');
     }
 
+    if (!profile.company) {
+      throw new ForbiddenException('Supplier company details not found');
+    }
+
     const category = await this.categoryService.findById(dto.categoryId);
     if (!category)
       throw new NotFoundException(`Category ${dto.categoryId} not found`);
 
     const skuDto = {
-      name: profile.company?.name || '',
+      name: profile.company.name || '',
       price: Number(dto.price),
-      manufacturerCode: profile.company?.abbreviation || '',
+      manufacturerCode: profile.company.abbreviation || '',
     };
 
     const entity = await this.productRepository.create(

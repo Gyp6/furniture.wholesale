@@ -94,16 +94,16 @@ export class ProductRepository implements IProductRepository {
 
       const newDimension = await tx.dimension.create({
         data: {
-          width: dimension.width,
-          height: dimension.height,
-          depth: dimension.depth,
+          width: dimension ? dimension.width || 0 : 0,
+          height: dimension ? dimension.height || 0 : 0,
+          depth: dimension ? dimension.depth || 0 : 0,
         },
       });
 
       return tx.product.create({
         data: {
           ...rest,
-          imagesCount: images.length,
+          imagesCount: images ? images.length : 0,
           sku: this.smartSkuService.generate({
             ...skuDto,
             sequence: nextSequence,
@@ -112,10 +112,10 @@ export class ProductRepository implements IProductRepository {
           manufacturerId,
           dimensionId: newDimension.id,
           spaces: {
-            create: await this.buildSpaceConnections(spaces, tx),
+            create: await this.buildSpaceConnections(spaces || [], tx),
           },
           tags: {
-            create: await this.buildTagConnections(tags, tx),
+            create: await this.buildTagConnections(tags || [], tx),
           },
         },
         include: this.include,
@@ -143,22 +143,22 @@ export class ProductRepository implements IProductRepository {
         ...(dimension && {
           dimension: {
             update: {
-              width: dimension.width,
-              height: dimension.height,
-              depth: dimension.depth,
+              width: dimension.width || 0,
+              height: dimension.height || 0,
+              depth: dimension.depth || 0,
             },
           },
         }),
         ...(spaces && {
           spaces: {
             deleteMany: {},
-            create: await this.buildSpaceConnections(spaces),
+            create: await this.buildSpaceConnections(spaces || []),
           },
         }),
         ...(tags && {
           tags: {
             deleteMany: {},
-            create: await this.buildTagConnections(tags),
+            create: await this.buildTagConnections(tags || []),
           },
         }),
       },

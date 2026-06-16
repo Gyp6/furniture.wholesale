@@ -87,7 +87,7 @@ export class CompanyController {
       throw new ForbiddenException('User is not associated with any company');
     }
     const company = await this.companyService.findById(profile.companyId);
-    const key = `identity/company/${company.taxCode}/banner.png`;
+    const key = `identity/company/${company.taxCode}/company-cover.png`;
     return this.s3Service.getPresignedUploadUrlWithKey(key, 'image/png');
   }
 

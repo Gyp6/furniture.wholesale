@@ -1,3 +1,5 @@
+import { IsDefined, IsNotEmptyObject } from 'class-validator';
+
 import { DimensionRequest } from '@/common/dto/requests';
 import {
   IsCategoryId,
@@ -30,6 +32,8 @@ export class CreateProductRequest {
   @IsCategoryId()
   categoryId!: string;
 
+  @IsDefined({ message: 'Dimension is required' })
+  @IsNotEmptyObject({}, { message: 'Dimension cannot be empty' })
   @IsEmbedded({ to: DimensionRequest })
   dimension!: DimensionRequest;
 

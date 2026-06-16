@@ -180,7 +180,10 @@ export function ProductEditPage({ productId }: { productId: string }) {
       router.push('/professional');
     } catch (error: any) {
       console.error('Error updating product:', error);
-      toast.error(error?.response?.data?.message || 'Failed to update product');
+      const errMsg = Array.isArray(error?.response?.data?.message)
+        ? error.response.data.message.join(', ')
+        : error?.response?.data?.message || 'Failed to update product';
+      toast.error(errMsg);
     } finally {
       setIsSubmitting(false);
     }

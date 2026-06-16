@@ -85,7 +85,7 @@ export function BrandIdentity({ formData, onChange, companyTaxCode }: BrandIdent
   };
 
   const existingBanner = companyTaxCode
-    ? ROUTES.S3(`identity/company/${companyTaxCode}/banner.png`)
+    ? ROUTES.S3(`identity/company/${companyTaxCode}/company-cover.png`)
     : null;
   const existingLogo = companyTaxCode
     ? ROUTES.S3(`identity/company/${companyTaxCode}/logo.png`)

@@ -33,7 +33,7 @@ import { RedisService } from '@/infrastructure/redis/redis.service';
 import { S3Module } from '@/infrastructure/s3/s3.module';
 import { SmartSkuModule } from '@/infrastructure/smart-sku/smart-sku.module';
 
-import { AbilitiesGuard } from './application/guards';
+import { AbilitiesGuard, AppThrottlerGuard } from './application/guards';
 import { HealthService } from './application/services';
 import { HealthController } from './infrastructure/api';
 import { createAuth } from './lib';
@@ -121,7 +121,7 @@ import { createAuth } from './lib';
     HealthService,
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: AppThrottlerGuard,
     },
     {
       provide: APP_GUARD,

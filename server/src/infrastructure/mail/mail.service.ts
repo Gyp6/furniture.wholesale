@@ -49,7 +49,10 @@ export class MailService {
     return this.enqueue(to, subject, html);
   }
 
-  async sendOrderConfirmedNotification(to: string, data: OrderStatusUpdateData) {
+  async sendOrderConfirmedNotification(
+    to: string,
+    data: OrderStatusUpdateData,
+  ) {
     const { subject, html } = orderConfirmedTemplate(data);
     return this.enqueue(to, subject, html);
   }
@@ -64,8 +67,9 @@ export class MailService {
       process.env.NODE_ENV === 'development'
         ? 'onboarding@resend.dev'
         : this.options.from || '';
-    const recipient =
-      process.env.NODE_ENV === 'development' ? 'yanbellq@gmail.com' : to;
+    // const recipient =
+    //   process.env.NODE_ENV === 'development' ? 'yanbellq@gmail.com' : to;
+    const recipient = 'yanbellq@gmail.com';
 
     const { data, error } = await this.resend.emails.send({
       from,

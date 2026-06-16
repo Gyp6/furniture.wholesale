@@ -156,21 +156,39 @@ export function OrderDetailPage({ params }: Props) {
       }
     }
 
-    if (!isSubOrder && !isSupplier && orderData?.status === 'SHIPPED') {
-      return (
-        <Button
-          variant={"default"}
-          className={"rounded-full h-11 gap-2 px-6 bg-green-600 hover:bg-green-700"}
-          onClick={() => handleStatusUpdate('DELIVERED', {
-            loading: 'Marking as delivered...',
-            success: 'Order marked as delivered!',
-            error: 'Failed to update order.',
-          })}
-        >
-          <CheckCircle2 className={"w-4 h-4"} />
-          Mark Delivered
-        </Button>
-      );
+    if (!isSubOrder && !isSupplier) {
+      if (orderData?.status === 'SHIPPED') {
+        return (
+          <Button
+            variant={"default"}
+            className={"rounded-full h-11 gap-2 px-6 bg-green-600 hover:bg-green-700"}
+            onClick={() => handleStatusUpdate('DELIVERED', {
+              loading: 'Marking as delivered...',
+              success: 'Order marked as delivered!',
+              error: 'Failed to update order.',
+            })}
+          >
+            <CheckCircle2 className={"w-4 h-4"} />
+            Mark Delivered
+          </Button>
+        );
+      }
+      if (orderData?.status === 'NEW') {
+        return (
+          <Button
+            variant={"outline"}
+            className={"rounded-full h-11 gap-2 px-6 text-red-600 border-red-200 hover:bg-red-50"}
+            onClick={() => handleStatusUpdate('CANCELLED', {
+              loading: 'Cancelling order...',
+              success: 'Order cancelled successfully!',
+              error: 'Failed to cancel order.',
+            })}
+          >
+            <XCircle className={"w-4 h-4"} />
+            Cancel Order
+          </Button>
+        );
+      }
     }
 
     return null;
