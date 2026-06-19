@@ -1,25 +1,55 @@
+# # Stage 1: Build
+# FROM oven/bun:1.2-alpine AS builder
+# WORKDIR /app
+# COPY . .
+# RUN bun install --frozen-lockfile
+
+# # 👇 Generate Prisma Client so TypeScript types exist for the build step
+# RUN bunx prisma generate --schema=./src/infrastructure/prisma/schema.prisma
+# RUN bun run build
+
+# Stage 1: Build
+FROM oven/bun:1.2-alpine AS builder
+WORKDIR /app
+
+# Copy ONLY dependency manifests first
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
+
+# Copy schema and generate types next (caches database types)
+COPY src/infrastructure/prisma/schema.prisma ./src/infrastructure/prisma/schema.prisma
+RUN bunx prisma generate --schema=./src/infrastructure/prisma/schema.prisma
+
+# Finally, copy the rest of the code and build (this layer changes often)
+COPY . .
+RUN bun run build
+
+# Stage 2: Runner
 FROM oven/bun:1.2-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# 1. Створюємо безпечного користувача
+# 1. Create a system group and user for security
 RUN addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 nestjs
 
-# 2. Передаємо права на саму папку /app користувачу nestjs (робимо це як root!)
+# 2. Assign ownership of the /app directory to the nestjs user
 RUN chown nestjs:nodejs /app
 
-# 3. Копіюємо код (код важить мало, копіювання з chown пролетить миттєво)
-COPY --chown=nestjs:nodejs . .
+# 3. Copy only package and lock files, built code, and the Prisma schema
+COPY --chown=nestjs:nodejs package.json bun.lock ./
+COPY --chown=nestjs:nodejs --from=builder /app/dist ./dist
+COPY --chown=nestjs:nodejs src/infrastructure/prisma/schema.prisma ./src/infrastructure/prisma/schema.prisma
 
-# 4. Ось тепер безпечно перемикаємось
+# 👇 COPY THE TSCONFIG SO BUN CAN RESOLVE ALIASES AT RUNTIME
+COPY --chown=nestjs:nodejs tsconfig.json ./
+
+# 4. Switch to the secure user
 USER nestjs
 
-# 5. Ставимо прод-залежності (тепер папка доступна на запис, mkdir спрацює)
+# 5. Install production dependencies and generate the Prisma client
 RUN bun install --production --frozen-lockfile
-
-# 6. Офіційний запуск генератора Prisma
 RUN bunx prisma generate --schema=./src/infrastructure/prisma/schema.prisma
 
 EXPOSE 4200

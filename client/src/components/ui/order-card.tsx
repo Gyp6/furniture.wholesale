@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
 
 import { Badge } from '@/components/ui/shadcn/badge';
 import {
@@ -12,6 +11,8 @@ import {
   CardTitle,
 } from '@/components/ui/shadcn/card';
 import { ICONS } from '@/shared/data/icons';
+import { ROUTES } from '@/constants';
+
 
 type TOrderCardProps = {
   name: string;
@@ -46,6 +47,12 @@ export function OrderCard({
     }
   };
 
+  const imgSrc = image
+    ? image.startsWith('http')
+      ? image
+      : ROUTES.S3(image)
+    : '/placeholder.png';
+
   return (
     <Card
       className={
@@ -54,7 +61,7 @@ export function OrderCard({
     >
       <div className={'relative rounded-[30px] overflow-hidden'}>
         <Image
-          src={image}
+          src={imgSrc}
           alt={name}
           className={`w-full aspect-square object-cover ${onImageClick ? 'cursor-pointer' : ''}`}
           width={300}
