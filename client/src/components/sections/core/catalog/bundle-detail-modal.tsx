@@ -11,6 +11,14 @@ import {
 } from '@/components/ui/shadcn/dialog';
 import { ICONS } from '@/shared/data/icons';
 import { IBundle } from '@/shared/types';
+import { ROUTES } from '@/constants';
+
+const getProductImage = (images?: string[]) => {
+  const image = images?.[0];
+  if (!image) return '/placeholder.png';
+  return image.startsWith('http') ? image : ROUTES.S3(image);
+};
+
 
 interface Props {
   bundle: IBundle | null;
@@ -47,7 +55,7 @@ export function BundleDetailModal({
             >
               {bundle.items?.[0]?.product?.images?.[0] ? (
                 <Image
-                  src={bundle.items[0].product.images[0]}
+                  src={getProductImage(bundle.items[0].product.images)}
                   alt={bundle.name}
                   width={500}
                   height={500}
@@ -74,7 +82,7 @@ export function BundleDetailModal({
                 >
                   {item.product?.images?.[0] && (
                     <Image
-                      src={item.product.images[0]}
+                      src={getProductImage(item.product.images)}
                       alt={`Item ${i}`}
                       width={100}
                       height={100}
@@ -136,7 +144,7 @@ export function BundleDetailModal({
                     >
                       {item.product?.images?.[0] && (
                         <Image
-                          src={item.product.images[0]}
+                          src={getProductImage(item.product.images)}
                           alt={item.product.title}
                           width={64}
                           height={64}

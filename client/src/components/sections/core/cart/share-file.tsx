@@ -26,10 +26,52 @@ export function ShareModal({
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (
+      typeof navigator !== 'undefined' &&
+      navigator.clipboard &&
+      typeof window !== 'undefined' &&
+      window.isSecureContext
+    ) {
+      navigator.clipboard
+        .writeText(link)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch(err => {
+          console.error('Failed to copy text using clipboard API: ', err);
+          fallbackCopyText(link);
+        });
+    } else {
+      fallbackCopyText(link);
+    }
   };
+
+  const fallbackCopyText = (text: string) => {
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.top = '0';
+      textArea.style.left = '0';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand('copy');
+      if (successful) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        console.error('Fallback copy command was unsuccessful');
+      }
+      document.body.removeChild(textArea);
+    } catch (err) {
+      console.error('Fallback copy failed: ', err);
+    }
+  };
+
 
   return (
     <Dialog

@@ -3,8 +3,10 @@
 import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductCard } from '@/components/ui';
+import { BundleCard } from '@/components/ui/bundle-card';
 import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import { Button } from '@/components/ui/shadcn/button';
+import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
 import { useGetSharedBundle } from '@/hooks/queries';
 import { useAuthStatus } from '@/hooks/use-auth-status.hook';
 import { useForkBundle } from '@/hooks/queries/bundle.query';
@@ -29,8 +31,12 @@ export function SharedBundleDetailPage({ params }: Props) {
     setIsForking(true);
     try {
       const forkedBundle = await forkMutation.mutateAsync(bundle.id);
+      
+      // Set the forked bundle as the active space bundle
+      useSpaceBundleStore.getState().setActiveBundle(forkedBundle);
+      
       toast.success('Project successfully forked to your drafts');
-      router.push(`/bundle/${forkedBundle.id}`);
+      router.push('/cart');
     } catch (error) {
       toast.error('Failed to fork project');
       console.error('Fork error:', error);
@@ -58,6 +64,10 @@ export function SharedBundleDetailPage({ params }: Props) {
       </div>
     );
   }
+
+  const nestedBundleItems = bundle.items.filter(item => !!item.nestedBundle);
+  const productItems = bundle.items.filter(item => !!item.product);
+  const hasItems = nestedBundleItems.length > 0 || productItems.length > 0;
 
   return (
     <div className={'w-full flex flex-col gap-6'}>
@@ -97,42 +107,42 @@ export function SharedBundleDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {bundle.items.length === 0 ? (
+      {!hasItems ? (
         <div className={'p-10 text-center text-muted-foreground'}>
           This project has no items yet
         </div>
       ) : (
-        <div className={'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5'}>
-          {bundle.items.map(item => {
-            if (!item.product && !item.nestedBundle) return null;
-
-            // If it's a product, show the product card
-            if (item.product) {
-              return (
-                <ProductCard
-                  key={item.product.id}
-                  isAuthorized={isLoggedIn}
-                  product={item.product}
-                />
-              );
-            }
-
-            // If it's a nested bundle, show its products
-            if (item.nestedBundle) {
-              return item.nestedBundle.items.map(nestedItem => {
-                if (!nestedItem.product) return null;
-                return (
-                  <ProductCard
-                    key={nestedItem.product.id}
+        <div className={'flex flex-col gap-10'}>
+          {nestedBundleItems.length > 0 && (
+            <div className={'flex flex-col gap-4'}>
+              <h2 className={'text-xl font-bold text-neutral-900'}>Supplier Bundles</h2>
+              <div className={'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'}>
+                {nestedBundleItems.map(item => (
+                  <BundleCard
+                    key={item.nestedBundle!.id}
                     isAuthorized={isLoggedIn}
-                    product={nestedItem.product}
+                    bundle={item.nestedBundle!}
+                    hideButton={true}
                   />
-                );
-              });
-            }
+                ))}
+              </div>
+            </div>
+          )}
 
-            return null;
-          })}
+          {productItems.length > 0 && (
+            <div className={'flex flex-col gap-4'}>
+              <h2 className={'text-xl font-bold text-neutral-900'}>Products</h2>
+              <div className={'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5'}>
+                {productItems.map(item => (
+                  <ProductCard
+                    key={item.product!.id}
+                    isAuthorized={isLoggedIn}
+                    product={item.product!}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

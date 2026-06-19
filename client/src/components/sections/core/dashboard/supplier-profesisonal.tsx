@@ -530,9 +530,6 @@ export function SupplierProfessionalDashboardPage() {
                       }
                     >
                       <div className={'flex items-center gap-2'}>
-                        <div
-                          className={'w-7 h-7 rounded-lg bg-neutral-100 shrink-0'}
-                        />
                         <span
                           className={
                             'text-sm font-medium text-muted-foreground leading-tight line-clamp-1'
