@@ -1,10 +1,11 @@
 'use client';
 
 import { use } from 'react';
-import { useGetCompany, useGetSupplierBundles } from '@/hooks/queries';
-import { CompanyHero } from '@/components/sections/core/company/company-hero';
+
 import { CompanyBundles } from '@/components/sections/core/company/company-bundles';
+import { CompanyHero } from '@/components/sections/core/company/company-hero';
 import { Skeleton } from '@/components/ui/shadcn/skeleton';
+import { useGetCompany, useGetSupplierBundles } from '@/hooks/queries';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -12,8 +13,14 @@ interface Props {
 
 export function CompanyProfilePage({ params }: Props) {
   const { id } = use(params);
-  const { data: company, isLoading: isCompanyLoading, error: companyError } = useGetCompany(id);
-  const { data: bundles, isLoading: isBundlesLoading } = useGetSupplierBundles({ companyId: id });
+  const {
+    data: company,
+    isLoading: isCompanyLoading,
+    error: companyError,
+  } = useGetCompany(id);
+  const { data: bundles, isLoading: isBundlesLoading } = useGetSupplierBundles({
+    companyId: id,
+  });
 
   if (isCompanyLoading) {
     return (
@@ -23,7 +30,10 @@ export function CompanyProfilePage({ params }: Props) {
           <Skeleton className={'w-48 h-8 mb-6'} />
           <div className={'flex gap-5'}>
             {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className={'flex-1 h-[300px] rounded-2xl'} />
+              <Skeleton
+                key={i}
+                className={'flex-1 h-[300px] rounded-2xl'}
+              />
             ))}
           </div>
         </div>
@@ -42,7 +52,10 @@ export function CompanyProfilePage({ params }: Props) {
   return (
     <div className={'flex flex-col'}>
       <CompanyHero company={company} />
-      <CompanyBundles bundles={bundles || []} isLoading={isBundlesLoading} />
+      <CompanyBundles
+        bundles={bundles || []}
+        isLoading={isBundlesLoading}
+      />
     </div>
   );
 }

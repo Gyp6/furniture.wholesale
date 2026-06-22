@@ -3,13 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { useAuthStatus } from '@/hooks/use-auth-status.hook';
 import {
   DesignerDashboardPage,
   HoRecaDashboardPage,
   RetailorDashboardPage,
   SupplierPersonalDashboardPage,
 } from '@/components/sections/core/dashboard';
+import { useAuthStatus } from '@/hooks/use-auth-status.hook';
 
 export default function DashboardPage() {
   const { user, isLoading, isLoggedIn } = useAuthStatus();
@@ -23,8 +23,12 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className={"flex items-center justify-center min-h-[400px]"}>
-        <div className={"animate-spin rounded-full h-8 w-8 border-b-2 border-secondary"} />
+      <div className={'flex items-center justify-center min-h-[400px]'}>
+        <div
+          className={
+            'animate-spin rounded-full h-8 w-8 border-b-2 border-secondary'
+          }
+        />
       </div>
     );
   }
@@ -46,4 +50,3 @@ export default function DashboardPage() {
       return <>Unsupported role: {user.role}</>;
   }
 }
-

@@ -6,8 +6,8 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from '@shadcn/input-group';
-import type { User } from 'better-auth';
 import { useQueryClient } from '@tanstack/react-query';
+import type { User } from 'better-auth';
 import { LogOut, Search } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -145,7 +145,7 @@ export function HeaderSearch({ user }: { user: User | null }) {
             className={'text-destructive focus:text-destructive cursor-pointer'}
           >
             <LogOut className={'mr-2 size-4'} />
-            <span>Вийти</span>
+            <span>Logout</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

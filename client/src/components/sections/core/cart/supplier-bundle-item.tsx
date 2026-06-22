@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 
-import { OrderCard } from '@/components/ui/order-card';
 import { ROUTES } from '@/constants';
 import { ICONS } from '@/shared/data/icons';
 import { IBundle } from '@/shared/types';

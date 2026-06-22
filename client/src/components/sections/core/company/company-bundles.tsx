@@ -1,17 +1,18 @@
 'use client';
 
+import { toast } from 'sonner';
+
+import { BundleCard } from '@/components/ui/bundle-card';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
 } from '@/components/ui/shadcn/carousel';
-import { BundleCard } from '@/components/ui/bundle-card';
-import { IBundle } from '@/shared/types';
 import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import { useAuthStatus } from '@/hooks/use-auth-status.hook';
+import { IBundle } from '@/shared/types';
 import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
-import { toast } from 'sonner';
 
 interface CompanyBundlesProps {
   bundles: IBundle[];
@@ -36,7 +37,10 @@ export function CompanyBundles({ bundles, isLoading }: CompanyBundlesProps) {
       {isLoading ? (
         <div className={'flex gap-5'}>
           {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className={'flex-1 h-[300px] rounded-[32px]'} />
+            <Skeleton
+              key={i}
+              className={'flex-1 h-[300px] rounded-[32px]'}
+            />
           ))}
         </div>
       ) : bundles.length > 0 ? (
@@ -67,8 +71,14 @@ export function CompanyBundles({ bundles, isLoading }: CompanyBundlesProps) {
           )}
         </Carousel>
       ) : (
-        <div className={'py-20 text-center bg-neutral-50 rounded-[32px] border border-dashed border-neutral-200'}>
-          <p className={'text-neutral-400 font-medium'}>This company hasn't published any bundles yet.</p>
+        <div
+          className={
+            'py-20 text-center bg-neutral-50 rounded-[32px] border border-dashed border-neutral-200'
+          }
+        >
+          <p className={'text-neutral-400 font-medium'}>
+            This company hasn't published any bundles yet.
+          </p>
         </div>
       )}
     </div>

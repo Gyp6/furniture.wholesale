@@ -12,7 +12,9 @@ export function HeroBg({ title, image }: Props) {
         <>
           <Image
             src={image}
-            className={'absolute inset-0 w-full h-full object-cover object-center'}
+            className={
+              'absolute inset-0 w-full h-full object-cover object-center'
+            }
             alt={title}
             fill
             unoptimized
@@ -21,9 +23,7 @@ export function HeroBg({ title, image }: Props) {
         </>
       ) : null}
       <h1
-        className={
-          `absolute bottom-px w-full text-center font-semibold tracking-tight text-hero leading-none ${image ? 'text-white' : 'text-neutral-900'}`
-        }
+        className={`absolute bottom-px w-full text-center font-semibold tracking-tight text-hero leading-none ${image ? 'text-white' : 'text-neutral-900'}`}
       >
         {title}
       </h1>

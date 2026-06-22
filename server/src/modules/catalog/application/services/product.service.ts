@@ -85,7 +85,7 @@ export class ProductService {
       try {
         await this.s3Service.deleteObject(keyToDelete);
       } catch (error) {
-        // Ignore errors if the file doesn't exist
+        console.log(error || `Failed to delete ${keyToDelete}`);
       }
     }
 

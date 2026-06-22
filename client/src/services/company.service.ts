@@ -17,22 +17,38 @@ export const companyService = {
     return data;
   },
 
-  async getLogoUploadUrl(): Promise<{ uploadUrl: string; publicUrl: string; key: string }> {
+  async getLogoUploadUrl(): Promise<{
+    uploadUrl: string;
+    publicUrl: string;
+    key: string;
+  }> {
     const { data } = await api.post('/company/my/upload-url/logo');
     return data;
   },
 
-  async getBannerUploadUrl(): Promise<{ uploadUrl: string; publicUrl: string; key: string }> {
+  async getBannerUploadUrl(): Promise<{
+    uploadUrl: string;
+    publicUrl: string;
+    key: string;
+  }> {
     const { data } = await api.post('/company/my/upload-url/banner');
     return data;
   },
 
-  async getTermsUploadUrl(): Promise<{ uploadUrl: string; publicUrl: string; key: string }> {
+  async getTermsUploadUrl(): Promise<{
+    uploadUrl: string;
+    publicUrl: string;
+    key: string;
+  }> {
     const { data } = await api.post('/company/my/upload-url/terms');
     return data;
   },
 
-  async uploadFileToS3(uploadUrl: string, file: File, contentType: string): Promise<void> {
+  async uploadFileToS3(
+    uploadUrl: string,
+    file: File,
+    contentType: string,
+  ): Promise<void> {
     await fetch(uploadUrl, {
       method: 'PUT',
       headers: { 'Content-Type': contentType },

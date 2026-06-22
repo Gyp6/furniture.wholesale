@@ -52,17 +52,31 @@ export function BundleDetailPage({ params }: Props) {
       <div className={'flex flex-col gap-3 mb-4'}>
         <div className={'flex items-start justify-between gap-4'}>
           <div className={'flex flex-col gap-1'}>
-            <h1 className={'text-4xl font-medium tracking-tight'}>{bundle.name}</h1>
-            <p className={'text-muted-foreground'}>{bundle.description || 'Project'}</p>
+            <h1 className={'text-4xl font-medium tracking-tight'}>
+              {bundle.name}
+            </h1>
+            <p className={'text-muted-foreground'}>
+              {bundle.description || 'Project'}
+            </p>
           </div>
         </div>
 
-        <div className={'flex items-center gap-4 text-sm text-muted-foreground'}>
-          <span>{bundle.items.length} {bundle.items.length === 1 ? 'item' : 'items'}</span>
+        <div
+          className={'flex items-center gap-4 text-sm text-muted-foreground'}
+        >
+          <span>
+            {bundle.items.length} {bundle.items.length === 1 ? 'item' : 'items'}
+          </span>
           {bundle.totalPrice > 0 && (
             <>
               <span>•</span>
-              <span className={'font-medium'}>Total: ${bundle.totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className={'font-medium'}>
+                Total: $
+                {bundle.totalPrice.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </span>
             </>
           )}
           <span>•</span>

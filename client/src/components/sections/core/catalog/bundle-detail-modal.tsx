@@ -9,16 +9,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/shadcn/dialog';
+import { ROUTES } from '@/constants';
 import { ICONS } from '@/shared/data/icons';
 import { IBundle } from '@/shared/types';
-import { ROUTES } from '@/constants';
 
 const getProductImage = (images?: string[]) => {
   const image = images?.[0];
   if (!image) return '/placeholder.png';
   return image.startsWith('http') ? image : ROUTES.S3(image);
 };
-
 
 interface Props {
   bundle: IBundle | null;

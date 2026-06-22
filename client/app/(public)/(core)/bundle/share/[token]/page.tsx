@@ -13,7 +13,13 @@ interface Props {
 
 export default async function SharedBundle({ params }: Props) {
   return (
-    <Suspense fallback={<div className={"p-10 text-center text-muted-foreground"}>Loading shared project...</div>}>
+    <Suspense
+      fallback={
+        <div className={'p-10 text-center text-muted-foreground'}>
+          Loading shared project...
+        </div>
+      }
+    >
       <SharedBundleDetailPage params={params} />
     </Suspense>
   );

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/shadcn/dialog';
 import { ROUTES } from '@/constants';
 import { OrderCardData } from '@/shared/data/core/catalog/catalog.data';
+import Image from 'next/image';
 
 type TOutOfStockModalProps = {
   open: boolean;
@@ -63,10 +64,12 @@ export function OutOfStockModal({
             className={'rounded-xl overflow-hidden shrink-0'}
             style={{ width: '150px', height: '150px' }}
           >
-            <img
+            <Image
               src={ROUTES.S3('marketplace/table-1.png')}
               alt={OrderCardData.name}
               className={'w-full h-full object-cover'}
+              unoptimized
+              fill
             />
           </div>
           <div>

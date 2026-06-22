@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { ArrowLeft, Upload, X } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { Upload, X, ArrowLeft } from 'lucide-react';
-import Image from 'next/image';
 
 import { Button } from '@/components/ui/shadcn/button';
+import { Card } from '@/components/ui/shadcn/card';
 import { Input } from '@/components/ui/shadcn/input';
 import { Label } from '@/components/ui/shadcn/label';
 import {
@@ -17,17 +18,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/shadcn/select';
-import { Card } from '@/components/ui/shadcn/card';
 import { Skeleton } from '@/components/ui/shadcn/skeleton';
+import { ROUTES } from '@/constants';
 import {
   useGetCategories,
+  useGetProduct,
   useGetSpaces,
   useGetTags,
-  useGetProduct,
   useUpdateProduct,
 } from '@/hooks/queries/catalog.query';
 import { productService } from '@/services';
-import { ROUTES } from '@/constants';
 
 interface ProductFormData {
   title: string;
@@ -191,21 +191,21 @@ export function ProductEditPage({ productId }: { productId: string }) {
 
   if (productLoading) {
     return (
-      <div className={"w-full max-w-4xl mx-auto p-6 space-y-6"}>
-        <Skeleton className={"h-10 w-40"} />
-        <Skeleton className={"h-12 w-80"} />
-        <Skeleton className={"h-96 w-full rounded-[30px]"} />
+      <div className={'w-full max-w-4xl mx-auto p-6 space-y-6'}>
+        <Skeleton className={'h-10 w-40'} />
+        <Skeleton className={'h-12 w-80'} />
+        <Skeleton className={'h-96 w-full rounded-[30px]'} />
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className={"w-full max-w-4xl mx-auto p-6 text-center py-20"}>
-        <p className={"text-muted-foreground"}>Product not found</p>
+      <div className={'w-full max-w-4xl mx-auto p-6 text-center py-20'}>
+        <p className={'text-muted-foreground'}>Product not found</p>
         <Button
-          variant={"outline"}
-          className={"mt-4"}
+          variant={'outline'}
+          className={'mt-4'}
           onClick={() => router.push('/professional')}
         >
           Back to Dashboard
@@ -215,104 +215,122 @@ export function ProductEditPage({ productId }: { productId: string }) {
   }
 
   return (
-    <div className={"w-full max-w-4xl mx-auto p-6 space-y-6"}>
+    <div className={'w-full max-w-4xl mx-auto p-6 space-y-6'}>
       <Button
-        variant={"ghost"}
-        className={"mb-4"}
+        variant={'ghost'}
+        className={'mb-4'}
         onClick={() => router.push('/professional')}
       >
-        <ArrowLeft className={"w-4 h-4 mr-2"} />
+        <ArrowLeft className={'w-4 h-4 mr-2'} />
         Back to Dashboard
       </Button>
 
       <div>
-        <h1 className={"text-4xl font-medium tracking-tight mb-2"}>Edit Product</h1>
-        <p className={"text-muted-foreground"}>Update your product details</p>
+        <h1 className={'text-4xl font-medium tracking-tight mb-2'}>
+          Edit Product
+        </h1>
+        <p className={'text-muted-foreground'}>Update your product details</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className={"space-y-6"}>
-        <Card className={"p-6 rounded-[30px] border-0 shadow-md space-y-6"}>
-          <div className={"space-y-4"}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className={'space-y-6'}
+      >
+        <Card className={'p-6 rounded-[30px] border-0 shadow-md space-y-6'}>
+          <div className={'space-y-4'}>
             <div>
-              <Label htmlFor={"title"}>Product Name *</Label>
+              <Label htmlFor={'title'}>Product Name *</Label>
               <Input
-                id={"title"}
+                id={'title'}
                 {...register('title', { required: 'Product name is required' })}
-                placeholder={"Enter product name"}
-                className={"mt-2"}
+                placeholder={'Enter product name'}
+                className={'mt-2'}
               />
               {errors.title && (
-                <p className={"text-sm text-red-500 mt-1"}>{errors.title.message}</p>
+                <p className={'text-sm text-red-500 mt-1'}>
+                  {errors.title.message}
+                </p>
               )}
             </div>
 
-            <div className={"grid grid-cols-2 gap-4"}>
+            <div className={'grid grid-cols-2 gap-4'}>
               <div>
-                <Label htmlFor={"price"}>Price ($) *</Label>
+                <Label htmlFor={'price'}>Price ($) *</Label>
                 <Input
-                  id={"price"}
-                  type={"number"}
-                  step={"0.01"}
+                  id={'price'}
+                  type={'number'}
+                  step={'0.01'}
                   {...register('price', {
                     required: 'Price is required',
                     min: { value: 0, message: 'Price must be positive' },
                   })}
-                  placeholder={"0.00"}
-                  className={"mt-2"}
+                  placeholder={'0.00'}
+                  className={'mt-2'}
                 />
                 {errors.price && (
-                  <p className={"text-sm text-red-500 mt-1"}>{errors.price.message}</p>
+                  <p className={'text-sm text-red-500 mt-1'}>
+                    {errors.price.message}
+                  </p>
                 )}
               </div>
 
               <div>
-                <Label htmlFor={"stock"}>Stock *</Label>
+                <Label htmlFor={'stock'}>Stock *</Label>
                 <Input
-                  id={"stock"}
-                  type={"number"}
+                  id={'stock'}
+                  type={'number'}
                   {...register('stock', {
                     required: 'Stock is required',
                     min: { value: 1, message: 'Must be at least 1' },
                   })}
-                  placeholder={"1"}
-                  className={"mt-2"}
+                  placeholder={'1'}
+                  className={'mt-2'}
                 />
                 {errors.stock && (
-                  <p className={"text-sm text-red-500 mt-1"}>{errors.stock.message}</p>
+                  <p className={'text-sm text-red-500 mt-1'}>
+                    {errors.stock.message}
+                  </p>
                 )}
               </div>
             </div>
 
             <div>
-              <Label htmlFor={"minSellUnits"}>Minimum Sell Units *</Label>
+              <Label htmlFor={'minSellUnits'}>Minimum Sell Units *</Label>
               <Input
-                id={"minSellUnits"}
-                type={"number"}
+                id={'minSellUnits'}
+                type={'number'}
                 {...register('minSellUnits', {
                   required: 'Min sell units is required',
                   min: { value: 1, message: 'Must be at least 1' },
                 })}
-                placeholder={"1"}
-                className={"mt-2"}
+                placeholder={'1'}
+                className={'mt-2'}
               />
               {errors.minSellUnits && (
-                <p className={"text-sm text-red-500 mt-1"}>{errors.minSellUnits.message}</p>
+                <p className={'text-sm text-red-500 mt-1'}>
+                  {errors.minSellUnits.message}
+                </p>
               )}
             </div>
 
             <div>
-              <Label htmlFor={"categoryId"}>Category *</Label>
+              <Label htmlFor={'categoryId'}>Category *</Label>
               <Select
                 value={product.category?.id}
-                onValueChange={value => setValue('categoryId', value, { shouldDirty: true })}
+                onValueChange={value =>
+                  setValue('categoryId', value, { shouldDirty: true })
+                }
                 disabled={categoriesLoading}
               >
-                <SelectTrigger className={"mt-2"}>
-                  <SelectValue placeholder={"Select category"} />
+                <SelectTrigger className={'mt-2'}>
+                  <SelectValue placeholder={'Select category'} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories?.map(category => (
-                    <SelectItem key={category.id} value={category.id}>
+                    <SelectItem
+                      key={category.id}
+                      value={category.id}
+                    >
                       {category.title}
                     </SelectItem>
                   ))}
@@ -322,14 +340,18 @@ export function ProductEditPage({ productId }: { productId: string }) {
 
             <div>
               <Label>Spaces *</Label>
-              <div className={"grid grid-cols-3 gap-2 mt-2"}>
+              <div className={'grid grid-cols-3 gap-2 mt-2'}>
                 {spaces?.map(space => (
                   <Button
                     key={space.id}
-                    type={"button"}
-                    variant={selectedSpaces.includes(space.title) ? 'default' : 'outline'}
+                    type={'button'}
+                    variant={
+                      selectedSpaces.includes(space.title)
+                        ? 'default'
+                        : 'outline'
+                    }
                     onClick={() => toggleSpace(space.title)}
-                    className={"justify-start"}
+                    className={'justify-start'}
                   >
                     {space.title}
                   </Button>
@@ -339,14 +361,16 @@ export function ProductEditPage({ productId }: { productId: string }) {
 
             <div>
               <Label>Tags *</Label>
-              <div className={"flex flex-wrap gap-2 mt-2"}>
+              <div className={'flex flex-wrap gap-2 mt-2'}>
                 {tags?.map(tag => (
                   <Button
                     key={tag.id}
-                    type={"button"}
-                    variant={selectedTags.includes(tag.title) ? 'default' : 'outline'}
+                    type={'button'}
+                    variant={
+                      selectedTags.includes(tag.title) ? 'default' : 'outline'
+                    }
                     onClick={() => toggleTag(tag.title)}
-                    className={"justify-start"}
+                    className={'justify-start'}
                   >
                     {tag.title}
                   </Button>
@@ -356,55 +380,61 @@ export function ProductEditPage({ productId }: { productId: string }) {
 
             <div>
               <Label>Dimensions (cm)</Label>
-              <div className={"grid grid-cols-3 gap-4 mt-2"}>
+              <div className={'grid grid-cols-3 gap-4 mt-2'}>
                 <Input
-                  type={"number"}
-                  step={"0.1"}
+                  type={'number'}
+                  step={'0.1'}
                   {...register('width', { min: 0 })}
-                  placeholder={"Width"}
+                  placeholder={'Width'}
                 />
                 <Input
-                  type={"number"}
-                  step={"0.1"}
+                  type={'number'}
+                  step={'0.1'}
                   {...register('height', { min: 0 })}
-                  placeholder={"Height"}
+                  placeholder={'Height'}
                 />
                 <Input
-                  type={"number"}
-                  step={"0.1"}
+                  type={'number'}
+                  step={'0.1'}
                   {...register('depth', { min: 0 })}
-                  placeholder={"Depth"}
+                  placeholder={'Depth'}
                 />
               </div>
             </div>
           </div>
         </Card>
 
-        <Card className={"p-6 rounded-[30px] border-0 shadow-md space-y-4"}>
+        <Card className={'p-6 rounded-[30px] border-0 shadow-md space-y-4'}>
           <div>
             <Label>Product Images * (Max 10)</Label>
-            <p className={"text-sm text-muted-foreground mb-4"}>
+            <p className={'text-sm text-muted-foreground mb-4'}>
               Manage your product images
             </p>
           </div>
 
-          <div className={"grid grid-cols-5 gap-4"}>
+          <div className={'grid grid-cols-5 gap-4'}>
             {existingImages.map((imageKey, index) => (
               <div
                 key={`existing-${index}`}
-                className={"relative aspect-square rounded-[20px] overflow-hidden bg-neutral-100"}
+                className={
+                  'relative aspect-square rounded-[20px] overflow-hidden bg-neutral-100'
+                }
               >
-                <img
+                <Image
                   src={ROUTES.S3(imageKey)}
                   alt={`Product ${index + 1}`}
-                  className={"w-full h-full object-cover"}
+                  className={'w-full h-full object-cover'}
+                  unoptimized
+                  fill
                 />
                 <button
-                  type={"button"}
+                  type={'button'}
                   onClick={() => removeExistingImage(index)}
-                  className={"absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"}
+                  className={
+                    'absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600'
+                  }
                 >
-                  <X className={"w-4 h-4"} />
+                  <X className={'w-4 h-4'} />
                 </button>
               </div>
             ))}
@@ -412,49 +442,60 @@ export function ProductEditPage({ productId }: { productId: string }) {
             {newImagePreviews.map((preview, index) => (
               <div
                 key={`new-${index}`}
-                className={"relative aspect-square rounded-[20px] overflow-hidden bg-neutral-100"}
+                className={
+                  'relative aspect-square rounded-[20px] overflow-hidden bg-neutral-100'
+                }
               >
                 <Image
                   src={preview}
                   alt={`New ${index + 1}`}
                   fill
-                  className={"object-cover"}
+                  className={'object-cover'}
                 />
                 <button
-                  type={"button"}
+                  type={'button'}
                   onClick={() => removeNewImage(index)}
-                  className={"absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"}
+                  className={
+                    'absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600'
+                  }
                 >
-                  <X className={"w-4 h-4"} />
+                  <X className={'w-4 h-4'} />
                 </button>
               </div>
             ))}
 
             {totalImageCount < 10 && (
-              <label className={"aspect-square rounded-[20px] border-2 border-dashed border-neutral-300 hover:border-secondary transition-colors cursor-pointer flex flex-col items-center justify-center gap-2"}>
-                <Upload className={"w-6 h-6 text-muted-foreground"} />
-                <span className={"text-xs text-muted-foreground"}>Upload</span>
+              <label
+                className={
+                  'aspect-square rounded-[20px] border-2 border-dashed border-neutral-300 hover:border-secondary transition-colors cursor-pointer flex flex-col items-center justify-center gap-2'
+                }
+              >
+                <Upload className={'w-6 h-6 text-muted-foreground'} />
+                <span className={'text-xs text-muted-foreground'}>Upload</span>
                 <input
-                  type={"file"}
-                  accept={"image/*"}
+                  type={'file'}
+                  accept={'image/*'}
                   multiple
                   onChange={handleImageUpload}
-                  className={"hidden"}
+                  className={'hidden'}
                 />
               </label>
             )}
           </div>
         </Card>
 
-        <div className={"flex items-center justify-end gap-4"}>
+        <div className={'flex items-center justify-end gap-4'}>
           <Button
-            type={"button"}
-            variant={"outline"}
+            type={'button'}
+            variant={'outline'}
             onClick={() => router.push('/professional')}
           >
             Cancel
           </Button>
-          <Button type={"submit"} disabled={isSubmitting}>
+          <Button
+            type={'submit'}
+            disabled={isSubmitting}
+          >
             {isSubmitting ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>

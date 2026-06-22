@@ -1,17 +1,18 @@
 'use client';
 
-import { use, useState } from 'react';
+import { GitFork, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { use, useState } from 'react';
+import { toast } from 'sonner';
+
 import { ProductCard } from '@/components/ui';
 import { BundleCard } from '@/components/ui/bundle-card';
-import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import { Button } from '@/components/ui/shadcn/button';
-import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
+import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import { useGetSharedBundle } from '@/hooks/queries';
-import { useAuthStatus } from '@/hooks/use-auth-status.hook';
 import { useForkBundle } from '@/hooks/queries/bundle.query';
-import { toast } from 'sonner';
-import { GitFork, Users } from 'lucide-react';
+import { useAuthStatus } from '@/hooks/use-auth-status.hook';
+import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
 
 interface Props {
   params: Promise<{ token: string }>;
@@ -31,10 +32,10 @@ export function SharedBundleDetailPage({ params }: Props) {
     setIsForking(true);
     try {
       const forkedBundle = await forkMutation.mutateAsync(bundle.id);
-      
+
       // Set the forked bundle as the active space bundle
       useSpaceBundleStore.getState().setActiveBundle(forkedBundle);
-      
+
       toast.success('Project successfully forked to your drafts');
       router.push('/cart');
     } catch (error) {
@@ -48,9 +49,16 @@ export function SharedBundleDetailPage({ params }: Props) {
   if (isLoading) {
     return (
       <div className={'w-full'}>
-        <div className={'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5'}>
+        <div
+          className={
+            'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5'
+          }
+        >
           {[...Array(12)].map((_, i) => (
-            <Skeleton key={i} className={'aspect-square rounded-[20px]'} />
+            <Skeleton
+              key={i}
+              className={'aspect-square rounded-[20px]'}
+            />
           ))}
         </div>
       </div>
@@ -74,15 +82,19 @@ export function SharedBundleDetailPage({ params }: Props) {
       <div className={'flex flex-col gap-3 mb-4'}>
         <div className={'flex items-start justify-between gap-4'}>
           <div className={'flex flex-col gap-1'}>
-            <h1 className={'text-4xl font-medium tracking-tight'}>{bundle.name}</h1>
-            <p className={'text-muted-foreground'}>{bundle.description || 'Shared project'}</p>
+            <h1 className={'text-4xl font-medium tracking-tight'}>
+              {bundle.name}
+            </h1>
+            <p className={'text-muted-foreground'}>
+              {bundle.description || 'Shared project'}
+            </p>
           </div>
           {isLoggedIn && (
             <Button
               onClick={handleFork}
               disabled={isForking}
-              size={"lg"}
-              variant={"outline"}
+              size={'lg'}
+              variant={'outline'}
               className={'flex items-center gap-2'}
             >
               <GitFork className={'w-4 h-4'} />
@@ -91,17 +103,27 @@ export function SharedBundleDetailPage({ params }: Props) {
           )}
         </div>
 
-        <div className={'flex items-center gap-4 text-sm text-muted-foreground'}>
+        <div
+          className={'flex items-center gap-4 text-sm text-muted-foreground'}
+        >
           <div className={'flex items-center gap-1'}>
             <Users className={'w-4 h-4'} />
             <span>Public Access</span>
           </div>
           <span>•</span>
-          <span>{bundle.items.length} {bundle.items.length === 1 ? 'item' : 'items'}</span>
+          <span>
+            {bundle.items.length} {bundle.items.length === 1 ? 'item' : 'items'}
+          </span>
           {bundle.totalPrice > 0 && (
             <>
               <span>•</span>
-              <span className={'font-medium'}>Total: ${bundle.totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className={'font-medium'}>
+                Total: $
+                {bundle.totalPrice.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </span>
             </>
           )}
         </div>
@@ -115,8 +137,14 @@ export function SharedBundleDetailPage({ params }: Props) {
         <div className={'flex flex-col gap-10'}>
           {nestedBundleItems.length > 0 && (
             <div className={'flex flex-col gap-4'}>
-              <h2 className={'text-xl font-bold text-neutral-900'}>Supplier Bundles</h2>
-              <div className={'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'}>
+              <h2 className={'text-xl font-bold text-neutral-900'}>
+                Supplier Bundles
+              </h2>
+              <div
+                className={
+                  'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'
+                }
+              >
                 {nestedBundleItems.map(item => (
                   <BundleCard
                     key={item.nestedBundle!.id}
@@ -132,7 +160,11 @@ export function SharedBundleDetailPage({ params }: Props) {
           {productItems.length > 0 && (
             <div className={'flex flex-col gap-4'}>
               <h2 className={'text-xl font-bold text-neutral-900'}>Products</h2>
-              <div className={'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5'}>
+              <div
+                className={
+                  'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5'
+                }
+              >
                 {productItems.map(item => (
                   <ProductCard
                     key={item.product!.id}

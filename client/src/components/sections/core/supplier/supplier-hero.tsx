@@ -1,4 +1,5 @@
 import { Mail, MapPin, Star } from 'lucide-react';
+import Image from 'next/image';
 
 import { ROUTES } from '@/constants';
 import { ProfileData } from '@/shared/data/core/profile-data/profile-data';
@@ -9,10 +10,12 @@ export function SupplierHero() {
       className={'relative w-full overflow-hidden'}
       style={{ height: '442px' }}
     >
-      <img
+      <Image
         src={ROUTES.S3('supplier/hero-bg.png')}
         alt={'banner'}
         className={'w-full h-full object-cover'}
+        unoptimized
+        fill
       />
 
       <div

@@ -1,6 +1,7 @@
 'use client';
 
 import { X } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/shadcn/button';
@@ -64,10 +65,12 @@ export function EditItemModal({
             }
             style={{ width: '160px', height: '160px' }}
           >
-            <img
+            <Image
               src={ROUTES.S3('marketplace/table-1.png')}
               alt={'item'}
               className={'w-full h-full object-cover'}
+              unoptimized
+              fill
             />
           </div>
 

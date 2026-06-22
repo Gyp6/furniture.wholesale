@@ -1,6 +1,5 @@
 import { ROUTES } from '@/constants';
-import { ECategory, ESpaceType } from '@/shared/enums';
-import { IProduct } from '@/shared/types';
+import { ECategory } from '@/shared/enums';
 
 export const ProductCardData = {
   name: 'Freedom Miro dining table',

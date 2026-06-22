@@ -55,7 +55,9 @@ export function DashboardPage({ user }: Props) {
           <OrderTable />
         </div>
 
-        <div className={'lg:w-[600px] w-full shrink-0 flex flex-col gap-6 min-h-0'}>
+        <div
+          className={'lg:w-[600px] w-full shrink-0 flex flex-col gap-6 min-h-0'}
+        >
           <div>
             <h2 className={'text-2xl font-semibold mb-3'}>Statistics</h2>
             <Statistics />

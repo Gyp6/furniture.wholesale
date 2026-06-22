@@ -1,6 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
 import { Button } from '@/components/ui/shadcn/button';
 import {
   Dialog,
@@ -8,13 +10,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/shadcn/dialog';
-import { useEffect } from 'react';
-import { useUnsavedChangesStore, useSpaceBundleStore } from '@/store';
+import { useSpaceBundleStore, useUnsavedChangesStore } from '@/store';
 
 export function UnsavedChangesModal() {
   const router = useRouter();
   const { isOpen, targetUrl, onConfirm, hide, show } = useUnsavedChangesStore();
-  const { items, activeBundleId, clearBundle } = useSpaceBundleStore(state => state);
+  const { items, activeBundleId, clearBundle } = useSpaceBundleStore(
+    state => state,
+  );
 
   useEffect(() => {
     const handleAnchorClick = (e: MouseEvent) => {
@@ -66,8 +69,14 @@ export function UnsavedChangesModal() {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={open => !open && hide()}>
-      <DialogContent className={'rounded-2xl p-6 flex flex-col gap-5 sm:max-w-[440px]'} showCloseButton={false}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={open => !open && hide()}
+    >
+      <DialogContent
+        className={'rounded-2xl p-6 flex flex-col gap-5 sm:max-w-[440px]'}
+        showCloseButton={false}
+      >
         <DialogHeader>
           <DialogTitle className={'text-lg font-semibold'}>
             Unsaved Changes in Cart
@@ -75,7 +84,8 @@ export function UnsavedChangesModal() {
         </DialogHeader>
 
         <p className={'text-sm text-muted-foreground leading-relaxed'}>
-          You have unsaved changes in your cart/project. Please save or exit without saving them.
+          You have unsaved changes in your cart/project. Please save or exit
+          without saving them.
         </p>
 
         <div className={'flex flex-col sm:flex-row items-center gap-3 pt-2'}>
@@ -88,7 +98,9 @@ export function UnsavedChangesModal() {
           </Button>
           <Button
             variant={'destructive'}
-            className={'rounded-full h-11 w-full sm:flex-1 bg-red-600 hover:bg-red-700 text-white border-none'}
+            className={
+              'rounded-full h-11 w-full sm:flex-1 bg-red-600 hover:bg-red-700 text-white border-none'
+            }
             onClick={handleLeaveWithoutSaving}
           >
             Leave Without Saving

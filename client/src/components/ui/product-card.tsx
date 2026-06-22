@@ -1,6 +1,6 @@
 'use client';
 
-import { Heart, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/shadcn/badge';
 import { Button } from '@/components/ui/shadcn/button';
 import { Card, CardContent } from '@/components/ui/shadcn/card';
 import { ROUTES } from '@/constants';
-import { cn } from '@/lib/cn';
 import { IProduct } from '@/shared/types';
 import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
 
@@ -32,17 +31,6 @@ export function ProductCard({ isAuthorized, product }: TProductCardProps) {
     }
   };
 
-  const handleToggleFavorite = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsFavorite(!isFavorite);
-    toast.success(
-      isFavorite
-        ? `Removed "${product.title}" from favorites`
-        : `Added "${product.title}" to favorites`,
-    );
-  };
-
   const imgSrc = product.images?.[0]
     ? product.images[0].startsWith('http')
       ? product.images[0]
@@ -59,7 +47,11 @@ export function ProductCard({ isAuthorized, product }: TProductCardProps) {
         href={ROUTES.PRODUCT(product.id)}
         className={'flex flex-col h-full'}
       >
-        <div className={'relative w-full aspect-square overflow-hidden rounded-[20px] shrink-0 bg-neutral-50'}>
+        <div
+          className={
+            'relative w-full aspect-square overflow-hidden rounded-[20px] shrink-0 bg-neutral-50'
+          }
+        >
           <Image
             src={imgSrc}
             alt={product.title}
@@ -112,7 +104,11 @@ export function ProductCard({ isAuthorized, product }: TProductCardProps) {
             {isAuthorized ? (
               <div className={'flex flex-col gap-3'}>
                 <div className={'flex items-baseline justify-between gap-2'}>
-                  <p className={'text-xs text-neutral-400 font-semibold select-none'}>
+                  <p
+                    className={
+                      'text-xs text-neutral-400 font-semibold select-none'
+                    }
+                  >
                     min. {product.minSellUnits || 1} pieces
                   </p>
                   <span className={'text-lg font-extrabold text-neutral-950'}>
@@ -132,7 +128,11 @@ export function ProductCard({ isAuthorized, product }: TProductCardProps) {
             ) : (
               <div className={'flex flex-col gap-3'}>
                 <div className={'flex items-baseline justify-between'}>
-                  <p className={'text-xs text-neutral-400 font-semibold select-none'}>
+                  <p
+                    className={
+                      'text-xs text-neutral-400 font-semibold select-none'
+                    }
+                  >
                     min. {product.minSellUnits || 1} pieces
                   </p>
                 </div>
