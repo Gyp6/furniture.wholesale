@@ -1,13 +1,14 @@
 'use client';
 
+import { CheckCircle2, Loader2, Upload } from 'lucide-react';
+import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { Loader2, CheckCircle2, Upload } from 'lucide-react';
 
-import { ICONS } from '@/shared/data/icons';
-import { companyService } from '@/services';
 import { CompanyProfileEditState } from '@/components/pages/core/profile/profile';
 import { ROUTES } from '@/constants';
+import { companyService } from '@/services';
+import { ICONS } from '@/shared/data/icons';
 
 interface BrandIdentityProps {
   formData: CompanyProfileEditState;
@@ -15,7 +16,11 @@ interface BrandIdentityProps {
   companyTaxCode?: string;
 }
 
-export function BrandIdentity({ formData, onChange, companyTaxCode }: BrandIdentityProps) {
+export function BrandIdentity({
+  formData,
+  onChange,
+  companyTaxCode,
+}: BrandIdentityProps) {
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
@@ -118,9 +123,9 @@ export function BrandIdentity({ formData, onChange, companyTaxCode }: BrandIdent
             </span>
             <input
               ref={bannerInputRef}
-              type={"file"}
-              accept={"image/png"}
-              className={"hidden"}
+              type={'file'}
+              accept={'image/png'}
+              className={'hidden'}
               onChange={handleBannerUpload}
             />
             <div
@@ -130,23 +135,29 @@ export function BrandIdentity({ formData, onChange, companyTaxCode }: BrandIdent
               onClick={() => bannerInputRef.current?.click()}
             >
               {bannerUploading ? (
-                <Loader2 className={"w-6 h-6 text-secondary animate-spin"} />
+                <Loader2 className={'w-6 h-6 text-secondary animate-spin'} />
               ) : bannerPreview || existingBanner ? (
                 <>
-                  <img
+                  <Image
                     src={bannerPreview || existingBanner!}
-                    alt={"Banner preview"}
-                    className={"w-full h-full object-cover absolute inset-0"}
-                    onError={(e) => {
+                    alt={'Banner preview'}
+                    className={'w-full h-full object-cover absolute inset-0'}
+                    onError={e => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }}
+                    unoptimized
+                    fill
                   />
-                  <div className={"absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"}>
-                    <Upload className={"w-6 h-6 text-white"} />
+                  <div
+                    className={
+                      'absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center'
+                    }
+                  >
+                    <Upload className={'w-6 h-6 text-white'} />
                   </div>
                   {bannerUploaded && (
-                    <div className={"absolute top-2 right-2 z-10"}>
-                      <CheckCircle2 className={"w-5 h-5 text-green-500"} />
+                    <div className={'absolute top-2 right-2 z-10'}>
+                      <CheckCircle2 className={'w-5 h-5 text-green-500'} />
                     </div>
                   )}
                 </>
@@ -157,9 +168,11 @@ export function BrandIdentity({ formData, onChange, companyTaxCode }: BrandIdent
                       'w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center'
                     }
                   >
-                    <Upload className={"w-4 h-4 text-secondary"} />
+                    <Upload className={'w-4 h-4 text-secondary'} />
                   </div>
-                  <p className={'text-[12px] text-muted-foreground text-center'}>
+                  <p
+                    className={'text-[12px] text-muted-foreground text-center'}
+                  >
                     PNG only
                     <br />
                     Max 5MB.
@@ -180,9 +193,9 @@ export function BrandIdentity({ formData, onChange, companyTaxCode }: BrandIdent
               </span>
               <input
                 ref={logoInputRef}
-                type={"file"}
-                accept={"image/png"}
-                className={"hidden"}
+                type={'file'}
+                accept={'image/png'}
+                className={'hidden'}
                 onChange={handleLogoUpload}
               />
               <div
@@ -193,23 +206,29 @@ export function BrandIdentity({ formData, onChange, companyTaxCode }: BrandIdent
                 onClick={() => logoInputRef.current?.click()}
               >
                 {logoUploading ? (
-                  <Loader2 className={"w-6 h-6 text-secondary animate-spin"} />
+                  <Loader2 className={'w-6 h-6 text-secondary animate-spin'} />
                 ) : logoPreview || existingLogo ? (
                   <>
-                    <img
+                    <Image
                       src={logoPreview || existingLogo!}
-                      alt={"Logo preview"}
-                      className={"w-full h-full object-cover absolute inset-0"}
-                      onError={(e) => {
+                      alt={'Logo preview'}
+                      className={'w-full h-full object-cover absolute inset-0'}
+                      onError={e => {
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}
+                      unoptimized
+                      fill
                     />
-                    <div className={"absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"}>
-                      <Upload className={"w-6 h-6 text-white"} />
+                    <div
+                      className={
+                        'absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center'
+                      }
+                    >
+                      <Upload className={'w-6 h-6 text-white'} />
                     </div>
                     {logoUploaded && (
-                      <div className={"absolute top-2 right-2 z-10"}>
-                        <CheckCircle2 className={"w-5 h-5 text-green-500"} />
+                      <div className={'absolute top-2 right-2 z-10'}>
+                        <CheckCircle2 className={'w-5 h-5 text-green-500'} />
                       </div>
                     )}
                   </>
@@ -220,9 +239,13 @@ export function BrandIdentity({ formData, onChange, companyTaxCode }: BrandIdent
                         'w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center'
                       }
                     >
-                      <Upload className={"w-4 h-4 text-secondary"} />
+                      <Upload className={'w-4 h-4 text-secondary'} />
                     </div>
-                    <p className={'text-[12px] text-muted-foreground text-center'}>
+                    <p
+                      className={
+                        'text-[12px] text-muted-foreground text-center'
+                      }
+                    >
                       PNG only
                       <br />
                       Max 5MB.

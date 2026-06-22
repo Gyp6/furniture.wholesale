@@ -1,9 +1,9 @@
 'use client';
 
 import { ProductCard } from '@/components/ui';
+import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import { useGetProducts } from '@/hooks/queries';
 import { useAuthStatus } from '@/hooks/use-auth-status.hook';
-import { Skeleton } from '@/components/ui/shadcn/skeleton';
 
 export function ProductRelated() {
   const { data: response, isLoading } = useGetProducts({ limit: 6 });
@@ -19,7 +19,10 @@ export function ProductRelated() {
       >
         {isLoading
           ? [...Array(6)].map((_, i) => (
-              <Skeleton key={i} className={'aspect-square rounded-[20px]'} />
+              <Skeleton
+                key={i}
+                className={'aspect-square rounded-[20px]'}
+              />
             ))
           : (response?.items || []).slice(0, 6).map(product => (
               <ProductCard

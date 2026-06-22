@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useAuthStatus } from '@/hooks/use-auth-status.hook';
 import {
   AddBundleItemRequest,
   bundleService,
   CreateBundleRequest,
 } from '@/services';
-import { useAuthStatus } from '@/hooks/use-auth-status.hook';
 
 export const useGetMyBundles = (type?: 'USER' | 'SUPPLIER') => {
   const { user } = useAuthStatus();
@@ -87,7 +87,8 @@ export const useRemoveBundleItem = (bundleId: string) => {
 export const useUpdateBundle = (bundleId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (dto: Partial<CreateBundleRequest>) => bundleService.update(bundleId, dto),
+    mutationFn: (dto: Partial<CreateBundleRequest>) =>
+      bundleService.update(bundleId, dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bundle', bundleId] });
       queryClient.invalidateQueries({ queryKey: ['bundle', 'shared'] });

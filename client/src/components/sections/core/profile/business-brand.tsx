@@ -1,18 +1,26 @@
 'use client';
 
+import {
+  CheckCircle2,
+  ChevronDown,
+  FileText,
+  Loader2,
+  Plus,
+  Upload,
+  X,
+} from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { ChevronDown, Plus, X, Loader2, CheckCircle2, Upload, FileText } from 'lucide-react';
 
+import { CompanyProfileEditState } from '@/components/pages/core/profile/profile';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/shadcn/dropdown-menu';
-import { LeadTimeOptions } from '@/shared/data/core/profile-data/profile-data';
-import { CompanyProfileEditState } from '@/components/pages/core/profile/profile';
 import { companyService } from '@/services';
+import { LeadTimeOptions } from '@/shared/data/core/profile-data/profile-data';
 
 interface BusinessTermsProps {
   formData: CompanyProfileEditState;
@@ -102,9 +110,9 @@ export function BusinessTerms({ formData, onChange }: BusinessTermsProps) {
             </span>
             <input
               ref={termsInputRef}
-              type={"file"}
-              accept={"application/pdf"}
-              className={"hidden"}
+              type={'file'}
+              accept={'application/pdf'}
+              className={'hidden'}
               onChange={handleTermsUpload}
             />
             <div
@@ -114,17 +122,21 @@ export function BusinessTerms({ formData, onChange }: BusinessTermsProps) {
               onClick={() => termsInputRef.current?.click()}
             >
               {termsUploading ? (
-                <Loader2 className={"w-6 h-6 text-secondary animate-spin"} />
+                <Loader2 className={'w-6 h-6 text-secondary animate-spin'} />
               ) : termsUploaded && termsFileName ? (
-                <div className={"flex flex-col items-center gap-2"}>
-                  <div className={"flex items-center gap-2"}>
-                    <FileText className={"w-6 h-6 text-secondary"} />
-                    <CheckCircle2 className={"w-4 h-4 text-green-500"} />
+                <div className={'flex flex-col items-center gap-2'}>
+                  <div className={'flex items-center gap-2'}>
+                    <FileText className={'w-6 h-6 text-secondary'} />
+                    <CheckCircle2 className={'w-4 h-4 text-green-500'} />
                   </div>
-                  <p className={"text-[12px] text-muted-foreground text-center truncate max-w-[200px]"}>
+                  <p
+                    className={
+                      'text-[12px] text-muted-foreground text-center truncate max-w-[200px]'
+                    }
+                  >
                     {termsFileName}
                   </p>
-                  <p className={"text-[11px] text-secondary font-medium"}>
+                  <p className={'text-[11px] text-secondary font-medium'}>
                     Click to replace
                   </p>
                 </div>
@@ -135,9 +147,11 @@ export function BusinessTerms({ formData, onChange }: BusinessTermsProps) {
                       'w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center'
                     }
                   >
-                    <Upload className={"w-4 h-4 text-secondary"} />
+                    <Upload className={'w-4 h-4 text-secondary'} />
                   </div>
-                  <p className={'text-[12px] text-muted-foreground text-center'}>
+                  <p
+                    className={'text-[12px] text-muted-foreground text-center'}
+                  >
                     PDF only. Max 5MB.
                   </p>
                 </>
@@ -199,7 +213,7 @@ export function BusinessTerms({ formData, onChange }: BusinessTermsProps) {
                     </button>
                   </div>
                 ))}
-                
+
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     className={

@@ -1,13 +1,14 @@
 'use client';
 
+import Image from 'next/image';
+import Link from 'next/link';
+
 import { Badge } from '@/components/ui/shadcn/badge';
 import { Button } from '@/components/ui/shadcn/button';
 import { Card } from '@/components/ui/shadcn/card';
 import { ROUTES } from '@/constants';
 import { ICONS } from '@/shared/data/icons';
 import { IBundle } from '@/shared/types';
-import Image from 'next/image';
-import Link from 'next/link';
 
 type TBundleCardProps = {
   isAuthorized: boolean;

@@ -10,9 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/shadcn/card';
-import { ICONS } from '@/shared/data/icons';
 import { ROUTES } from '@/constants';
-
+import { ICONS } from '@/shared/data/icons';
 
 type TOrderCardProps = {
   name: string;

@@ -48,7 +48,10 @@ export const bundleService = {
     return data;
   },
 
-  async update(id: string, dto: Partial<CreateBundleRequest>): Promise<IBundle> {
+  async update(
+    id: string,
+    dto: Partial<CreateBundleRequest>,
+  ): Promise<IBundle> {
     const { data } = await api.patch(`/bundles/${id}`, dto);
     return data;
   },

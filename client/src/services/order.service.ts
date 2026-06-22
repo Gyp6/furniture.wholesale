@@ -79,13 +79,17 @@ export const orderService = {
     return data;
   },
 
-  async checkStock(items: Array<{ productId: string; quantity: number }>): Promise<Array<{
-    productId: string;
-    title: string;
-    requested: number;
-    available: number;
-    sufficient: boolean;
-  }>> {
+  async checkStock(
+    items: Array<{ productId: string; quantity: number }>,
+  ): Promise<
+    Array<{
+      productId: string;
+      title: string;
+      requested: number;
+      available: number;
+      sufficient: boolean;
+    }>
+  > {
     const { data } = await api.post('/orders/check-stock', { items });
     return data;
   },

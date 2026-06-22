@@ -76,10 +76,14 @@ export const productService = {
 
     // Price filter
     if (params.minPrice !== undefined) {
-      products = products.filter(p => p.price === undefined || Number(p.price) >= params.minPrice!);
+      products = products.filter(
+        p => p.price === undefined || Number(p.price) >= params.minPrice!,
+      );
     }
     if (params.maxPrice !== undefined) {
-      products = products.filter(p => p.price === undefined || Number(p.price) <= params.maxPrice!);
+      products = products.filter(
+        p => p.price === undefined || Number(p.price) <= params.maxPrice!,
+      );
     }
 
     // Sort

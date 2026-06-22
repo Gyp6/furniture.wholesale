@@ -2,7 +2,6 @@
 
 import { Check, X } from 'lucide-react';
 
-import { BundleCard } from '@/components/ui/bundle-card';
 import { OrderCard } from '@/components/ui/order-card';
 import { Button } from '@/components/ui/shadcn/button';
 import {
@@ -11,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/shadcn/dialog';
-import { BundleCardData, OrderCardData } from '@/shared/data/core/catalog';
+import { OrderCardData } from '@/shared/data/core/catalog';
 
 type TOrderConfirmModalProps = {
   open: boolean;

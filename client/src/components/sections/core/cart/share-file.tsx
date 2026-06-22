@@ -72,7 +72,6 @@ export function ShareModal({
     }
   };
 
-
   return (
     <Dialog
       open={open}

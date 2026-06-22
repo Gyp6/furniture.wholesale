@@ -52,10 +52,14 @@ export function Sort() {
             'flex items-center gap-1.5 text-sm font-semibold text-foreground outline-none border border-neutral-200 rounded-full px-4 py-2 bg-white hover:bg-neutral-50 transition-colors cursor-pointer shadow-sm'
           }
         >
-          {selected} <ChevronDown className={'w-3.5 h-3.5 text-muted-foreground'} />
+          {selected}{' '}
+          <ChevronDown className={'w-3.5 h-3.5 text-muted-foreground'} />
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align={'end'} className={'bg-white'}>
+        <DropdownMenuContent
+          align={'end'}
+          className={'bg-white'}
+        >
           {sortOptions.map(option => (
             <DropdownMenuItem
               key={option}
