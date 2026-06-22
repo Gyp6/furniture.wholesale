@@ -1,4 +1,5 @@
 import { authClient } from '@/lib';
+
 import { TRole } from './role.type';
 
 export interface IBaUser {
@@ -48,4 +49,4 @@ export interface IProfile {
 
 export type IUser = IBaUser & {
   profile: IProfile;
-}
+};

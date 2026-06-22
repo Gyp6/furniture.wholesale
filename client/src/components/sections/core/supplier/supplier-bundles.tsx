@@ -1,20 +1,13 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-
-import { BundleCard } from '@/components/ui/bundle-card';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
 } from '@/components/ui/shadcn/carousel';
-import { ROUTES } from '@/constants';
-import { BundleCardData } from '@/shared/data/core/catalog/catalog.data';
 
 export function SupplierBundles() {
-  const router = useRouter();
-
   return (
     <div className={'flex flex-col gap-5 px-10 py-10 bg-secondary/10'}>
       <h2 className={'text-2xl font-bold'}>Company Bundles</h2>

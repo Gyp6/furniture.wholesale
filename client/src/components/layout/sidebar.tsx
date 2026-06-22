@@ -6,7 +6,7 @@ import { ChevronDown } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
-import { useGetCategories, useGetTags, useGetSpaces } from '@/hooks/queries';
+import { useGetCategories, useGetSpaces, useGetTags } from '@/hooks/queries';
 import { cn } from '@/lib/cn';
 import { IFilter } from '@/shared/types';
 
@@ -25,9 +25,17 @@ export function AccordionSection({
     <div>
       <button
         onClick={() => setOpen(!open)}
-        className={'flex justify-between items-center w-full py-1.5 outline-none cursor-pointer group'}
+        className={
+          'flex justify-between items-center w-full py-1.5 outline-none cursor-pointer group'
+        }
       >
-        <span className={'text-base font-semibold text-neutral-800 group-hover:text-neutral-900'}>{title}</span>
+        <span
+          className={
+            'text-base font-semibold text-neutral-800 group-hover:text-neutral-900'
+          }
+        >
+          {title}
+        </span>
         <ChevronDown
           className={cn(
             'size-4 text-neutral-400 transition-transform duration-200 group-hover:text-neutral-500',
@@ -66,7 +74,9 @@ function RadioFilterGroup({
     <AccordionSection title={title}>
       <div className={'space-y-3.5'}>
         {isLoading ? (
-          <div className={'text-sm text-neutral-400 animate-pulse'}>Loading...</div>
+          <div className={'text-sm text-neutral-400 animate-pulse'}>
+            Loading...
+          </div>
         ) : (
           items.map(item => {
             const isSelected = selectedItems.includes(item.slug);
@@ -213,7 +223,9 @@ export function CatalogSidebar() {
         <AccordionSection title={'Space type'}>
           <div className={'flex items-center gap-2 flex-wrap py-1.5'}>
             {isSpacesLoading ? (
-              <div className={'text-sm text-neutral-400 animate-pulse'}>Loading...</div>
+              <div className={'text-sm text-neutral-400 animate-pulse'}>
+                Loading...
+              </div>
             ) : (
               (spaces || []).map(space => {
                 const isSelected = selectedSpaces.includes(space.slug);
@@ -260,7 +272,11 @@ export function CatalogSidebar() {
                   }
                 />
               </div>
-              <span className={'text-xs text-neutral-400 font-medium select-none'}>to</span>
+              <span
+                className={'text-xs text-neutral-400 font-medium select-none'}
+              >
+                to
+              </span>
               <div className={'relative flex-1'}>
                 <input
                   type={'text'}
@@ -283,7 +299,11 @@ export function CatalogSidebar() {
               className={'py-2 cursor-pointer'}
             />
 
-            <div className={'flex justify-between text-xs text-neutral-400 font-semibold select-none'}>
+            <div
+              className={
+                'flex justify-between text-xs text-neutral-400 font-semibold select-none'
+              }
+            >
               <span>$0k</span>
               <span>$20k</span>
             </div>

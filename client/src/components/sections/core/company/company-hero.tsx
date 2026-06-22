@@ -1,9 +1,10 @@
 'use client';
 
 import { Mail, MapPin, Star } from 'lucide-react';
+import Image from 'next/image';
+
 import { ROUTES } from '@/constants';
 import { ICompany } from '@/shared/types';
-import Image from 'next/image';
 
 interface CompanyHeroProps {
   company: ICompany;
@@ -24,16 +25,24 @@ export function CompanyHero({ company }: CompanyHeroProps) {
       style={{ height: '442px' }}
     >
       {companyBanner ? (
-          <img
-            src={companyBanner}
-            alt={company.name || 'Company Profile Preview'}
-            className={'w-full h-full object-cover'}
-          />
-        ) : (
-          <div className={"w-full h-full bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center"}>
-            <span className={"text-sm text-muted-foreground"}>No banner uploaded</span>
-          </div>
-        )}
+        <Image
+          src={companyBanner}
+          alt={company.name || 'Company Profile Preview'}
+          className={'w-full h-full object-cover'}
+          unoptimized
+          fill
+        />
+      ) : (
+        <div
+          className={
+            'w-full h-full bg-linear-to-br from-secondary/20 to-secondary/5 flex items-center justify-center'
+          }
+        >
+          <span className={'text-sm text-muted-foreground'}>
+            No banner uploaded
+          </span>
+        </div>
+      )}
 
       {/* Company Brand Card */}
       <div
@@ -43,39 +52,50 @@ export function CompanyHero({ company }: CompanyHeroProps) {
         style={{ width: '457px', height: '136px' }}
       >
         {companyLogo ? (
-            <div
+          <div
             className={
               'rounded-xl flex items-center justify-center shrink-0 overflow-hidden'
             }
             style={{ width: '120px', height: '120px' }}
-            >
-            <img
+          >
+            <Image
               src={companyLogo}
-              alt={"Logo"}
-              className={"w-full h-full object-cover"}
+              alt={'Logo'}
+              className={'w-full h-full object-cover'}
+              unoptimized
+              fill
             />
           </div>
         ) : (
           <div
-          className={
-            'rounded-xl bg-neutral-500 flex items-center justify-center shrink-0 overflow-hidden'
-          }
-          style={{ width: '120px', height: '120px' }}
+            className={
+              'rounded-xl bg-neutral-500 flex items-center justify-center shrink-0 overflow-hidden'
+            }
+            style={{ width: '120px', height: '120px' }}
           >
-          {/* Logo - for now using abbreviation text */}
-              <span className={'text-white text-2xl font-bold uppercase tracking-tighter'}>
-                {company.abbreviation || company.name.substring(0, 3)}
-              </span>
-        </div>
-          )}
+            {/* Logo - for now using abbreviation text */}
+            <span
+              className={
+                'text-white text-2xl font-bold uppercase tracking-tighter'
+              }
+            >
+              {company.abbreviation || company.name.substring(0, 3)}
+            </span>
+          </div>
+        )}
 
         <div className={'flex flex-col flex-1 justify-between h-full py-2'}>
           <div>
             <h1 className={'text-2xl font-bold text-neutral-900 leading-tight'}>
               {company.name}
             </h1>
-            <p className={'text-xs uppercase tracking-widest text-neutral-400 font-bold mt-1'}>
-              {company.showroomAddress?.split(',').pop()?.trim() || 'Location unknown'}
+            <p
+              className={
+                'text-xs uppercase tracking-widest text-neutral-400 font-bold mt-1'
+              }
+            >
+              {company.showroomAddress?.split(',').pop()?.trim() ||
+                'Location unknown'}
             </p>
           </div>
           <div className={'flex items-center gap-0.5 mt-auto'}>
@@ -122,7 +142,11 @@ export function CompanyHero({ company }: CompanyHeroProps) {
 
         <div className={'space-y-4'}>
           <div className={'flex items-center gap-3'}>
-            <span className={'text-[10px] font-bold uppercase tracking-widest text-neutral-400'}>
+            <span
+              className={
+                'text-[10px] font-bold uppercase tracking-widest text-neutral-400'
+              }
+            >
               Lead Time
             </span>
             <span className={'text-sm font-bold text-neutral-900'}>
@@ -130,7 +154,11 @@ export function CompanyHero({ company }: CompanyHeroProps) {
             </span>
           </div>
 
-          <button className={'text-[10px] font-bold uppercase tracking-widest text-secondary underline underline-offset-4 hover:text-secondary/80 transition-colors text-left w-fit'}>
+          <button
+            className={
+              'text-[10px] font-bold uppercase tracking-widest text-secondary underline underline-offset-4 hover:text-secondary/80 transition-colors text-left w-fit'
+            }
+          >
             Company's Terms of Use
           </button>
         </div>

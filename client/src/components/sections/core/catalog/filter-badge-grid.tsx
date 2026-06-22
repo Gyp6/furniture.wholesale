@@ -4,7 +4,7 @@ import { FilterBadge } from '@ui/filter-badge';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Button } from '@/components/ui/shadcn/button';
-import { useGetCategories, useGetTags, useGetSpaces } from '@/hooks/queries';
+import { useGetCategories, useGetSpaces, useGetTags } from '@/hooks/queries';
 
 export function FilterBadgeGrid() {
   const router = useRouter();
@@ -70,7 +70,9 @@ export function FilterBadgeGrid() {
           <FilterBadge
             key={catSlug}
             title={cat?.title || catSlug}
-            action={() => removeFilter('categories', catSlug, selectedCategories)}
+            action={() =>
+              removeFilter('categories', catSlug, selectedCategories)
+            }
           />
         );
       })}

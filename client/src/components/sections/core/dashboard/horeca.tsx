@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowUpRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/shadcn/button';
@@ -12,8 +13,6 @@ import {
 } from '@/components/ui/shadcn/carousel';
 import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import { ORDER_STATUS_STYLES } from '@/constants/dashboard.const';
-import { useRouter } from 'next/navigation';
-
 import { useGetMyBundles, useGetMyOrders } from '@/hooks/queries';
 import { authClient } from '@/lib';
 import { CurationToolsData, HoRecaStatsData } from '@/shared/data/dashboard';
@@ -182,73 +181,96 @@ export function HoRecaDashboardPage() {
               {ordersLoading ? (
                 <div className={'flex flex-col gap-2 p-4'}>
                   {[...Array(5)].map((_, i) => (
-                    <Skeleton key={i} className={'h-12 rounded-xl'} />
+                    <Skeleton
+                      key={i}
+                      className={'h-12 rounded-xl'}
+                    />
                   ))}
                 </div>
               ) : orders && orders.length > 0 ? (
                 orders.map((order, i) => (
-                <div
-                  key={order.id || i}
-                  className={
-                    'grid grid-cols-[0.8fr_0.8fr_1fr_1fr_0.8fr_1fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors cursor-pointer'
-                  }
-                  onClick={() => { setSelectedOrderId(order.id); setModalOpen(true); }}
-                >
-                  <span className={'text-sm font-medium text-muted-foreground'}>
-                    #{order.id.slice(0, 8).toUpperCase()}
-                  </span>
-
-                  <div className={'flex items-center gap-1'}>
-                    <div className={'flex -space-x-2'}>
-                      <div
-                        className={
-                          'w-6 h-6 rounded-full bg-neutral-300 border-2 border-white'
-                        }
-                      />
-                    </div>
-                    <span className={'text-[14px] text-muted-foreground ml-0.5'}>
-                      {order.subOrders?.reduce((s, so) => s + so.items.length, 0) ?? 0} items
-                    </span>
-                  </div>
-
-                  <span className={'text-sm text-muted-foreground'}>
-                    {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </span>
-
-                  <span
-                    className={`inline-flex w-fit px-2.5 py-0.5 rounded-full text-[14px] font-bold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status as EOrderStatus] ?? 'bg-neutral-100 text-neutral-700'}`}
-                  >
-                    {order.status}
-                  </span>
-
-                  <span className={'text-sm font-semibold'}>
-                    ${(order.totalAmount ?? 0).toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                    })}
-                  </span>
-
-                  <Button
-                    variant={'secondary'}
-                    size={'sm'}
+                  <div
+                    key={order.id || i}
                     className={
-                      'rounded-2xl gap-1 text-[14px] w-full h-10 px-3 bg-secondary/15 text-secondary hover:bg-secondary/25'
+                      'grid grid-cols-[0.8fr_0.8fr_1fr_1fr_0.8fr_1fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors cursor-pointer'
                     }
-                    onClick={e => {
-                      e.stopPropagation();
+                    onClick={() => {
                       setSelectedOrderId(order.id);
                       setModalOpen(true);
                     }}
                   >
-                    <ICONS.RefreshLoading
-                      size={20}
-                      color={'currentColor'}
-                    />
-                    Order again
-                  </Button>
-                </div>
+                    <span
+                      className={'text-sm font-medium text-muted-foreground'}
+                    >
+                      #{order.id.slice(0, 8).toUpperCase()}
+                    </span>
+
+                    <div className={'flex items-center gap-1'}>
+                      <div className={'flex -space-x-2'}>
+                        <div
+                          className={
+                            'w-6 h-6 rounded-full bg-neutral-300 border-2 border-white'
+                          }
+                        />
+                      </div>
+                      <span
+                        className={'text-[14px] text-muted-foreground ml-0.5'}
+                      >
+                        {order.subOrders?.reduce(
+                          (s, so) => s + so.items.length,
+                          0,
+                        ) ?? 0}{' '}
+                        items
+                      </span>
+                    </div>
+
+                    <span className={'text-sm text-muted-foreground'}>
+                      {new Date(order.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </span>
+
+                    <span
+                      className={`inline-flex w-fit px-2.5 py-0.5 rounded-full text-[14px] font-bold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status as EOrderStatus] ?? 'bg-neutral-100 text-neutral-700'}`}
+                    >
+                      {order.status}
+                    </span>
+
+                    <span className={'text-sm font-semibold'}>
+                      $
+                      {(order.totalAmount ?? 0).toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+
+                    <Button
+                      variant={'secondary'}
+                      size={'sm'}
+                      className={
+                        'rounded-2xl gap-1 text-[14px] w-full h-10 px-3 bg-secondary/15 text-secondary hover:bg-secondary/25'
+                      }
+                      onClick={e => {
+                        e.stopPropagation();
+                        setSelectedOrderId(order.id);
+                        setModalOpen(true);
+                      }}
+                    >
+                      <ICONS.RefreshLoading
+                        size={20}
+                        color={'currentColor'}
+                      />
+                      Order again
+                    </Button>
+                  </div>
                 ))
               ) : (
-                <div className={'flex items-center justify-center h-full py-12 text-muted-foreground text-sm'}>
+                <div
+                  className={
+                    'flex items-center justify-center h-full py-12 text-muted-foreground text-sm'
+                  }
+                >
                   No orders yet. Start shopping!
                 </div>
               )}
@@ -256,7 +278,9 @@ export function HoRecaDashboardPage() {
           </div>
         </div>
 
-        <div className={'lg:w-[600px] w-full shrink-0 flex flex-col gap-4 min-h-0'}>
+        <div
+          className={'lg:w-[600px] w-full shrink-0 flex flex-col gap-4 min-h-0'}
+        >
           <div>
             <h2 className={'text-2xl font-semibold mb-3'}>Statistics</h2>
             <div className={'grid grid-cols-3 gap-3'}>
@@ -299,7 +323,10 @@ export function HoRecaDashboardPage() {
             {bundlesLoading ? (
               <div className={'flex gap-2'}>
                 {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} className={'w-[150px] h-[160px] rounded-2xl shrink-0'} />
+                  <Skeleton
+                    key={i}
+                    className={'w-[150px] h-[160px] rounded-2xl shrink-0'}
+                  />
                 ))}
               </div>
             ) : bundles && bundles.length > 0 ? (
@@ -328,17 +355,25 @@ export function HoRecaDashboardPage() {
                               'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center'
                             }
                           >
-                            <ArrowUpRight className={'w-4 h-4 text-secondary'} />
+                            <ArrowUpRight
+                              className={'w-4 h-4 text-secondary'}
+                            />
                           </div>
                         </div>
                         <div>
-                          <p className={'text-sm font-semibold leading-tight line-clamp-2'}>
+                          <p
+                            className={
+                              'text-sm font-semibold leading-tight line-clamp-2'
+                            }
+                          >
                             {bundle.name}
                           </p>
                           <p className={'text-xs text-muted-foreground mt-1'}>
                             {bundle.items.length} Items
                           </p>
-                          <p className={'text-xs font-bold text-secondary mt-1'}>
+                          <p
+                            className={'text-xs font-bold text-secondary mt-1'}
+                          >
                             ${bundle.totalPrice.toLocaleString()}
                           </p>
                         </div>
@@ -353,7 +388,9 @@ export function HoRecaDashboardPage() {
                 />
               </Carousel>
             ) : (
-              <p className={'text-sm text-muted-foreground'}>No active bundles yet.</p>
+              <p className={'text-sm text-muted-foreground'}>
+                No active bundles yet.
+              </p>
             )}
           </div>
 

@@ -1,5 +1,3 @@
-import { ROUTES } from '@/constants';
-
 export const StatsData = [
   {
     icon: 'Cart',

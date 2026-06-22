@@ -1,22 +1,22 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 import { MapPin, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/shadcn/button';
-import { Input } from '@/components/ui/shadcn/input';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/shadcn/dialog';
-import { useCreateOrder, useGetSpaces, useCheckStock } from '@/hooks/queries';
+import { Input } from '@/components/ui/shadcn/input';
+import { useCheckStock, useCreateOrder, useGetSpaces } from '@/hooks/queries';
+import { bundleService } from '@/services';
 import { ICONS } from '@/shared/data/icons';
 import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
-import { bundleService } from '@/services';
 
 function OrderSummaryHeader() {
   return <h2 className={'text-xl font-bold'}>Order Summary</h2>;
@@ -26,7 +26,9 @@ function OrderSummaryContent() {
   const store = useSpaceBundleStore(state => state);
 
   if (!store) {
-    return <div className={"h-40 animate-pulse bg-neutral-50 rounded-[60px]"} />;
+    return (
+      <div className={'h-40 animate-pulse bg-neutral-50 rounded-[60px]'} />
+    );
   }
 
   const { items, totalPrice } = store;
@@ -137,7 +139,10 @@ function OrderSummaryFooter() {
     if (productItems.length > 0) {
       try {
         const stockResults = await checkStock(
-          productItems.map(i => ({ productId: i.productId!, quantity: i.quantity })),
+          productItems.map(i => ({
+            productId: i.productId!,
+            quantity: i.quantity,
+          })),
         );
 
         const outOfStock = stockResults.filter(r => !r.sufficient);
@@ -179,7 +184,7 @@ function OrderSummaryFooter() {
 
     toast.promise(createPromise, {
       loading: 'Placing your order...',
-      success: (data) => {
+      success: data => {
         clearBundle();
         setShippingAddress('');
         setTimeout(() => router.push(`/orders/${data.id}/confirmation`), 1500);
@@ -258,7 +263,9 @@ function OrderSummaryFooter() {
       success: isEditing
         ? 'Project updated successfully! Redirecting...'
         : 'Project saved successfully as draft! Redirecting...',
-      error: isEditing ? 'Failed to update project.' : 'Failed to save project.',
+      error: isEditing
+        ? 'Failed to update project.'
+        : 'Failed to save project.',
     });
 
     try {
@@ -273,7 +280,9 @@ function OrderSummaryFooter() {
   return (
     <>
       <div
-        className={'flex flex-col sm:flex-row items-center justify-center gap-4'}
+        className={
+          'flex flex-col sm:flex-row items-center justify-center gap-4'
+        }
       >
         <Button
           variant={'secondary'}
@@ -281,7 +290,9 @@ function OrderSummaryFooter() {
             'rounded-full px-8 gap-2 bg-secondary/10 text-secondary hover:bg-secondary/20 h-12 w-full sm:w-[220px]'
           }
           onClick={handleSaveToProjects}
-          disabled={items.length === 0 || isPending || isSavingProject || isChecking}
+          disabled={
+            items.length === 0 || isPending || isSavingProject || isChecking
+          }
         >
           <ICONS.Bundles
             size={20}
@@ -297,44 +308,59 @@ function OrderSummaryFooter() {
           variant={'default'}
           className={'rounded-full px-8 gap-2 h-12 w-full sm:w-[280px]'}
           onClick={handlePlaceOrderClick}
-          disabled={items.length === 0 || isPending || isSavingProject || isChecking}
+          disabled={
+            items.length === 0 || isPending || isSavingProject || isChecking
+          }
         >
           <ICONS.Bundle
             size={20}
             color={'currentColor'}
           />
-          {isChecking ? 'Checking stock...' : isPending ? 'Placing Order...' : 'Confirm and Place Order'}
+          {isChecking
+            ? 'Checking stock...'
+            : isPending
+              ? 'Placing Order...'
+              : 'Confirm and Place Order'}
         </Button>
       </div>
 
-      <Dialog open={addressModalOpen} onOpenChange={setAddressModalOpen}>
+      <Dialog
+        open={addressModalOpen}
+        onOpenChange={setAddressModalOpen}
+      >
         <DialogContent
-          className={"rounded-2xl p-6 flex flex-col gap-5 sm:max-w-[500px]"}
+          className={'rounded-2xl p-6 flex flex-col gap-5 sm:max-w-[500px]'}
           showCloseButton={false}
         >
           <button
             onClick={() => setAddressModalOpen(false)}
-            className={"absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center hover:bg-neutral-100 transition-colors"}
+            className={
+              'absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center hover:bg-neutral-100 transition-colors'
+            }
           >
-            <X className={"w-4 h-4 text-muted-foreground"} />
+            <X className={'w-4 h-4 text-muted-foreground'} />
           </button>
           <DialogHeader>
-            <DialogTitle className={"text-lg font-semibold"}>
+            <DialogTitle className={'text-lg font-semibold'}>
               Delivery Address
             </DialogTitle>
           </DialogHeader>
 
-          <div className={"flex flex-col gap-4"}>
-            <p className={"text-sm text-muted-foreground"}>
+          <div className={'flex flex-col gap-4'}>
+            <p className={'text-sm text-muted-foreground'}>
               Enter the delivery address for your order
             </p>
-            <div className={"relative"}>
-              <MapPin className={"absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"} />
+            <div className={'relative'}>
+              <MapPin
+                className={
+                  'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground'
+                }
+              />
               <Input
-                placeholder={"Enter full delivery address"}
+                placeholder={'Enter full delivery address'}
                 value={shippingAddress}
                 onChange={e => setShippingAddress(e.target.value)}
-                className={"pl-10 h-12 rounded-xl"}
+                className={'pl-10 h-12 rounded-xl'}
                 onKeyDown={e => {
                   if (e.key === 'Enter') handleConfirmOrder();
                 }}
@@ -342,21 +368,28 @@ function OrderSummaryFooter() {
             </div>
           </div>
 
-          <div className={"flex items-center gap-3 pt-2 border-t border-neutral-100"}>
+          <div
+            className={
+              'flex items-center gap-3 pt-2 border-t border-neutral-100'
+            }
+          >
             <Button
-              variant={"outline"}
-              className={"rounded-full h-11 flex-1"}
+              variant={'outline'}
+              className={'rounded-full h-11 flex-1'}
               onClick={() => setAddressModalOpen(false)}
             >
               Cancel
             </Button>
             <Button
-              variant={"default"}
-              className={"rounded-full h-11 flex-1 gap-2"}
+              variant={'default'}
+              className={'rounded-full h-11 flex-1 gap-2'}
               onClick={handleConfirmOrder}
               disabled={!shippingAddress.trim() || isPending}
             >
-              <ICONS.Bundle size={16} color={"currentColor"} />
+              <ICONS.Bundle
+                size={16}
+                color={'currentColor'}
+              />
               Place Order
             </Button>
           </div>

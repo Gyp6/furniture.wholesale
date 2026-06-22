@@ -1,13 +1,12 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { ArrowUpRight, Check, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/shadcn/button';
-import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import {
   Select,
   SelectContent,
@@ -15,20 +14,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/shadcn/select';
+import { Skeleton } from '@/components/ui/shadcn/skeleton';
+import { ROUTES } from '@/constants';
 import {
   CATEGORY_STYLES,
   ORDER_STATUS_STYLES,
 } from '@/constants/dashboard.const';
-import { useGetMyBundles, useGetReceivedOrders, useUpdateOrderStatus } from '@/hooks/queries';
+import {
+  useGetMyBundles,
+  useGetReceivedOrders,
+  useUpdateOrderStatus,
+} from '@/hooks/queries';
 import { useGetMyProducts } from '@/hooks/queries/catalog.query';
 import { authClient } from '@/lib';
 import { bundleService, productService } from '@/services';
-import { CurationToolsData } from '@/shared/data/dashboard';
 import { ICONS } from '@/shared/data/icons';
-import { EOrderStatus } from '@/shared/enums/dashboard.enum';
 
 import { OrderDetailsModal } from './order-details-modal';
-import { ROUTES } from '@/constants';
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   Cart: (
@@ -65,13 +67,17 @@ export function SupplierProfessionalDashboardPage() {
 
   const { data: rawOrders, isLoading: ordersLoading } = useGetReceivedOrders();
   const orders = rawOrders as any[] | undefined;
-  const { data: bundles, isLoading: bundlesLoading } = useGetMyBundles('SUPPLIER');
+  const { data: bundles, isLoading: bundlesLoading } =
+    useGetMyBundles('SUPPLIER');
   const { data: products, isLoading: productsLoading } = useGetMyProducts();
   const { mutate: updateStatus } = useUpdateOrderStatus();
 
   const queryClient = useQueryClient();
 
-  const handleBundleStatusChange = async (bundleId: string, newStatus: string) => {
+  const handleBundleStatusChange = async (
+    bundleId: string,
+    newStatus: string,
+  ) => {
     try {
       await bundleService.update(bundleId, { status: newStatus } as any);
       queryClient.invalidateQueries({ queryKey: ['bundles'] });
@@ -82,7 +88,10 @@ export function SupplierProfessionalDashboardPage() {
     }
   };
 
-  const handleProductStatusChange = async (productId: string, newStatus: string) => {
+  const handleProductStatusChange = async (
+    productId: string,
+    newStatus: string,
+  ) => {
     try {
       await productService.updateStatus(productId, newStatus);
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -97,7 +106,15 @@ export function SupplierProfessionalDashboardPage() {
   const totalSales = orders
     ? orders
         .filter(o => o.status !== 'CANCELLED')
-        .reduce((sum: number, o: any) => sum + o.items.reduce((s: number, it: any) => s + (it.priceSnapshot * it.quantity), 0), 0)
+        .reduce(
+          (sum: number, o: any) =>
+            sum +
+            o.items.reduce(
+              (s: number, it: any) => s + it.priceSnapshot * it.quantity,
+              0,
+            ),
+          0,
+        )
     : 0;
 
   const activeBundlesCount = bundles
@@ -191,7 +208,15 @@ export function SupplierProfessionalDashboardPage() {
                 'grid grid-cols-[0.8fr_1.2fr_0.8fr_1fr_1fr_0.8fr_1.2fr] px-5 py-3 border-b border-neutral-100 shrink-0'
               }
             >
-              {['ORDER ID', 'CLIENT', 'ITEMS', 'DATE', 'STATUS', 'TOTAL', 'ACTIONS'].map(col => (
+              {[
+                'ORDER ID',
+                'CLIENT',
+                'ITEMS',
+                'DATE',
+                'STATUS',
+                'TOTAL',
+                'ACTIONS',
+              ].map(col => (
                 <span
                   key={col}
                   className={
@@ -207,13 +232,17 @@ export function SupplierProfessionalDashboardPage() {
               {ordersLoading ? (
                 <div className={'flex flex-col gap-2 p-4'}>
                   {[...Array(5)].map((_, i) => (
-                    <Skeleton key={i} className={'h-12 rounded-xl'} />
+                    <Skeleton
+                      key={i}
+                      className={'h-12 rounded-xl'}
+                    />
                   ))}
                 </div>
               ) : orders && orders.length > 0 ? (
                 orders.map((order, i) => {
                   const subTotal = order.items.reduce(
-                    (sum: number, item: any) => sum + item.priceSnapshot * item.quantity,
+                    (sum: number, item: any) =>
+                      sum + item.priceSnapshot * item.quantity,
                     0,
                   );
                   return (
@@ -227,15 +256,27 @@ export function SupplierProfessionalDashboardPage() {
                         setDetailsOpen(true);
                       }}
                     >
-                      <span className={'text-sm font-medium text-muted-foreground'}>
+                      <span
+                        className={'text-sm font-medium text-muted-foreground'}
+                      >
                         #{order.id.slice(0, 8).toUpperCase()}
                       </span>
 
                       <div className={'flex flex-col min-w-0'}>
-                        <span className={'text-sm font-semibold text-neutral-800 truncate'}>
-                          {order.buyer?.profile?.company?.name || order.buyer?.name || 'Individual client'}
+                        <span
+                          className={
+                            'text-sm font-semibold text-neutral-800 truncate'
+                          }
+                        >
+                          {order.buyer?.profile?.company?.name ||
+                            order.buyer?.name ||
+                            'Individual client'}
                         </span>
-                        <span className={'text-[11px] text-muted-foreground truncate'}>
+                        <span
+                          className={
+                            'text-[11px] text-muted-foreground truncate'
+                          }
+                        >
                           {order.buyer?.email}
                         </span>
                       </div>
@@ -248,7 +289,9 @@ export function SupplierProfessionalDashboardPage() {
                             }
                           />
                         </div>
-                        <span className={'text-[14px] text-muted-foreground ml-0.5'}>
+                        <span
+                          className={'text-[14px] text-muted-foreground ml-0.5'}
+                        >
                           {order.items?.length || 0} items
                         </span>
                       </div>
@@ -268,7 +311,8 @@ export function SupplierProfessionalDashboardPage() {
                       </span>
 
                       <span className={'text-sm font-semibold'}>
-                        ${subTotal.toLocaleString('en-US', {
+                        $
+                        {subTotal.toLocaleString('en-US', {
                           minimumFractionDigits: 2,
                         })}
                       </span>
@@ -292,7 +336,8 @@ export function SupplierProfessionalDashboardPage() {
                                 }),
                                 {
                                   loading: 'Confirming order...',
-                                  success: 'Order confirmed! Stock has been updated.',
+                                  success:
+                                    'Order confirmed! Stock has been updated.',
                                   error: 'Failed to confirm order.',
                                 },
                               );
@@ -360,7 +405,11 @@ export function SupplierProfessionalDashboardPage() {
                   );
                 })
               ) : (
-                <div className={'flex items-center justify-center h-full py-12 text-muted-foreground text-sm'}>
+                <div
+                  className={
+                    'flex items-center justify-center h-full py-12 text-muted-foreground text-sm'
+                  }
+                >
                   No orders received yet.
                 </div>
               )}
@@ -368,7 +417,9 @@ export function SupplierProfessionalDashboardPage() {
           </div>
         </div>
 
-        <div className={'lg:w-[600px] w-full shrink-0 flex flex-col gap-4 min-h-0'}>
+        <div
+          className={'lg:w-[600px] w-full shrink-0 flex flex-col gap-4 min-h-0'}
+        >
           <div
             className={
               'rounded-2xl bg-white overflow-hidden flex flex-col shadow-[0_8px_40px_rgba(0,0,0,0.08)]'
@@ -420,13 +471,17 @@ export function SupplierProfessionalDashboardPage() {
               {(showProducts ? productsLoading : bundlesLoading) ? (
                 <div className={'flex flex-col gap-2 p-4'}>
                   {[...Array(3)].map((_, i) => (
-                    <Skeleton key={i} className={'h-10 rounded-xl'} />
+                    <Skeleton
+                      key={i}
+                      className={'h-10 rounded-xl'}
+                    />
                   ))}
                 </div>
               ) : showProducts ? (
                 products && products.length > 0 ? (
                   products.map((product, i) => {
-                    const categoryTitle = product.category?.title || 'Uncategorized';
+                    const categoryTitle =
+                      product.category?.title || 'Uncategorized';
                     return (
                       <div
                         key={product.id || i}
@@ -457,13 +512,22 @@ export function SupplierProfessionalDashboardPage() {
                           {product.stock} units
                         </span>
 
-                        <div className={'flex items-center'} onClick={(e) => e.stopPropagation()}>
+                        <div
+                          className={'flex items-center'}
+                          onClick={e => e.stopPropagation()}
+                        >
                           <Select
                             value={product.status}
-                            onValueChange={(value) => handleProductStatusChange(product.id, value)}
+                            onValueChange={value =>
+                              handleProductStatusChange(product.id, value)
+                            }
                           >
-                            <SelectTrigger className={"h-7 w-[110px] text-xs border-0 bg-transparent px-1 gap-1"}>
-                              <div className={"flex items-center gap-1"}>
+                            <SelectTrigger
+                              className={
+                                'h-7 w-[110px] text-xs border-0 bg-transparent px-1 gap-1'
+                              }
+                            >
+                              <div className={'flex items-center gap-1'}>
                                 <div
                                   className={`w-1.5 h-1.5 rounded-full ${product.status === 'ACTIVE' ? 'bg-green-500' : product.status === 'DRAFT' ? 'bg-yellow-500' : 'bg-neutral-300'}`}
                                 />
@@ -471,9 +535,11 @@ export function SupplierProfessionalDashboardPage() {
                               </div>
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value={"ACTIVE"}>Active</SelectItem>
-                              <SelectItem value={"INACTIVE"}>Inactive</SelectItem>
-                              <SelectItem value={"DRAFT"}>Draft</SelectItem>
+                              <SelectItem value={'ACTIVE'}>Active</SelectItem>
+                              <SelectItem value={'INACTIVE'}>
+                                Inactive
+                              </SelectItem>
+                              <SelectItem value={'DRAFT'}>Draft</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -483,7 +549,7 @@ export function SupplierProfessionalDashboardPage() {
                             className={
                               'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors'
                             }
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               router.push(`/product/${product.id}/edit`);
                             }}
@@ -498,7 +564,7 @@ export function SupplierProfessionalDashboardPage() {
                             className={
                               'w-8 h-8 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors'
                             }
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               // TODO: Delete product
                             }}
@@ -514,7 +580,11 @@ export function SupplierProfessionalDashboardPage() {
                     );
                   })
                 ) : (
-                  <div className={'flex items-center justify-center h-full py-8 text-muted-foreground text-sm'}>
+                  <div
+                    className={
+                      'flex items-center justify-center h-full py-8 text-muted-foreground text-sm'
+                    }
+                  >
                     No products in inventory.
                   </div>
                 )
@@ -552,10 +622,16 @@ export function SupplierProfessionalDashboardPage() {
                       <div className={'flex items-center'}>
                         <Select
                           value={bundle.status}
-                          onValueChange={(value) => handleBundleStatusChange(bundle.id, value)}
+                          onValueChange={value =>
+                            handleBundleStatusChange(bundle.id, value)
+                          }
                         >
-                          <SelectTrigger className={"h-7 w-[110px] text-xs border-0 bg-transparent px-1 gap-1"}>
-                            <div className={"flex items-center gap-1"}>
+                          <SelectTrigger
+                            className={
+                              'h-7 w-[110px] text-xs border-0 bg-transparent px-1 gap-1'
+                            }
+                          >
+                            <div className={'flex items-center gap-1'}>
                               <div
                                 className={`w-1.5 h-1.5 rounded-full ${bundle.status === 'ACTIVE' ? 'bg-green-500' : bundle.status === 'DRAFT' ? 'bg-yellow-500' : 'bg-neutral-300'}`}
                               />
@@ -563,9 +639,9 @@ export function SupplierProfessionalDashboardPage() {
                             </div>
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value={"ACTIVE"}>Active</SelectItem>
-                            <SelectItem value={"INACTIVE"}>Inactive</SelectItem>
-                            <SelectItem value={"DRAFT"}>Draft</SelectItem>
+                            <SelectItem value={'ACTIVE'}>Active</SelectItem>
+                            <SelectItem value={'INACTIVE'}>Inactive</SelectItem>
+                            <SelectItem value={'DRAFT'}>Draft</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -575,7 +651,9 @@ export function SupplierProfessionalDashboardPage() {
                           className={
                             'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors'
                           }
-                          onClick={() => router.push(`/bundle-edit/${bundle.id}`)}
+                          onClick={() =>
+                            router.push(`/bundle-edit/${bundle.id}`)
+                          }
                         >
                           <ICONS.PenFigma
                             size={14}
@@ -599,7 +677,11 @@ export function SupplierProfessionalDashboardPage() {
                   );
                 })
               ) : (
-                <div className={'flex items-center justify-center h-full py-8 text-muted-foreground text-sm'}>
+                <div
+                  className={
+                    'flex items-center justify-center h-full py-8 text-muted-foreground text-sm'
+                  }
+                >
                   No bundles in inventory.
                 </div>
               )}

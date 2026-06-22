@@ -6,8 +6,7 @@ export function proxy(request: NextRequest) {
 
   // Перехоплюємо всі запити на /api/v1/
   if (pathname.startsWith('/api/v1')) {
-    
-    // ВАЖЛИВО: Беремо внутрішній DNS докер-мережі. 
+    // ВАЖЛИВО: Беремо внутрішній DNS докер-мережі.
     // Оскільки контейнери в одному compose, 'http://backend:4200' — це найшвидший шлях!
     // Якщо не знайдено, фолбечимося на значення з .env.web
     const backendUrl = process.env.BACKEND_URL || 'http://backend:4200';

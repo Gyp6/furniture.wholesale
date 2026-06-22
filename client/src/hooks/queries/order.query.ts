@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { CreateOrderRequest, orderService } from '@/services/order.service';
 import { useAuthStatus } from '@/hooks/use-auth-status.hook';
+import { CreateOrderRequest, orderService } from '@/services/order.service';
 
 export const useGetMyOrders = () => {
   const { user } = useAuthStatus();

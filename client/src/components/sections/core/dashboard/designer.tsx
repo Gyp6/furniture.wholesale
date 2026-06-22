@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowUpRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/shadcn/button';
@@ -12,8 +13,6 @@ import {
 } from '@/components/ui/shadcn/carousel';
 import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import { ORDER_STATUS_STYLES } from '@/constants/dashboard.const';
-import { useRouter } from 'next/navigation';
-
 import { useGetMyBundles, useGetMyOrders } from '@/hooks/queries';
 import { authClient } from '@/lib';
 import { CurationToolsData } from '@/shared/data/dashboard';
@@ -22,8 +21,8 @@ import { EOrderStatus } from '@/shared/enums/dashboard.enum';
 import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
 import { useUnsavedChangesStore } from '@/store/use-unsaved-changes.store';
 
-import { OutOfStockModal } from './out-of-stock-modal';
 import { OrderDetailsModal } from './order-details-modal';
+import { OutOfStockModal } from './out-of-stock-modal';
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   Cart: (
@@ -167,7 +166,10 @@ export function DesignerDashboardPage() {
               {ordersLoading ? (
                 <div className={'flex flex-col gap-2 p-4'}>
                   {[...Array(5)].map((_, i) => (
-                    <Skeleton key={i} className={'h-12 rounded-xl'} />
+                    <Skeleton
+                      key={i}
+                      className={'h-12 rounded-xl'}
+                    />
                   ))}
                 </div>
               ) : orders && orders.length > 0 ? (
@@ -182,7 +184,9 @@ export function DesignerDashboardPage() {
                       setDetailsOpen(true);
                     }}
                   >
-                    <span className={'text-sm font-medium text-muted-foreground'}>
+                    <span
+                      className={'text-sm font-medium text-muted-foreground'}
+                    >
                       #{order.id.slice(0, 8).toUpperCase()}
                     </span>
 
@@ -194,8 +198,14 @@ export function DesignerDashboardPage() {
                           }
                         />
                       </div>
-                      <span className={'text-[14px] text-muted-foreground ml-0.5'}>
-                        {order.subOrders?.reduce((s, so) => s + so.items.length, 0) ?? 0} items
+                      <span
+                        className={'text-[14px] text-muted-foreground ml-0.5'}
+                      >
+                        {order.subOrders?.reduce(
+                          (s, so) => s + so.items.length,
+                          0,
+                        ) ?? 0}{' '}
+                        items
                       </span>
                     </div>
 
@@ -240,7 +250,11 @@ export function DesignerDashboardPage() {
                   </div>
                 ))
               ) : (
-                <div className={'flex items-center justify-center h-full py-12 text-muted-foreground text-sm'}>
+                <div
+                  className={
+                    'flex items-center justify-center h-full py-12 text-muted-foreground text-sm'
+                  }
+                >
                   No orders yet. Start shopping!
                 </div>
               )}
@@ -248,7 +262,9 @@ export function DesignerDashboardPage() {
           </div>
         </div>
 
-        <div className={'lg:w-[600px] w-full shrink-0 flex flex-col gap-4 min-h-0'}>
+        <div
+          className={'lg:w-[600px] w-full shrink-0 flex flex-col gap-4 min-h-0'}
+        >
           <div>
             <h2 className={'text-2xl font-semibold mb-3'}>Statistics</h2>
             <div className={'grid grid-cols-2 gap-4'}>
@@ -291,7 +307,10 @@ export function DesignerDashboardPage() {
             {bundlesLoading ? (
               <div className={'flex gap-2'}>
                 {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} className={'w-[150px] h-[160px] rounded-2xl shrink-0'} />
+                  <Skeleton
+                    key={i}
+                    className={'w-[150px] h-[160px] rounded-2xl shrink-0'}
+                  />
                 ))}
               </div>
             ) : bundles && bundles.length > 0 ? (
@@ -320,17 +339,25 @@ export function DesignerDashboardPage() {
                               'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center'
                             }
                           >
-                            <ArrowUpRight className={'w-4 h-4 text-secondary'} />
+                            <ArrowUpRight
+                              className={'w-4 h-4 text-secondary'}
+                            />
                           </div>
                         </div>
                         <div>
-                          <p className={'text-sm font-semibold leading-tight line-clamp-2'}>
+                          <p
+                            className={
+                              'text-sm font-semibold leading-tight line-clamp-2'
+                            }
+                          >
                             {bundle.name}
                           </p>
                           <p className={'text-xs text-muted-foreground mt-1'}>
                             {bundle.items.length} Items
                           </p>
-                          <p className={'text-xs font-bold text-secondary mt-1'}>
+                          <p
+                            className={'text-xs font-bold text-secondary mt-1'}
+                          >
                             ${bundle.totalPrice.toLocaleString()}
                           </p>
                         </div>
@@ -345,7 +372,9 @@ export function DesignerDashboardPage() {
                 />
               </Carousel>
             ) : (
-              <p className={'text-sm text-muted-foreground'}>No active projects yet.</p>
+              <p className={'text-sm text-muted-foreground'}>
+                No active projects yet.
+              </p>
             )}
           </div>
 

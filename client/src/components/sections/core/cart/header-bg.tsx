@@ -10,10 +10,6 @@ import { bundleService } from '@/services';
 import { ICONS } from '@/shared/data/icons';
 import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
 
-type TProjectHeaderProps = {
-  title?: string;
-};
-
 export function ProjectHeader() {
   const store = useSpaceBundleStore();
   const name = store.name || 'New Project Bundle';

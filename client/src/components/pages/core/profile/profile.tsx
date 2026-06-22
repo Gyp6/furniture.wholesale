@@ -85,7 +85,9 @@ export function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className={'min-h-screen w-full bg-secondary/10 px-10 py-10 pt-[94px]'}>
+      <div
+        className={'min-h-screen w-full bg-secondary/10 px-10 py-10 pt-[94px]'}
+      >
         <div className={'flex gap-10'}>
           <div className={'flex-1 flex flex-col gap-6'}>
             <Skeleton className={'h-20 w-1/3 rounded-xl'} />
@@ -107,13 +109,23 @@ export function ProfilePage() {
       <div className={'flex gap-10'}>
         <div className={'flex-1 flex flex-col gap-6'}>
           <ProfileHeader />
-          <BrandIdentity formData={formData} onChange={handleFieldChange} companyTaxCode={company?.taxCode} />
-          <BusinessTerms formData={formData} onChange={handleFieldChange} />
+          <BrandIdentity
+            formData={formData}
+            onChange={handleFieldChange}
+            companyTaxCode={company?.taxCode}
+          />
+          <BusinessTerms
+            formData={formData}
+            onChange={handleFieldChange}
+          />
         </div>
 
         <div className={'w-[413px] shrink-0 flex flex-col gap-4 pt-2'}>
           <div className={'bg-white rounded-[30px] p-6'}>
-            <ProfilePreview formData={formData} companyTaxCode={company?.taxCode} />
+            <ProfilePreview
+              formData={formData}
+              companyTaxCode={company?.taxCode}
+            />
           </div>
           <div className={'flex items-center gap-3'}>
             <Button

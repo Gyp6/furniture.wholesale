@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/shadcn/input';
 import { RoleButtonsConfig } from '@/config';
 import { useRegisterForm } from '@/hooks';
 import { cn } from '@/lib/cn';
-import { horecaType, specifications } from '@/shared/data/auth';
+import { horecaType } from '@/shared/data/auth';
 
 export function RegisterForm() {
   const {

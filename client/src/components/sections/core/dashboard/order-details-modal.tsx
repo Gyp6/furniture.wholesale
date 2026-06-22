@@ -12,9 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/shadcn/dialog';
+import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import { useGetOrder } from '@/hooks/queries';
 import { ICONS } from '@/shared/data/icons';
-import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import { useSpaceBundleStore } from '@/store/use-space-bundle.store';
 
 type TOrderDetailsModalProps = {
@@ -34,23 +34,23 @@ export function OrderDetailsModal({
 
   // Flatten items across all sub-orders in the order, or display directly if it is a single sub-order (supplier view)
   const orderItems = order
-    ? ('subOrders' in order && order.subOrders
-        ? (order.subOrders as any[]).flatMap((sub) =>
-            (sub.items as any[]).map((item) => ({
-              ...item,
-              supplierName:
-                sub.supplier?.profile?.company?.name ||
-                sub.supplier?.name ||
-                'Supplier',
-            }))
-          )
-        : ((order as any).items as any[] || []).map((item) => ({
+    ? 'subOrders' in order && order.subOrders
+      ? (order.subOrders as any[]).flatMap(sub =>
+          (sub.items as any[]).map(item => ({
             ...item,
             supplierName:
-              (order as any).supplier?.profile?.company?.name ||
-              (order as any).supplier?.name ||
+              sub.supplier?.profile?.company?.name ||
+              sub.supplier?.name ||
               'Supplier',
-          })))
+          })),
+        )
+      : (((order as any).items as any[]) || []).map(item => ({
+          ...item,
+          supplierName:
+            (order as any).supplier?.profile?.company?.name ||
+            (order as any).supplier?.name ||
+            'Supplier',
+        }))
     : [];
 
   return (
@@ -77,9 +77,12 @@ export function OrderDetailsModal({
         </DialogHeader>
 
         {isLoading ? (
-          <div className={"grid grid-cols-3 gap-4"}>
+          <div className={'grid grid-cols-3 gap-4'}>
             {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className={"h-[200px] rounded-2xl"} />
+              <Skeleton
+                key={i}
+                className={'h-[200px] rounded-2xl'}
+              />
             ))}
           </div>
         ) : orderItems.length > 0 ? (
@@ -88,7 +91,7 @@ export function OrderDetailsModal({
               'grid grid-cols-3 gap-4 overflow-y-auto max-h-[500px] scrollbar-hide'
             }
           >
-            {orderItems.map((item) => (
+            {orderItems.map(item => (
               <OrderCard
                 key={item.id}
                 name={item.titleSnapshot}
@@ -102,7 +105,7 @@ export function OrderDetailsModal({
             ))}
           </div>
         ) : (
-          <div className={"text-center py-8 text-muted-foreground text-sm"}>
+          <div className={'text-center py-8 text-muted-foreground text-sm'}>
             No items found in this order.
           </div>
         )}

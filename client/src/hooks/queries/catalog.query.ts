@@ -1,5 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useAuthStatus } from '@/hooks/use-auth-status.hook';
 import {
   categoryService,
   IProductParams,
@@ -7,7 +8,6 @@ import {
   productTagService,
   spaceService,
 } from '@/services';
-import { useAuthStatus } from '@/hooks/use-auth-status.hook';
 
 export const useGetCategories = () =>
   useQuery({
