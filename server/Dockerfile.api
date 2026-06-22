@@ -38,9 +38,9 @@ RUN addgroup --system --gid 1001 nodejs \
 RUN chown nestjs:nodejs /app
 
 # 3. Copy only package and lock files, built code, and the Prisma schema
-COPY --chown=nestjs:nodejs package.json bun.lock ./
+COPY --chown=nestjs:nodejs package.json bun.lock prisma.config.ts ./
 COPY --chown=nestjs:nodejs --from=builder /app/dist ./dist
-COPY --chown=nestjs:nodejs src/infrastructure/prisma/schema.prisma ./src/infrastructure/prisma/schema.prisma
+COPY --chown=nestjs:nodejs src ./src
 
 # 👇 COPY THE TSCONFIG SO BUN CAN RESOLVE ALIASES AT RUNTIME
 COPY --chown=nestjs:nodejs tsconfig.json ./
