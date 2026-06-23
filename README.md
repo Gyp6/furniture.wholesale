@@ -290,7 +290,8 @@ cd client && bun run dev
 Коли додаток успішно запущено, сервіси доступні за адресами:
 *   **Next.js Frontend:** [http://localhost:3000](http://localhost:3000)
 *   **NestJS Backend API:** [http://localhost:4200/api](http://localhost:4200/api)
-*   **Swagger API Docs:** [http://localhost:4200/docs](http://localhost:4200/docs)
+*   **Swagger API Docs:** [http://localhost:4200/docs/swagger](http://localhost:4200/docs/swagger)
+*   **Scalar API Reference:** [http://localhost:4200/docs/scalar](http://localhost:4200/docs/scalar)
 *   **PostgreSQL Port:** `5432` (доступи вказані у вашому `.env`)
 *   **Redis Port:** `6379`
 
@@ -485,26 +486,29 @@ bunx prisma migrate status
 
 ### Інтерактивна документація API
 
-Коли бекенд запущений, відвідайте
-[http://localhost:4200/docs](http://localhost:4200/docs) для інтерактивної
-документації Swagger.
+Коли бекенд запущений, ви можете використовувати наступні ресурси для тестування та перегляду API:
+* **Swagger UI:** [http://localhost:4200/docs/swagger](http://localhost:4200/docs/swagger)
+* **Scalar API Reference:** [http://localhost:4200/docs/scalar](http://localhost:4200/docs/scalar)
 
-Всі ендпоінти задокументовані через декоратори `@nestjs/swagger` та генеруються
-автоматично в OpenAPI 3.0 форматі.
+Всі ендпоінти задокументовані через декоратори `@nestjs/swagger` та генеруються автоматично в OpenAPI 3.0 форматі.
 
 ### Основні ендпоінти
 
-| Метод     | Ендпоінт                  | Опис                          | Доступ |
-| --------- | ------------------------- | ----------------------------- | ------ |
-| **POST**  | `/api/auth/login`         | Вхід через аутентифікацію     | Public |
-| **POST**  | `/api/auth/verify-otp`    | Верифікація OTP               | Public |
-| **GET**   | `/api/catalog`            | Список меблів з фільтрацією   | Public |
-| **POST**  | `/api/orders`             | Створення оптового замовлення | User   |
-| **GET**   | `/api/orders/{id}`        | Деталі замовлення             | User   |
-| **PATCH** | `/api/orders/{id}/status` | Зміна статусу замовлення      | Admin  |
-| **GET**   | `/api/user/me`            | Профіль поточного користувача | User   |
+| Метод     | Ендпоінт                       | Опис                                      | Доступ |
+| --------- | ------------------------------ | ----------------------------------------- | ------ |
+| **POST**  | `/api/v1/auth/sign-in/email`   | Вхід за допомогою email та пароля         | Public |
+| **POST**  | `/api/v1/auth/sign-up/email`   | Реєстрація нового користувача             | Public |
+| **POST**  | `/api/v1/user/verify-email`    | Верифікація email за допомогою OTP        | User   |
+| **GET**   | `/api/v1/user/me`              | Отримання профілю поточного користувача   | User   |
+| **GET**   | `/api/v1/products`             | Список активних товарів з фільтрацією     | Public |
+| **POST**  | `/api/v1/products`             | Додавання нового товару                   | Supplier |
+| **GET**   | `/api/v1/bundles/my`           | Отримання власних бандлів користувача     | User   |
+| **POST**  | `/api/v1/orders`               | Створення оптового замовлення             | User   |
+| **GET**   | `/api/v1/orders/my`            | Список створених замовлень поточного користувача | User |
+| **PATCH** | `/api/v1/orders/{id}/status`   | Зміна статусу замовлення або субаутпуту   | Supplier/Admin |
+| **GET**   | `/api/v1/company/{id}`         | Отримання деталей компанії за її ID       | Public |
 
-**Все ендпоінти потребують префіксу `/api`**
+**Усі ендпоінти мають префікс версіонування `/api/v1/`**
 
 ### Аутентифікація
 
@@ -512,21 +516,17 @@ bunx prisma migrate status
 
 - **OAuth2**: Вхід через Google з автоматичним створенням користувача
 - **Email OTP**: Верифікація email через одноразові коди
-- **HttpOnly Cookies**: Токени зберігаються в захищених cookie без доступу з
-  JavaScript
-- **CASL**: Управління дозволами на основі ролей (RETAILER, DESIGNER, HORECA,
-  SUPPLIER, ADMIN)
+- **HttpOnly Cookies**: Токени зберігаються в захищених cookie без доступу з JavaScript
+- **CASL**: Управління дозволами на основі ролей (RETAILER, DESIGNER, HORECA, SUPPLIER, ADMIN)
 
-**Детальніше про аутентифікацію** в
-[API контракті](docs/specs/api-contract-&-specification.md).
+**Детальніше про аутентифікацію** в [API контракті](docs/specs/api-contract-&-specification.md).
 
 ### Примітка для розробників
 
-За умовчанням, фронтенд має доступ до API через проксі-конфігурацію в
-`next.config.ts`:
+За умовчанням, фронтенд проксує запити до API через проксі-функцію (`proxy.ts` / Next.js Middleware):
 
 ```typescript
-// Запити на /api/* перенаправляються на http://localhost:4200/api
+// Запити на /api/v1/* перенаправляються на http://localhost:4200/api/v1/* (або BACKEND_URL)
 ```
 
 ---
