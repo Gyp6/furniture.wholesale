@@ -22,7 +22,7 @@ const VALID_PRODUCT = {
     depth: 900,
   },
   tags: ['Nordic', 'Scandinavian'],
-  spaceType: 'APARTMENT',
+  spaces: ['APARTMENT'],
 };
 
 // Загортаємо все в асинхронну функцію, щоб не було Top-Level await
@@ -50,7 +50,7 @@ async function runTest() {
     stock: 0,
     images: [],
     tags: ['A'],
-    spaceType: 'INVALID_ENUM_VALUE',
+    spaces: [],
   };
 
   const badErrors = await getValidationErrors(badProduct);
