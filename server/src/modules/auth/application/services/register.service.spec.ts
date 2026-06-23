@@ -1,17 +1,19 @@
-import 'reflect-metadata';
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
 import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { useContainer } from 'class-validator';
-import { RegisterService } from './register.service';
-import { PrismaService } from '@/infrastructure/prisma/prisma.service';
-import { OtpService } from '@/infrastructure/otp/otp.service';
+import 'reflect-metadata';
+
 import { IsUniqueConstraint } from '@/common/validators/is-unique.validator';
+import { OtpService } from '@/infrastructure/otp/otp.service';
+import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 import {
   COMPANY_REPOSITORY,
   type ICompanyRepository,
   type IProfileRepository,
   PROFILE_REPOSITORY,
 } from '@/modules/identity/domain/contracts';
+
+import { RegisterService } from './register.service';
 
 describe('RegisterService', () => {
   let service: RegisterService;
@@ -21,17 +23,21 @@ describe('RegisterService', () => {
   let prismaService: PrismaService;
 
   const mockCompanyRepository = {
-    findByTaxCode: mock((taxCode: string, tx?: any) => Promise.resolve(null as any)),
-    findByAbbreviation: mock((abbr: string, tx?: any) => Promise.resolve(null as any)),
-    create: mock((dto: any, tx?: any) => Promise.resolve(null as any)),
+    findByTaxCode: mock((_taxCode: string, _tx?: any) =>
+      Promise.resolve(null as any),
+    ),
+    findByAbbreviation: mock((_abbr: string, _tx?: any) =>
+      Promise.resolve(null as any),
+    ),
+    create: mock((_dto: any, _tx?: any) => Promise.resolve(null as any)),
   };
 
   const mockProfileRepository = {
-    create: mock((dto: any, tx?: any) => Promise.resolve(null as any)),
+    create: mock((_dto: any, _tx?: any) => Promise.resolve(null as any)),
   };
 
   const mockOtpService = {
-    sendCode: mock((email: string) => Promise.resolve()),
+    sendCode: mock((_email: string) => Promise.resolve()),
   };
 
   const mockPrismaService = {
@@ -124,8 +130,14 @@ describe('RegisterService', () => {
       };
 
       // Mock existing company exists
-      const mockCompany = { id: 'company-id', name: 'Cool Tables', taxCode: '11111111' };
-      mockCompanyRepository.findByTaxCode.mockImplementation(() => Promise.resolve(mockCompany));
+      const mockCompany = {
+        id: 'company-id',
+        name: 'Cool Tables',
+        taxCode: '11111111',
+      };
+      mockCompanyRepository.findByTaxCode.mockImplementation(() =>
+        Promise.resolve(mockCompany),
+      );
 
       // Invoke afterSignUp
       service.afterSignUp(mockContext as any);
@@ -134,7 +146,10 @@ describe('RegisterService', () => {
       await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(prismaService.$transaction).toHaveBeenCalled();
-      expect(companyRepository.findByTaxCode).toHaveBeenCalledWith('11111111', 'mock-tx-client');
+      expect(companyRepository.findByTaxCode).toHaveBeenCalledWith(
+        '11111111',
+        'mock-tx-client',
+      );
       expect(profileRepository.create).toHaveBeenCalledWith(
         {
           user: { connect: { id: 'new-user-id' } },
@@ -162,10 +177,12 @@ describe('RegisterService', () => {
         },
       };
 
-      mockCompanyRepository.findByTaxCode.mockImplementation(() => Promise.resolve(null));
+      mockCompanyRepository.findByTaxCode.mockImplementation(() =>
+        Promise.resolve(null),
+      );
       // First check for abbreviation 'USC' returns existing company, next check returns null to test loop
       let callCount = 0;
-      mockCompanyRepository.findByAbbreviation.mockImplementation((abbr) => {
+      mockCompanyRepository.findByAbbreviation.mockImplementation(_abbr => {
         callCount++;
         if (callCount === 1) {
           return Promise.resolve({ id: 'existing' } as any);
@@ -173,8 +190,14 @@ describe('RegisterService', () => {
         return Promise.resolve(null);
       });
 
-      const newCompany = { id: 'new-company-id', name: 'Unique Sofa Corp', taxCode: '22222222' };
-      mockCompanyRepository.create.mockImplementation(() => Promise.resolve(newCompany));
+      const newCompany = {
+        id: 'new-company-id',
+        name: 'Unique Sofa Corp',
+        taxCode: '22222222',
+      };
+      mockCompanyRepository.create.mockImplementation(() =>
+        Promise.resolve(newCompany),
+      );
 
       // Invoke
       service.afterSignUp(mockContext as any);
@@ -182,7 +205,10 @@ describe('RegisterService', () => {
       await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(prismaService.$transaction).toHaveBeenCalled();
-      expect(companyRepository.findByTaxCode).toHaveBeenCalledWith('22222222', 'mock-tx-client');
+      expect(companyRepository.findByTaxCode).toHaveBeenCalledWith(
+        '22222222',
+        'mock-tx-client',
+      );
       // Abbreviation generated for "Unique Sofa Corp" starts with "US"
       // Loop: USC is taken, so USC1, etc.
       expect(companyRepository.findByAbbreviation).toHaveBeenCalledTimes(2);

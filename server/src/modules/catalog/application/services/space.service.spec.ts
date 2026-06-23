@@ -1,9 +1,13 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
-import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
-import { SpaceService } from './space.service';
-import { SPACE_REPOSITORY, type ISpaceRepository } from '@catalog/domain/contracts';
+import {
+  type ISpaceRepository,
+  SPACE_REPOSITORY,
+} from '@catalog/domain/contracts';
 import { Space } from '@catalog/domain/entities';
+import { NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
+import { SpaceService } from './space.service';
 
 describe('SpaceService', () => {
   let service: SpaceService;
@@ -11,8 +15,8 @@ describe('SpaceService', () => {
 
   const mockSpaceRepository = {
     findAll: mock(() => Promise.resolve([])),
-    findById: mock((id: string) => Promise.resolve(null)),
-    findBySlug: mock((slug: string) => Promise.resolve(null)),
+    findById: mock((_id: string) => Promise.resolve(null)),
+    findBySlug: mock((_slug: string) => Promise.resolve(null)),
   };
 
   beforeEach(async () => {
@@ -40,7 +44,9 @@ describe('SpaceService', () => {
         new Space('1', 'Living Room', 'living-room'),
         new Space('2', 'Bedroom', 'bedroom'),
       ];
-      mockSpaceRepository.findAll.mockImplementation(() => Promise.resolve(mockSpaces));
+      mockSpaceRepository.findAll.mockImplementation(() =>
+        Promise.resolve(mockSpaces),
+      );
 
       const result = await service.findAll();
       expect(result).toHaveLength(2);
@@ -56,7 +62,9 @@ describe('SpaceService', () => {
   describe('findById', () => {
     it('should return space if found', async () => {
       const mockSpace = new Space('123', 'Kitchen', 'kitchen');
-      mockSpaceRepository.findById.mockImplementation((id) => Promise.resolve(mockSpace));
+      mockSpaceRepository.findById.mockImplementation(_id =>
+        Promise.resolve(mockSpace),
+      );
 
       const result = await service.findById('123');
       expect(result).toEqual({
@@ -68,7 +76,9 @@ describe('SpaceService', () => {
     });
 
     it('should throw NotFoundException if not found', async () => {
-      mockSpaceRepository.findById.mockImplementation((id) => Promise.resolve(null));
+      mockSpaceRepository.findById.mockImplementation(_id =>
+        Promise.resolve(null),
+      );
 
       expect(service.findById('123')).rejects.toThrow(NotFoundException);
     });
@@ -77,7 +87,9 @@ describe('SpaceService', () => {
   describe('findBySlug', () => {
     it('should return space if found by slug', async () => {
       const mockSpace = new Space('456', 'Bathroom', 'bathroom');
-      mockSpaceRepository.findBySlug.mockImplementation((slug) => Promise.resolve(mockSpace));
+      mockSpaceRepository.findBySlug.mockImplementation(_slug =>
+        Promise.resolve(mockSpace),
+      );
 
       const result = await service.findBySlug('bathroom');
       expect(result).toEqual({
@@ -89,9 +101,13 @@ describe('SpaceService', () => {
     });
 
     it('should throw NotFoundException if not found by slug', async () => {
-      mockSpaceRepository.findBySlug.mockImplementation((slug) => Promise.resolve(null));
+      mockSpaceRepository.findBySlug.mockImplementation(_slug =>
+        Promise.resolve(null),
+      );
 
-      expect(service.findBySlug('some-slug')).rejects.toThrow(NotFoundException);
+      expect(service.findBySlug('some-slug')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

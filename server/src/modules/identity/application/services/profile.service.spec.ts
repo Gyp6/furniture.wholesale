@@ -1,9 +1,13 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
-import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
-import { ProfileService } from './profile.service';
-import { PROFILE_REPOSITORY, type IProfileRepository } from '@identity/domain/contracts';
+import {
+  type IProfileRepository,
+  PROFILE_REPOSITORY,
+} from '@identity/domain/contracts';
 import { Profile } from '@identity/domain/entities';
+import { NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
+import { ProfileService } from './profile.service';
 
 describe('ProfileService', () => {
   let service: ProfileService;
@@ -12,7 +16,7 @@ describe('ProfileService', () => {
   const mockProfile = new Profile('profile-id', 'user-id', 'company-id', null);
 
   const mockProfileRepository = {
-    findByUserId: mock((userId: string) => Promise.resolve(null as any)),
+    findByUserId: mock((_userId: string) => Promise.resolve(null as any)),
   };
 
   beforeEach(async () => {
@@ -34,7 +38,9 @@ describe('ProfileService', () => {
 
   describe('getByUserId', () => {
     it('should return profile mapped to response if found', async () => {
-      mockProfileRepository.findByUserId.mockImplementation((userId) => Promise.resolve(mockProfile));
+      mockProfileRepository.findByUserId.mockImplementation(_userId =>
+        Promise.resolve(mockProfile),
+      );
 
       const result = await service.getByUserId('user-id');
       expect(result.id).toBe('profile-id');
@@ -43,16 +49,22 @@ describe('ProfileService', () => {
     });
 
     it('should throw NotFoundException if profile not found by userId', async () => {
-      mockProfileRepository.findByUserId.mockImplementation((userId) => Promise.resolve(null));
+      mockProfileRepository.findByUserId.mockImplementation(_userId =>
+        Promise.resolve(null),
+      );
 
       expect(service.getByUserId('user-id')).rejects.toThrow(NotFoundException);
-      expect(service.getByUserId('user-id')).rejects.toThrow('Profile not found');
+      expect(service.getByUserId('user-id')).rejects.toThrow(
+        'Profile not found',
+      );
     });
   });
 
   describe('getEntityByUserId', () => {
     it('should return raw entity if found', async () => {
-      mockProfileRepository.findByUserId.mockImplementation((userId) => Promise.resolve(mockProfile));
+      mockProfileRepository.findByUserId.mockImplementation(_userId =>
+        Promise.resolve(mockProfile),
+      );
 
       const result = await service.getEntityByUserId('user-id');
       expect(result).toBe(mockProfile);
@@ -60,9 +72,13 @@ describe('ProfileService', () => {
     });
 
     it('should throw NotFoundException if entity not found by userId', async () => {
-      mockProfileRepository.findByUserId.mockImplementation((userId) => Promise.resolve(null));
+      mockProfileRepository.findByUserId.mockImplementation(_userId =>
+        Promise.resolve(null),
+      );
 
-      expect(service.getEntityByUserId('user-id')).rejects.toThrow(NotFoundException);
+      expect(service.getEntityByUserId('user-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

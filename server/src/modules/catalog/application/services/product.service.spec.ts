@@ -1,13 +1,18 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
-import { Test, TestingModule } from '@nestjs/testing';
+import {
+  type IProductRepository,
+  PRODUCT_REPOSITORY,
+} from '@catalog/domain/contracts';
+import { Product } from '@catalog/domain/entities';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ProductService } from './product.service';
-import { ProfileService } from '@/modules/identity/application/services';
-import { CategoryService } from './category.service';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
 import { S3Service } from '@/infrastructure/s3/s3.service';
-import { PRODUCT_REPOSITORY, type IProductRepository } from '@catalog/domain/contracts';
-import { Product } from '@catalog/domain/entities';
+import { ProfileService } from '@/modules/identity/application/services';
+
+import { CategoryService } from './category.service';
+import { ProductService } from './product.service';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -17,7 +22,11 @@ describe('ProductService', () => {
   let configService: ConfigService;
   let s3Service: S3Service;
 
-  const createMockProduct = (id = 'product-id', status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED' = 'ACTIVE', supplierId = 'supplier-id') => {
+  const createMockProduct = (
+    id = 'product-id',
+    status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED' = 'ACTIVE',
+    supplierId = 'supplier-id',
+  ) => {
     return new Product(
       id,
       'sku-123',
@@ -36,8 +45,22 @@ describe('ProductService', () => {
       new Date(),
       new Date(),
       { id: 'category-id', title: 'Chairs', slug: 'chairs' },
-      { id: supplierId, name: 'Supplier', email: 'supplier@example.com', emailVerified: true, image: null, role: 'SUPPLIER', banned: false },
-      { id: 'company-id', name: 'Furniture Corp', specializations: [], verificationStatus: 'APPROVED', ratingAvg: 4 },
+      {
+        id: supplierId,
+        name: 'Supplier',
+        email: 'supplier@example.com',
+        emailVerified: true,
+        image: null,
+        role: 'SUPPLIER',
+        banned: false,
+      },
+      {
+        id: 'company-id',
+        name: 'Furniture Corp',
+        specializations: [],
+        verificationStatus: 'APPROVED',
+        ratingAvg: 4,
+      },
       { id: 'dimension-id', width: 50, height: 90, depth: 50 },
       [],
       [],
@@ -46,21 +69,26 @@ describe('ProductService', () => {
 
   const mockProductRepository = {
     findAll: mock(() => Promise.resolve([])),
-    findBySupplier: mock((userId: string) => Promise.resolve([])),
-    findOne: mock((id: string) => Promise.resolve(null as any)),
-    findRaw: mock((id: string) => Promise.resolve(null as any)),
-    create: mock((userId: string, companyId: string, skuDto: any, dto: any) => Promise.resolve(null as any)),
-    update: mock((id: string, dto: any) => Promise.resolve(null as any)),
-    updateStatus: mock((id: string, status: any) => Promise.resolve(null as any)),
-    delete: mock((id: string) => Promise.resolve()),
+    findBySupplier: mock((_userId: string) => Promise.resolve([])),
+    findOne: mock((_id: string) => Promise.resolve(null as any)),
+    findRaw: mock((_id: string) => Promise.resolve(null as any)),
+    create: mock(
+      (_userId: string, _companyId: string, _skuDto: any, _dto: any) =>
+        Promise.resolve(null as any),
+    ),
+    update: mock((_id: string, _dto: any) => Promise.resolve(null as any)),
+    updateStatus: mock((_id: string, _status: any) =>
+      Promise.resolve(null as any),
+    ),
+    delete: mock((_id: string) => Promise.resolve()),
   };
 
   const mockProfileService = {
-    getEntityByUserId: mock((userId: string) => Promise.resolve(null as any)),
+    getEntityByUserId: mock((_userId: string) => Promise.resolve(null as any)),
   };
 
   const mockCategoryService = {
-    findById: mock((id: string) => Promise.resolve(null as any)),
+    findById: mock((_id: string) => Promise.resolve(null as any)),
   };
 
   const mockConfigService = {
@@ -71,13 +99,13 @@ describe('ProductService', () => {
   };
 
   const mockS3Service = {
-    copyObject: mock((source: string, dest: string) => Promise.resolve()),
-    deleteObject: mock((key: string) => Promise.resolve()),
+    copyObject: mock((_source: string, _dest: string) => Promise.resolve()),
+    deleteObject: mock((_key: string) => Promise.resolve()),
   };
 
   const mockAbility = {
-    cannot: mock((action: string, subject: any) => false),
-    can: mock((action: string, subject: any) => true),
+    cannot: mock((_action: string, _subject: any) => false),
+    can: mock((_action: string, _subject: any) => true),
   };
 
   beforeEach(async () => {
@@ -118,7 +146,9 @@ describe('ProductService', () => {
   describe('findAll', () => {
     it('should return all products mapped to response', async () => {
       const mockProduct = createMockProduct();
-      mockProductRepository.findAll.mockImplementation(() => Promise.resolve([mockProduct]));
+      mockProductRepository.findAll.mockImplementation(() =>
+        Promise.resolve([mockProduct]),
+      );
 
       const result = await service.findAll({ id: 'user-id' } as any);
       expect(result).toHaveLength(1);
@@ -127,7 +157,9 @@ describe('ProductService', () => {
 
     it('should return unauthorized products layout if user is null', async () => {
       const mockProduct = createMockProduct();
-      mockProductRepository.findAll.mockImplementation(() => Promise.resolve([mockProduct]));
+      mockProductRepository.findAll.mockImplementation(() =>
+        Promise.resolve([mockProduct]),
+      );
 
       const result = await service.findAll(null);
       expect(result).toHaveLength(1);
@@ -139,25 +171,33 @@ describe('ProductService', () => {
   describe('findMyProducts', () => {
     it('should return products owned by the supplier', async () => {
       const mockProduct = createMockProduct();
-      mockProductRepository.findBySupplier.mockImplementation(() => Promise.resolve([mockProduct]));
+      mockProductRepository.findBySupplier.mockImplementation(() =>
+        Promise.resolve([mockProduct]),
+      );
 
       const result = await service.findMyProducts('supplier-id');
       expect(result).toHaveLength(1);
-      expect(mockProductRepository.findBySupplier).toHaveBeenCalledWith('supplier-id');
+      expect(mockProductRepository.findBySupplier).toHaveBeenCalledWith(
+        'supplier-id',
+      );
     });
   });
 
   describe('findById', () => {
     it('should return product if found', async () => {
       const mockProduct = createMockProduct();
-      mockProductRepository.findOne.mockImplementation(() => Promise.resolve(mockProduct));
+      mockProductRepository.findOne.mockImplementation(() =>
+        Promise.resolve(mockProduct),
+      );
 
       const result = await service.findById('product-id');
       expect(result.id).toBe('product-id');
     });
 
     it('should throw NotFoundException if not found', async () => {
-      mockProductRepository.findOne.mockImplementation(() => Promise.resolve(null));
+      mockProductRepository.findOne.mockImplementation(() =>
+        Promise.resolve(null),
+      );
       expect(service.findById('product-id')).rejects.toThrow(NotFoundException);
     });
   });
@@ -171,7 +211,10 @@ describe('ProductService', () => {
         price: 50,
         stock: 10,
         categoryId: 'category-id',
-        images: ['products/image1.png', 'http://localhost:4566/furniture-wholesale-bucket/catalog/product/GYP6-xxx/0.png'],
+        images: [
+          'products/image1.png',
+          'http://localhost:4566/furniture-wholesale-bucket/catalog/product/GYP6-xxx/0.png',
+        ],
       };
 
       const mockProfile = {
@@ -179,11 +222,21 @@ describe('ProductService', () => {
         company: { name: 'Company Name', abbreviation: 'COMP' },
       };
 
-      mockProfileService.getEntityByUserId.mockImplementation(() => Promise.resolve(mockProfile));
-      mockCategoryService.findById.mockImplementation(() => Promise.resolve({ id: 'category-id' } as any));
+      mockProfileService.getEntityByUserId.mockImplementation(() =>
+        Promise.resolve(mockProfile),
+      );
+      mockCategoryService.findById.mockImplementation(() =>
+        Promise.resolve({ id: 'category-id' } as any),
+      );
 
-      const createdProduct = createMockProduct('product-new', 'ACTIVE', 'supplier-id');
-      mockProductRepository.create.mockImplementation(() => Promise.resolve(createdProduct));
+      const createdProduct = createMockProduct(
+        'product-new',
+        'ACTIVE',
+        'supplier-id',
+      );
+      mockProductRepository.create.mockImplementation(() =>
+        Promise.resolve(createdProduct),
+      );
 
       const result = await service.create(user as any, dto as any);
       expect(result.id).toBe('product-new');
@@ -193,54 +246,87 @@ describe('ProductService', () => {
     });
 
     it('should throw ForbiddenException if supplier profile has no company', async () => {
-      mockProfileService.getEntityByUserId.mockImplementation(() => Promise.resolve({ companyId: null }));
+      mockProfileService.getEntityByUserId.mockImplementation(() =>
+        Promise.resolve({ companyId: null }),
+      );
       const user = { id: 'supplier-id', role: 'SUPPLIER' };
       const dto = { title: 'Chair', categoryId: 'cat' };
 
-      expect(service.create(user as any, dto as any)).rejects.toThrow(ForbiddenException);
+      expect(service.create(user as any, dto as any)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 
   describe('update', () => {
     it('should update product if allowed by CASL ability', async () => {
       const rawProduct = { id: 'product-id', supplierId: 'supplier-id' };
-      mockProductRepository.findRaw.mockImplementation(() => Promise.resolve(rawProduct));
+      mockProductRepository.findRaw.mockImplementation(() =>
+        Promise.resolve(rawProduct),
+      );
 
       const updatedProduct = createMockProduct('product-id');
-      mockProductRepository.update.mockImplementation(() => Promise.resolve(updatedProduct));
+      mockProductRepository.update.mockImplementation(() =>
+        Promise.resolve(updatedProduct),
+      );
 
       const dto = { title: 'Updated Chair', images: [] };
-      const result = await service.update('product-id', dto as any, mockAbility as any);
+      const result = await service.update(
+        'product-id',
+        dto,
+        mockAbility as any,
+      );
       expect(result.id).toBe('product-id');
     });
 
     it('should throw ForbiddenException if user lacks update ability', async () => {
       const rawProduct = { id: 'product-id', supplierId: 'another-supplier' };
-      mockProductRepository.findRaw.mockImplementation(() => Promise.resolve(rawProduct));
+      mockProductRepository.findRaw.mockImplementation(() =>
+        Promise.resolve(rawProduct),
+      );
       mockAbility.cannot.mockImplementation(() => true);
 
-      expect(service.update('product-id', { title: 'Updated' } as any, mockAbility as any)).rejects.toThrow(ForbiddenException);
+      expect(
+        service.update(
+          'product-id',
+          { title: 'Updated' } as any,
+          mockAbility as any,
+        ),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
   describe('updateStatus', () => {
     it('should update status if allowed', async () => {
       const rawProduct = { id: 'product-id', supplierId: 'supplier-id' };
-      mockProductRepository.findRaw.mockImplementation(() => Promise.resolve(rawProduct));
+      mockProductRepository.findRaw.mockImplementation(() =>
+        Promise.resolve(rawProduct),
+      );
 
       const updated = createMockProduct('product-id', 'ACTIVE');
-      mockProductRepository.updateStatus.mockImplementation(() => Promise.resolve(updated));
+      mockProductRepository.updateStatus.mockImplementation(() =>
+        Promise.resolve(updated),
+      );
 
-      const result = await service.updateStatus('product-id', 'ACTIVE', mockAbility as any);
+      const result = await service.updateStatus(
+        'product-id',
+        'ACTIVE',
+        mockAbility as any,
+      );
       expect(result.id).toBe('product-id');
-      expect(mockProductRepository.updateStatus).toHaveBeenCalledWith('product-id', 'ACTIVE');
+      expect(mockProductRepository.updateStatus).toHaveBeenCalledWith(
+        'product-id',
+        'ACTIVE',
+      );
     });
   });
 
   describe('delete', () => {
     it('should delete product if allowed', async () => {
       const rawProduct = { id: 'product-id', supplierId: 'supplier-id' };
-      mockProductRepository.findRaw.mockImplementation(() => Promise.resolve(rawProduct));
+      mockProductRepository.findRaw.mockImplementation(() =>
+        Promise.resolve(rawProduct),
+      );
 
       await service.delete('product-id', mockAbility as any);
       expect(mockProductRepository.delete).toHaveBeenCalledWith('product-id');

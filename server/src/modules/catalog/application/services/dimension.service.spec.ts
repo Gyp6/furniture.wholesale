@@ -1,8 +1,12 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
-import { Test, TestingModule } from '@nestjs/testing';
-import { DimensionService } from './dimension.service';
-import { DIMENSION_REPOSITORY, type IDimensionRepository } from '@catalog/domain/contracts';
+import {
+  DIMENSION_REPOSITORY,
+  type IDimensionRepository,
+} from '@catalog/domain/contracts';
 import { Dimension } from '@catalog/domain/entities';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
+import { DimensionService } from './dimension.service';
 
 describe('DimensionService', () => {
   let service: DimensionService;
@@ -35,7 +39,9 @@ describe('DimensionService', () => {
         new Dimension('1', 10, 20, 30),
         new Dimension('2', 50, 60, 70),
       ];
-      mockDimensionRepository.findAll.mockImplementation(() => Promise.resolve(mockDimensions));
+      mockDimensionRepository.findAll.mockImplementation(() =>
+        Promise.resolve(mockDimensions),
+      );
 
       const result = await service.findAll();
       expect(result).toHaveLength(2);

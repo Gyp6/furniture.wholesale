@@ -1,9 +1,15 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
-import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
-import { CompanyService } from './company.service';
-import { COMPANY_REPOSITORY, type ICompanyRepository } from '@identity/domain/contracts';
+import {
+  COMPANY_REPOSITORY,
+  type ICompanyRepository,
+} from '@identity/domain/contracts';
 import { Company } from '@identity/domain/entities';
+import { NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
+import { COMPANY_STATUSES } from '@/common/constants';
+
+import { CompanyService } from './company.service';
 
 describe('CompanyService', () => {
   let service: CompanyService;
@@ -19,7 +25,7 @@ describe('CompanyService', () => {
     'Showroom 1',
     ['Sofa', 'Chairs'],
     '2 weeks',
-    'APPROVED',
+    COMPANY_STATUSES.PENDING,
     'Net 30',
     4.5,
     10,
@@ -27,9 +33,9 @@ describe('CompanyService', () => {
   );
 
   const mockCompanyRepository = {
-    findByTaxCode: mock((taxCode: string) => Promise.resolve(null as any)),
-    findById: mock((id: string) => Promise.resolve(null as any)),
-    update: mock((id: string, dto: any) => Promise.resolve(null as any)),
+    findByTaxCode: mock((_taxCode: string) => Promise.resolve(null as any)),
+    findById: mock((_id: string) => Promise.resolve(null as any)),
+    update: mock((_id: string, _dto: any) => Promise.resolve(null as any)),
   };
 
   beforeEach(async () => {
@@ -53,7 +59,9 @@ describe('CompanyService', () => {
 
   describe('findByTaxCode', () => {
     it('should return company if found', async () => {
-      mockCompanyRepository.findByTaxCode.mockImplementation((taxCode) => Promise.resolve(mockCompany));
+      mockCompanyRepository.findByTaxCode.mockImplementation(_taxCode =>
+        Promise.resolve(mockCompany),
+      );
 
       const result = await service.findByTaxCode('12345678');
       expect(result).not.toBeNull();
@@ -63,15 +71,21 @@ describe('CompanyService', () => {
     });
 
     it('should throw NotFoundException if company not found by tax code', async () => {
-      mockCompanyRepository.findByTaxCode.mockImplementation((taxCode) => Promise.resolve(null));
+      mockCompanyRepository.findByTaxCode.mockImplementation(_taxCode =>
+        Promise.resolve(null),
+      );
 
-      expect(service.findByTaxCode('12345678')).rejects.toThrow(NotFoundException);
+      expect(service.findByTaxCode('12345678')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
   describe('findById', () => {
     it('should return company if found', async () => {
-      mockCompanyRepository.findById.mockImplementation((id) => Promise.resolve(mockCompany));
+      mockCompanyRepository.findById.mockImplementation(_id =>
+        Promise.resolve(mockCompany),
+      );
 
       const result = await service.findById('company-id');
       expect(result.id).toBe('company-id');
@@ -79,7 +93,9 @@ describe('CompanyService', () => {
     });
 
     it('should throw NotFoundException if company not found by id', async () => {
-      mockCompanyRepository.findById.mockImplementation((id) => Promise.resolve(null));
+      mockCompanyRepository.findById.mockImplementation(_id =>
+        Promise.resolve(null),
+      );
 
       expect(service.findById('company-id')).rejects.toThrow(NotFoundException);
     });
@@ -87,8 +103,12 @@ describe('CompanyService', () => {
 
   describe('update', () => {
     it('should update company and return it if company exists', async () => {
-      mockCompanyRepository.findById.mockImplementation((id) => Promise.resolve(mockCompany));
-      mockCompanyRepository.update.mockImplementation((id, dto) => Promise.resolve({ ...mockCompany, ...dto }));
+      mockCompanyRepository.findById.mockImplementation(_id =>
+        Promise.resolve(mockCompany),
+      );
+      mockCompanyRepository.update.mockImplementation((id, dto) =>
+        Promise.resolve({ ...mockCompany, ...dto }),
+      );
 
       const updateDto = { description: 'Updated Description' };
       const result = await service.update('company-id', updateDto);
@@ -98,9 +118,13 @@ describe('CompanyService', () => {
     });
 
     it('should throw NotFoundException if updating non-existent company', async () => {
-      mockCompanyRepository.findById.mockImplementation((id) => Promise.resolve(null));
+      mockCompanyRepository.findById.mockImplementation(_id =>
+        Promise.resolve(null),
+      );
 
-      expect(service.update('company-id', { description: 'test' })).rejects.toThrow(NotFoundException);
+      expect(
+        service.update('company-id', { description: 'test' }),
+      ).rejects.toThrow(NotFoundException);
       expect(repository.update).not.toHaveBeenCalled();
     });
   });

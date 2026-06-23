@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
-import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
-import { TagService } from './tag.service';
-import { TAG_REPOSITORY, type ITagRepository } from '@catalog/domain/contracts';
+import { type ITagRepository, TAG_REPOSITORY } from '@catalog/domain/contracts';
 import { Tag } from '@catalog/domain/entities';
+import { NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
+import { TagService } from './tag.service';
 
 describe('TagService', () => {
   let service: TagService;
@@ -11,8 +12,8 @@ describe('TagService', () => {
 
   const mockTagRepository = {
     findAll: mock(() => Promise.resolve([])),
-    findById: mock((id: string) => Promise.resolve(null)),
-    findBySlug: mock((slug: string) => Promise.resolve(null)),
+    findById: mock((_id: string) => Promise.resolve(null)),
+    findBySlug: mock((_slug: string) => Promise.resolve(null)),
   };
 
   beforeEach(async () => {
@@ -40,7 +41,9 @@ describe('TagService', () => {
         new Tag('1', 'Tag 1', 'tag-1'),
         new Tag('2', 'Tag 2', 'tag-2'),
       ];
-      mockTagRepository.findAll.mockImplementation(() => Promise.resolve(mockTags));
+      mockTagRepository.findAll.mockImplementation(() =>
+        Promise.resolve(mockTags),
+      );
 
       const result = await service.findAll();
       expect(result).toHaveLength(2);
@@ -56,7 +59,9 @@ describe('TagService', () => {
   describe('findById', () => {
     it('should return a tag mapped to response if found', async () => {
       const mockTag = new Tag('123', 'Sample Tag', 'sample-tag');
-      mockTagRepository.findById.mockImplementation((id) => Promise.resolve(mockTag));
+      mockTagRepository.findById.mockImplementation(_id =>
+        Promise.resolve(mockTag),
+      );
 
       const result = await service.findById('123');
       expect(result).toEqual({
@@ -68,7 +73,9 @@ describe('TagService', () => {
     });
 
     it('should throw NotFoundException if tag not found by id', async () => {
-      mockTagRepository.findById.mockImplementation((id) => Promise.resolve(null));
+      mockTagRepository.findById.mockImplementation(_id =>
+        Promise.resolve(null),
+      );
 
       expect(service.findById('123')).rejects.toThrow(NotFoundException);
     });
@@ -77,7 +84,9 @@ describe('TagService', () => {
   describe('findBySlug', () => {
     it('should return a tag mapped to response if found by slug', async () => {
       const mockTag = new Tag('456', 'Another Tag', 'another-tag');
-      mockTagRepository.findBySlug.mockImplementation((slug) => Promise.resolve(mockTag));
+      mockTagRepository.findBySlug.mockImplementation(_slug =>
+        Promise.resolve(mockTag),
+      );
 
       const result = await service.findBySlug('another-tag');
       expect(result).toEqual({
@@ -89,9 +98,13 @@ describe('TagService', () => {
     });
 
     it('should throw NotFoundException if tag not found by slug', async () => {
-      mockTagRepository.findBySlug.mockImplementation((slug) => Promise.resolve(null));
+      mockTagRepository.findBySlug.mockImplementation(_slug =>
+        Promise.resolve(null),
+      );
 
-      expect(service.findBySlug('some-slug')).rejects.toThrow(NotFoundException);
+      expect(service.findBySlug('some-slug')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

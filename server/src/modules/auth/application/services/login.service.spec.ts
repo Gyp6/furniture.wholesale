@@ -1,9 +1,15 @@
-import 'reflect-metadata';
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
-import { Test, TestingModule } from '@nestjs/testing';
-import { LoginService } from './login.service';
-import { USER_REPOSITORY, type IUserRepository } from '@identity/domain/contracts';
+import {
+  type IUserRepository,
+  USER_REPOSITORY,
+} from '@identity/domain/contracts';
 import { User } from '@identity/domain/entities';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import 'reflect-metadata';
+
+import { ROLES } from '@/common/constants';
+
+import { LoginService } from './login.service';
 
 describe('LoginService', () => {
   let service: LoginService;
@@ -15,7 +21,7 @@ describe('LoginService', () => {
     'john@example.com',
     true,
     null,
-    'BUYER',
+    ROLES.HORECA,
     false,
     null,
     new Date(),
@@ -23,7 +29,7 @@ describe('LoginService', () => {
   );
 
   const mockUserRepository = {
-    findByEmail: mock((email: string) => Promise.resolve(null as any)),
+    findByEmail: mock((_email: string) => Promise.resolve(null as any)),
   };
 
   beforeEach(async () => {
@@ -45,7 +51,9 @@ describe('LoginService', () => {
 
   describe('beforeSignIn', () => {
     it('should pass if validation succeeds and user exists', async () => {
-      mockUserRepository.findByEmail.mockImplementation((email) => Promise.resolve(mockUser));
+      mockUserRepository.findByEmail.mockImplementation(_email =>
+        Promise.resolve(mockUser),
+      );
 
       const mockContext = {
         body: {
@@ -56,7 +64,9 @@ describe('LoginService', () => {
       };
 
       await service.beforeSignIn(mockContext as any);
-      expect(userRepository.findByEmail).toHaveBeenCalledWith('john@example.com');
+      expect(userRepository.findByEmail).toHaveBeenCalledWith(
+        'john@example.com',
+      );
     });
 
     it('should throw validation error if input is invalid (e.g. invalid email)', async () => {
@@ -72,7 +82,9 @@ describe('LoginService', () => {
     });
 
     it('should throw error if user is not found', async () => {
-      mockUserRepository.findByEmail.mockImplementation((email) => Promise.resolve(null));
+      mockUserRepository.findByEmail.mockImplementation(_email =>
+        Promise.resolve(null),
+      );
 
       const mockContext = {
         body: {
@@ -82,8 +94,12 @@ describe('LoginService', () => {
         error: mock((status, details) => new Error(details.message)),
       };
 
-      await expect(service.beforeSignIn(mockContext as any)).rejects.toThrow('Invalid email or password');
-      expect(userRepository.findByEmail).toHaveBeenCalledWith('nonexistent@example.com');
+      await expect(service.beforeSignIn(mockContext as any)).rejects.toThrow(
+        'Invalid email or password',
+      );
+      expect(userRepository.findByEmail).toHaveBeenCalledWith(
+        'nonexistent@example.com',
+      );
     });
   });
 });

@@ -1,10 +1,12 @@
-import 'reflect-metadata';
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
-import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { RecoveryService } from './recovery.service';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import 'reflect-metadata';
+
 import { MailService } from '@/infrastructure/mail/mail.service';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
+
+import { RecoveryService } from './recovery.service';
 
 describe('RecoveryService', () => {
   let service: RecoveryService;
@@ -19,7 +21,9 @@ describe('RecoveryService', () => {
   };
 
   const mockMailService = {
-    sendResetPassword: mock((email: string, url: string) => Promise.resolve()),
+    sendResetPassword: mock((_email: string, _url: string) =>
+      Promise.resolve(),
+    ),
   };
 
   const mockConfigService = {
@@ -70,7 +74,9 @@ describe('RecoveryService', () => {
         error: mock((status, details) => new Error(details.message)),
       };
 
-      await expect(service.beforeResetPassword(mockContext as any)).rejects.toThrow();
+      await expect(
+        service.beforeResetPassword(mockContext as any),
+      ).rejects.toThrow();
     });
   });
 
@@ -83,7 +89,9 @@ describe('RecoveryService', () => {
         createdAt: new Date(),
       };
 
-      mockPrismaService.verification.findFirst.mockImplementation(() => Promise.resolve(verificationRecord));
+      mockPrismaService.verification.findFirst.mockImplementation(() =>
+        Promise.resolve(verificationRecord),
+      );
 
       const mockContext = {
         body: {
@@ -101,7 +109,9 @@ describe('RecoveryService', () => {
     });
 
     it('should not send email if verification data is not found', async () => {
-      mockPrismaService.verification.findFirst.mockImplementation(() => Promise.resolve(null));
+      mockPrismaService.verification.findFirst.mockImplementation(() =>
+        Promise.resolve(null),
+      );
 
       const mockContext = {
         body: {
