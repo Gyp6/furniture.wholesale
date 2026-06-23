@@ -44,13 +44,12 @@
 **Furniture.Wholesale** — це B2B маркетплейс меблів, розроблений спеціально для
 бізнесів. Платформа об'єднує:
 
-- **Розпродавців** (Retailers) — компанії, що покупають меблі оптом для
+- **Продавців** (Retailers) — компанії, що покупають меблі оптом для
   перепродажу
 - **Дизайнерів** (Designers) — професіонали, що планують інтер'єри та потребують
   каталогу
 - **HORECA** — заклади харчування та готельного бізнесу
 - **Постачальників** (Suppliers) — виробники меблів, що пропонують товари оптом
-- **Адміністраторів** — управління контентом, модерація, аналітика
 
 Платформа забезпечує:
 
@@ -58,7 +57,7 @@
 - 📦 Централізований каталог меблів з фільтрацією
 - 🛒 Оптові замовлення з управлінням статусами
 - 👥 Профілі компаній та постачальників
-- 📊 Ролі та дозволи (RBAC) для контролю доступу
+- 📊 Ролі та дозволи (RBAC & ABAC) для контролю доступу
 - ⚡ Кешування для високої продуктивності
 
 ---
@@ -98,7 +97,7 @@
 
 - Email через Resend
 - S3-сумісне сховище файлів (LocalStack для розробки)
-- Queue для асинхронних операцій
+- BullMQ для фонових операцій
 
 ---
 
@@ -158,20 +157,21 @@
 
 | Рівень             | Технологія     | Версія  | Призначення                   |
 | ------------------ | -------------- | ------- | ----------------------------- |
-| **Frontend**       | Next.js        | 16.2.4  | React фреймворк з SSR         |
-|                    | React          | 19.2.5  | UI бібліотека                 |
-|                    | TypeScript     | Latest  | Типобезпека                   |
-|                    | Tailwind CSS   | Latest  | CSS фреймворк                 |
-|                    | Radix UI       | Latest  | UI компоненти                 |
-|                    | TanStack Query | 5.99    | Управління станом та запитами |
-|                    | TanStack Form  |         | Керування формами             |
-| **Backend**        | NestJS         | 11.1.19 | Node.js фреймворк             |
-|                    | TypeScript     | Latest  | Типобезпека                   |
-|                    | Prisma         | 7.x     | ORM для БД                    |
-|                    | Better Auth    | 1.6.6   | Аутентифікація                |
-|                    | CASL           | 6.8.0   | Управління дозволами          |
-|                    | BullMQ         | 11.x    | Job Queue                     |
-| **База даних**     | PostgreSQL     | 18      | Основна БД                    |
+| **Frontend**       | Next.js        | 16.2.9  | React фреймворк з SSR         |
+|                    | React          | 19.2.7  | UI бібліотека                 |
+|                    | TypeScript     | 6.x     | Типобезпека                   |
+|                    | Tailwind CSS   | 4.3.1   | CSS фреймворк                 |
+|                    | Shadcn UI      | 4.11.0  | UI компоненти                 |
+|                    | TanStack Query | 5.101.0 | Управління станом та запитами |
+|                    | TanStack Form  | 1.33.0  | Керування формами             |
+|                    | Zustand        | 5.0.14  | Управління локальним станом   |
+| **Backend**        | NestJS         | 11.1.27 | Node.js фреймворк             |
+|                    | TypeScript     | 6.x     | Типобезпека                   |
+|                    | Prisma         | 7.8.0   | ORM для БД                    |
+|                    | Better Auth    | 1.6.20  | Аутентифікація                |
+|                    | CASL           | 7.0.0   | Управління дозволами          |
+|                    | BullMQ         | 5.79.1  | Черга задач (Job Queue)       |
+| **База даних**     | PostgreSQL     | 18.3    | Основна реляційна БД          |
 |                    | Redis          | 8.2.5   | Кешування та сесії            |
 | **Infrastructure** | Docker         | Latest  | Контейнеризація               |
 |                    | Docker Compose | Latest  | Оркестрація контейнерів       |
@@ -290,7 +290,8 @@ cd client && bun run dev
 Коли додаток успішно запущено, сервіси доступні за адресами:
 *   **Next.js Frontend:** [http://localhost:3000](http://localhost:3000)
 *   **NestJS Backend API:** [http://localhost:4200/api](http://localhost:4200/api)
-*   **Swagger API Docs:** [http://localhost:4200/docs](http://localhost:4200/docs)
+*   **Swagger API Docs:** [http://localhost:4200/docs/swagger](http://localhost:4200/docs/swagger)
+*   **Scalar API Reference:** [http://localhost:4200/docs/scalar](http://localhost:4200/docs/scalar)
 *   **PostgreSQL Port:** `5432` (доступи вказані у вашому `.env`)
 *   **Redis Port:** `6379`
 
@@ -316,11 +317,14 @@ cd client && bun run dev
 Для збірки та запуску всього стеку додатку в Docker-середовищі (включаючи PostgreSQL 18, Redis, LocalStack, Next.js Standalone та NestJS API) виконайте:
 
 ```bash
-# Збірка та запуск продакшен контейнерів
-make prod-up
+# Збірка front-end частини
+cd client && docker buildx build --platform linux/amd64 --build-arg NEXT_PUBLIC_API_URL="http://furniture.wholesale/api/v1/" --build-arg NEXT_PUBLIC_FRONTEND_URL="http://furniture.wholesale" --build-arg NEXT_PUBLIC_BA_API_URL="http://furniture.wholesale" --build-arg NEXT_PUBLIC_BA_BASE_PATH="/api/v1/auth" --build-arg NEXT_PUBLIC_S3_URL="http://furniture.wholesale/uploads" -t furniture-web:latest -f "Dockerfile.web" --load . && cd ..
 
-# Перезбірка без кешу:
-make prod-rebuild
+# Збірка back-end частини
+cd server && docker buildx build --platform linux/amd64 -t furniture-api:latest -f "Dockerfile.api" --load . && cd ..
+
+# Запуск продакшен контейнерів
+make prod-up
 
 # Зупинка:
 make prod-down
@@ -333,89 +337,66 @@ make prod-down
 ```
 furniture.wholesale/
 ├── client/                          # Next.js фронтенд
-│   ├── app/                         # Next.js App Router
-│   │   ├── (public)/                # Публічні сторінки
-│   │   │   ├── (home)/              # Головна сторінка
-│   │   │   ├── auth/               # Авторизація та аутентифікація
-│   │   └── (crm)/                   # Приватні сторінки (вимагають аутентифікації)
-│   ├── src/
-│   │   ├── components/              # React компоненти
-│   │   │   ├── ui/                  # Перевикористовуємі UI компоненти
-│   │   │   ├── layout/              # Компоненти макета
-│   │   │   └── sections/            # Специфичні секції сторінок
-│   │   ├── hooks/                   # React хуки (useLocalStorage, useQuery)
-│   │   ├── lib/                     # Утиліти (auth.client.ts, utils.ts)
-│   │   ├── services/                # API клієнти та сервіси
-│   │   ├── store/                   # Управління станом (Zustand/Context)
-│   │   ├── styles/                  # Глобальні стилі
+│   ├── app/                         # Next.js App Router (сторінки та макети)
+│   │   ├── (public)/                # Публічний роут-груп
+│   │   │   ├── (auth)/              # Сторінки авторизації (login, register, forgot-password)
+│   │   │   └── (core)/              # Основні CRM та публічні сторінки (catalog, bundle, cart, profile, etc.)
+│   │   ├── layout.tsx               # Кореневий макет
+│   │   ├── globals.scss             # Глобальні SCSS стилі
+│   │   └── tailwind.css             # Tailwind стилі
+│   ├── src/                         # Додатковий вихідний код клієнта
+│   │   ├── components/              # React компоненти (ui, layout, sections, forms, pages)
+│   │   ├── config/                  # Налаштування та конфігурація
+│   │   ├── constants/               # Загальні константи
+│   │   ├── hooks/                   # Користувацькі React хуки
+│   │   ├── lib/                     # Ініціалізація сторонніх бібліотек (auth client, axios)
+│   │   ├── providers/               # React контекст-провайдери (query client, themes)
+│   │   ├── services/                # API-сервіси для взаємодії з бекендом
+│   │   ├── store/                   # Глобальний стейт-менеджмент (Zustand)
+│   │   ├── styles/                  # Допоміжні SCSS/CSS файли
 │   │   └── utils/                   # Допоміжні функції
-│   ├── public/                      # Статичні файли (изображения, іконки)
+│   ├── public/                      # Статичні ресурси (іконки, зображення)
 │   ├── package.json
 │   └── tsconfig.json
 │
 ├── server/                          # NestJS бекенд
-│   ├── src/
-│   │   ├── main.ts                  # Точка входу
-│   │   ├── core/                    # Ядро додатку
-│   │   │   ├── app.module.ts        # Коренева модель
-│   │   │   ├── app.controller.ts    # Основний контролер
-│   │   │   ├── app.service.ts       # Основний сервіс
-│   │   │   ├── config/              # Конфігурація (CORS, Validation)
-│   │   │   ├── decorators/          # Custom декоратори
-│   │   │   ├── guards/              # Аутентифікаційні гарди
-│   │   │   ├── interceptors/        # HTTP перехоплювачи
-│   │   │   ├── lib/        				 # Інстанси зовнішніх бібліотек
-│   │   │   ├── middleware/          # Middleware (логування)
-│   │   │   ├── pipes/               # Валідаційні піпи
-│   │   │   └── validators/          # Custom валідатори
-│   │   ├── infrastructure/          # Інфраструктурні сервіси
-│   │   │   ├── casl/                # Управління дозволами (CASL)
-│   │   │   ├── mail/                # Email сервіс (Resend)
-│   │   │   ├── prisma/              # Prisma конфігурація
-│   │   │   └── redis/               # Redis конфігурація
-│   │   ├── modules/                 # Бізнес-логіка модулів
-│   │   │   ├── auth/                # Модуль аутентифікації
-│   │   │   ├── user/                # Модуль користувачів
-│   │   │   ├── company/             # Модуль компаній
-│   │   │   └── otp/                 # Модуль OTP верифікації
-│   │   └── shared/                  # Спільний код
-│   │       ├── constants/           # Константи
-│   │       ├── enums/               # Переліки
-│   │       ├── filters/          	 # Фільтри
-│   │       ├── interfaces/          # Інтерфейси
-│   │       └── utils/               # Допоміжні функції
-│   ├── prisma/
-│   │   ├── schema.prisma            # Схема бази даних
-│   │   └── migrations/              # Історія міграцій
-│   ├── test/                        # E2E тести
-│   │   └── app.e2e-spec.ts
-│   ├── docs/
-│   │   ├── swagger.json             # Згенерована OpenAPI схема
-│   │   └── openapi.yaml             # OpenAPI специфікація
+│   ├── src/                         # Вихідний код сервера
+│   │   ├── main.ts                  # Точка входу додатку
+│   │   ├── core/                    # Ядро системи та NestJS конфігурації
+│   │   │   ├── app.module.ts        # Кореневий NestJS модуль
+│   │   │   ├── application/         # Прикладний рівень (guards, interceptors, services, DTOs)
+│   │   │   ├── decorators/          # Користувацькі декоратори
+│   │   │   ├── infrastructure/      # Інфраструктурні NestJS хелпери (api, config, middleware, pipes)
+│   │   │   └── lib/                 # Інстанси сторонніх бібліотек
+│   │   ├── common/                  # Спільний код (constants, dto, enums, filters, types, utils, validators)
+│   │   ├── infrastructure/          # Інфраструктурні модулі та адаптери (casl, mail, otp, prisma, redis, s3, smart-sku)
+│   │   └── modules/                 # Модулі бізнес-логіки
+│   │       ├── auth/                # Аутентифікація та сесії (better-auth)
+│   │       ├── bundle/              # Управління бандлами (комплектами меблів)
+│   │       ├── catalog/             # Каталог продуктів та категорій
+│   │       ├── identity/            # Профілі користувачів та компаній (User & Company)
+│   │       └── order/               # Управління оптовими замовленнями
+│   ├── prisma/                      # Prisma ORM схеми та міграції
+│   │   ├── schema.prisma            # Схема БД
+│   │   └── migrations/              # Файли міграцій
+│   ├── test/                        # Набір E2E тестів
 │   ├── package.json
 │   └── tsconfig.json
 │
-├── deploy/                          # Docker конфігурація
-│   ├── docker-compose.yaml          # Локальна розробка
-│   └── docker-compose.prod.yaml     # Продакшен
+├── deploy/                          # Конфігурації для розгортання
+│   ├── docker-compose.yaml          # Локальне оточення (Redis, LocalStack)
+│   └── docker-compose.prod.yaml     # Продакшен стек (Next.js, NestJS, Postgres, Redis, LocalStack)
 │
-├── docs/                            # Документація
-│   ├── adr/                         # Architectural Decision Records
-│   │   └── ADR-001-system-style.md  # Модульний моноліт
-│   ├── sad/                         # System Architecture Documents
-│   │   └── SAD-001-internal-view.md
-│   └── specs/                       # Технічні специфікації
-│       ├── api-contract-&-specification.md  # API контракт
-│       ├── code-style-guide.md              # Гайд кодування
-│       ├── data-contracts-specification.md
-│       └── data-flow.md                     # Потік даних
+├── docs/                            # Архітектурна та технічна документація
+│   ├── adr/                         # Architectural Decision Records (ADRs)
+│   └── specs/                       # Специфікації та API-контракти
 │
-├── shared/                          # Спільний пакет (типи, константи)
-├── Makefile                         # Команди для розробки
-├── package.json                     # Root залежності
-├── CONTRIBUTORS.md                  # Список учасників
-├── LICENSE                          # MIT ліцензія
-└── README.md                        # Цей файл
+├── shared/                          # Спільна папка для загальних типів/констант
+├── Makefile                         # Зручні команди розробника
+├── package.json                     # Конфігурація кореневого проекту
+├── CONTRIBUTORS.md                  # Список авторів проекту
+├── LICENSE                          # Ліцензія Apache-2.0
+└── README.md                        # Цей файл документації
 ```
 
 ---
@@ -505,26 +486,29 @@ bunx prisma migrate status
 
 ### Інтерактивна документація API
 
-Коли бекенд запущений, відвідайте
-[http://localhost:4200/docs](http://localhost:4200/docs) для інтерактивної
-документації Swagger.
+Коли бекенд запущений, ви можете використовувати наступні ресурси для тестування та перегляду API:
+* **Swagger UI:** [http://localhost:4200/docs/swagger](http://localhost:4200/docs/swagger)
+* **Scalar API Reference:** [http://localhost:4200/docs/scalar](http://localhost:4200/docs/scalar)
 
-Всі ендпоінти задокументовані через декоратори `@nestjs/swagger` та генеруються
-автоматично в OpenAPI 3.0 форматі.
+Всі ендпоінти задокументовані через декоратори `@nestjs/swagger` та генеруються автоматично в OpenAPI 3.0 форматі.
 
 ### Основні ендпоінти
 
-| Метод     | Ендпоінт                  | Опис                          | Доступ |
-| --------- | ------------------------- | ----------------------------- | ------ |
-| **POST**  | `/api/auth/login`         | Вхід через аутентифікацію     | Public |
-| **POST**  | `/api/auth/verify-otp`    | Верифікація OTP               | Public |
-| **GET**   | `/api/catalog`            | Список меблів з фільтрацією   | Public |
-| **POST**  | `/api/orders`             | Створення оптового замовлення | User   |
-| **GET**   | `/api/orders/{id}`        | Деталі замовлення             | User   |
-| **PATCH** | `/api/orders/{id}/status` | Зміна статусу замовлення      | Admin  |
-| **GET**   | `/api/user/me`            | Профіль поточного користувача | User   |
+| Метод     | Ендпоінт                       | Опис                                      | Доступ |
+| --------- | ------------------------------ | ----------------------------------------- | ------ |
+| **POST**  | `/api/v1/auth/sign-in/email`   | Вхід за допомогою email та пароля         | Public |
+| **POST**  | `/api/v1/auth/sign-up/email`   | Реєстрація нового користувача             | Public |
+| **POST**  | `/api/v1/user/verify-email`    | Верифікація email за допомогою OTP        | User   |
+| **GET**   | `/api/v1/user/me`              | Отримання профілю поточного користувача   | User   |
+| **GET**   | `/api/v1/products`             | Список активних товарів з фільтрацією     | Public |
+| **POST**  | `/api/v1/products`             | Додавання нового товару                   | Supplier |
+| **GET**   | `/api/v1/bundles/my`           | Отримання власних бандлів користувача     | User   |
+| **POST**  | `/api/v1/orders`               | Створення оптового замовлення             | User   |
+| **GET**   | `/api/v1/orders/my`            | Список створених замовлень поточного користувача | User |
+| **PATCH** | `/api/v1/orders/{id}/status`   | Зміна статусу замовлення або субаутпуту   | Supplier/Admin |
+| **GET**   | `/api/v1/company/{id}`         | Отримання деталей компанії за її ID       | Public |
 
-**Все ендпоінти потребують префіксу `/api`**
+**Усі ендпоінти мають префікс версіонування `/api/v1/`**
 
 ### Аутентифікація
 
@@ -532,21 +516,17 @@ bunx prisma migrate status
 
 - **OAuth2**: Вхід через Google з автоматичним створенням користувача
 - **Email OTP**: Верифікація email через одноразові коди
-- **HttpOnly Cookies**: Токени зберігаються в захищених cookie без доступу з
-  JavaScript
-- **CASL**: Управління дозволами на основі ролей (RETAILER, DESIGNER, HORECA,
-  SUPPLIER, ADMIN)
+- **HttpOnly Cookies**: Токени зберігаються в захищених cookie без доступу з JavaScript
+- **CASL**: Управління дозволами на основі ролей (RETAILER, DESIGNER, HORECA, SUPPLIER, ADMIN)
 
-**Детальніше про аутентифікацію** в
-[API контракті](docs/specs/api-contract-&-specification.md).
+**Детальніше про аутентифікацію** в [API контракті](docs/specs/api-contract-&-specification.md).
 
 ### Примітка для розробників
 
-За умовчанням, фронтенд має доступ до API через проксі-конфігурацію в
-`next.config.ts`:
+За умовчанням, фронтенд проксує запити до API через проксі-функцію (`proxy.ts` / Next.js Middleware):
 
 ```typescript
-// Запити на /api/* перенаправляються на http://localhost:4200/api
+// Запити на /api/v1/* перенаправляються на http://localhost:4200/api/v1/* (або BACKEND_URL)
 ```
 
 ---
@@ -610,7 +590,7 @@ bunx prisma migrate status
 
 - 📖 [Документація проекту](docs/)
 - 🌐 [GitHub репозиторій](https://github.com/Gyp6/furniture.wholesale)
-- 📊 [Проектна дошка](https://github.com/Gyp6/furniture.wholesale/projects)
+- 📊 [Marketing Kit](docs/marketing_kit/)
 
 ---
 
@@ -643,7 +623,7 @@ bunx prisma migrate status
 - [Better Auth](https://better-auth.com/) - сучасна аутентифікація
 - [CASL](https://casl.js.org/) - управління дозволами
 - [Tailwind CSS](https://tailwindcss.com/) - utility-first CSS
-- [Radix UI](https://www.radix-ui.com/) - accessibility-focused UI
+- [Shadcn UI](https://ui.shadcn.com/) - accessibility-focused UI
 
 ---
 
