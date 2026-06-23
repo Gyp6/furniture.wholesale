@@ -589,12 +589,10 @@ export function BundleCreatePage() {
                       }
                     >
                       {product.images?.[0] ? (
-                        <Image
+                        <img
                           src={ROUTES.S3(product.images[0])}
                           alt={product.title}
                           className={'w-full h-full object-cover'}
-                          unoptimized
-                          fill
                         />
                       ) : (
                         <div
@@ -890,10 +888,9 @@ export function BundleCreatePage() {
                       'relative aspect-square rounded-xl overflow-hidden bg-neutral-100'
                     }
                   >
-                    <Image
+                    <img
                       src={preview}
                       alt={`Product ${index + 1}`}
-                      fill
                       className={'object-cover'}
                     />
                     <button
