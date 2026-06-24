@@ -3,10 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { ProfilePage } from '@/components/pages/core/profile/profile';
+import { BundleEditPage } from '@/components/pages/core/bundle-edit/bundle-edit';
 import { useAuthStatus } from '@/hooks';
 
-export default function Profile() {
+export default function BundleEdit({ id }: { id: string }) {
   const { user, isLoading, isLoggedIn } = useAuthStatus();
   const router = useRouter();
 
@@ -31,6 +31,5 @@ export default function Profile() {
   if (!isLoggedIn || !user) {
     return null;
   }
-
-  return <ProfilePage />;
+  return <BundleEditPage bundleId={id} />;
 }

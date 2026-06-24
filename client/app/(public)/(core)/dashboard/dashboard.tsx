@@ -3,10 +3,15 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { ProfilePage } from '@/components/pages/core/profile/profile';
-import { useAuthStatus } from '@/hooks';
+import {
+  DesignerDashboardPage,
+  HoRecaDashboardPage,
+  RetailorDashboardPage,
+  SupplierPersonalDashboardPage,
+} from '@/components/sections/core/dashboard';
+import { useAuthStatus } from '@/hooks/use-auth-status.hook';
 
-export default function Profile() {
+export default function DashboardPage() {
   const { user, isLoading, isLoggedIn } = useAuthStatus();
   const router = useRouter();
 
@@ -32,5 +37,16 @@ export default function Profile() {
     return null;
   }
 
-  return <ProfilePage />;
+  switch (user.role) {
+    case 'SUPPLIER':
+      return <SupplierPersonalDashboardPage />;
+    case 'DESIGNER':
+      return <DesignerDashboardPage />;
+    case 'RETAILER':
+      return <RetailorDashboardPage />;
+    case 'HORECA':
+      return <HoRecaDashboardPage />;
+    default:
+      return <>Unsupported role: {user.role}</>;
+  }
 }

@@ -8,7 +8,7 @@ export function CartPage() {
   return (
     <div className={'min-h-screen w-full bg-secondary/10'}>
       <div
-        className={'w-full mx-auto px-7 pt-[100px] pb-10 flex flex-col gap-8'}
+        className={'w-full mx-auto px-10 pt-[100px] pb-10 flex flex-col gap-8'}
       >
         <ProjectHeader />
 

@@ -1,5 +1,10 @@
-import { CartPage } from '@/components/pages/core/cart/card';
+import { Metadata } from 'next';
+import Cart from './cart';
 
-export default function Cart() {
-  return <CartPage />;
+export const metadata: Metadata = {
+  title: 'Cart',
+};
+
+export default function CartPage() {
+  return <Cart />;
 }

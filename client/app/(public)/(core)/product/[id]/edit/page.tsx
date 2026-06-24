@@ -1,12 +1,21 @@
-import { use } from 'react';
+import { Metadata } from 'next';
+import { Suspense, use } from 'react';
 
-import { ProductEditPage } from '@/components/pages/core/product/product-edit';
+import ProductEdit from './product-edit';
 
-export default function ProductEdit({
+export const metadata: Metadata = {
+  title: 'Edit Product',
+};
+
+export default function ProductEditPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  return <ProductEditPage productId={id} />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProductEdit id={id} />
+    </Suspense>
+  );
 }

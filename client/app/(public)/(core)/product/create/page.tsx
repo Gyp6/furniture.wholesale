@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
-import { ProductCreatePage } from '@/components/pages/core/product/product-create';
+import CreateProduct from './product-create';
 
 export const metadata: Metadata = {
   title: 'Create Product',
 };
 
-export default function CreateProduct() {
+export default function CreateProductPage() {
   return (
     <Suspense
       fallback={
@@ -16,7 +16,7 @@ export default function CreateProduct() {
         </div>
       }
     >
-      <ProductCreatePage />
+      <CreateProduct />
     </Suspense>
   );
 }

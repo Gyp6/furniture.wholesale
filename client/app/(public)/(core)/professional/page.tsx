@@ -1,5 +1,10 @@
-import { SupplierProfessionalDashboardPage } from '@/components/sections/core/dashboard/supplier-profesisonal';
+import { Metadata } from 'next';
+import SupplierProfessional from './professional';
 
-export default function SupplierProfessional() {
-  return <SupplierProfessionalDashboardPage />;
+export const metadata: Metadata = {
+  title: 'Professional Dashboard',
+};
+
+export default function Professional() {
+  return <SupplierProfessional />;
 }

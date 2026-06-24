@@ -1,12 +1,13 @@
 'use client';
 
+import { OrderDetailPage } from '@/components/pages/core/orders/order-detail';
+import { useAuthStatus } from '@/hooks';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { ProfilePage } from '@/components/pages/core/profile/profile';
-import { useAuthStatus } from '@/hooks';
-
-export default function Profile() {
+export default function OrderDetail(props: {
+  params: Promise<{ id: string }>;
+}) {
   const { user, isLoading, isLoggedIn } = useAuthStatus();
   const router = useRouter();
 
@@ -32,5 +33,5 @@ export default function Profile() {
     return null;
   }
 
-  return <ProfilePage />;
+  return <OrderDetailPage params={props.params} />;
 }

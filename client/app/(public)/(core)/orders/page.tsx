@@ -1,5 +1,11 @@
-import { OrdersPage } from '@/components/pages/core/orders/orders';
+import { Metadata } from 'next';
 
-export default function Orders() {
-  return <OrdersPage />;
+import Orders from './orders';
+
+export const metadata: Metadata = {
+  title: 'Orders',
+};
+
+export default function OrdersPage() {
+  return <Orders />;
 }

@@ -1,12 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 
-import { ProfilePage } from '@/components/pages/core/profile/profile';
+import { ProductCreatePage } from '@/components/pages/core/product/product-create';
 import { useAuthStatus } from '@/hooks';
 
-export default function Profile() {
+export default function CreateProduct() {
   const { user, isLoading, isLoggedIn } = useAuthStatus();
   const router = useRouter();
 
@@ -31,6 +31,15 @@ export default function Profile() {
   if (!isLoggedIn || !user) {
     return null;
   }
-
-  return <ProfilePage />;
+  return (
+    <Suspense
+      fallback={
+        <div className={'p-10 text-center text-muted-foreground'}>
+          Loading...
+        </div>
+      }
+    >
+      <ProductCreatePage />
+    </Suspense>
+  );
 }

@@ -1,13 +1,15 @@
-'use client';
-
+'use client'
+import { ProductEditPage } from '@/components/pages/core/product/product-edit';
+import { useAuthStatus } from '@/hooks';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { ProfilePage } from '@/components/pages/core/profile/profile';
-import { useAuthStatus } from '@/hooks';
-
-export default function Profile() {
-  const { user, isLoading, isLoggedIn } = useAuthStatus();
+export default function ProductEdit({
+	id,
+}: {
+	id: string
+}) {
+	const { user, isLoading, isLoggedIn } = useAuthStatus();
   const router = useRouter();
 
   useEffect(() => {
@@ -31,6 +33,5 @@ export default function Profile() {
   if (!isLoggedIn || !user) {
     return null;
   }
-
-  return <ProfilePage />;
+	return <ProductEditPage productId={id} />;
 }

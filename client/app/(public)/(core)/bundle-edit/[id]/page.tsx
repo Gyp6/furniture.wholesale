@@ -1,12 +1,17 @@
 import { use } from 'react';
 
-import { BundleEditPage } from '@/components/pages/core/bundle-edit/bundle-edit';
+import { Metadata } from 'next';
+import BundleEdit from './bundle-edit';
 
-export default function BundleEdit({
+export const metadata: Metadata = {
+  title: 'Bundle Edit',
+};
+
+export default function BundleEditPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  return <BundleEditPage bundleId={id} />;
+  return <BundleEdit id={id} />;
 }

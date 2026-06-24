@@ -1,7 +1,17 @@
-import { OrderDetailPage } from '@/components/pages/core/orders/order-detail';
+import { Metadata } from 'next';
+import OrderDetail from './orders-id';
+import { Suspense } from 'react';
 
-export default function OrderDetail(props: {
+export const metadata: Metadata = {
+  title: 'Order Detail',
+};
+
+export default function OrderDetailPage(props: {
   params: Promise<{ id: string }>;
 }) {
-  return <OrderDetailPage params={props.params} />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OrderDetail params={props.params} />
+    </Suspense>
+  );
 }

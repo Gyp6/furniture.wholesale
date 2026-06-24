@@ -1,12 +1,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 
-import { ProfilePage } from '@/components/pages/core/profile/profile';
+import { CompanyProfilePage } from '@/components/pages/core/company/company-profile';
 import { useAuthStatus } from '@/hooks';
 
-export default function Profile() {
+export default function Company({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { user, isLoading, isLoggedIn } = useAuthStatus();
   const router = useRouter();
 
@@ -31,6 +35,9 @@ export default function Profile() {
   if (!isLoggedIn || !user) {
     return null;
   }
-
-  return <ProfilePage />;
+  return (
+    <Suspense fallback={<div>Завантаження...</div>}>
+      <CompanyProfilePage params={params} />
+    </Suspense>
+  );
 }

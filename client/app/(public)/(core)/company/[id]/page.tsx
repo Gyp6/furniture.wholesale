@@ -1,6 +1,11 @@
 import { Suspense } from 'react';
 
-import { CompanyProfilePage } from '@/components/pages/core/company/company-profile';
+import { Metadata } from 'next';
+import Company from './company-id';
+
+export const metadata: Metadata = {
+  title: 'Company Detail',
+};
 
 export default function CompanyPage({
   params,
@@ -9,7 +14,8 @@ export default function CompanyPage({
 }) {
   return (
     <Suspense fallback={<div>Завантаження...</div>}>
-      <CompanyProfilePage params={params} />
+      <Company params={params} />
     </Suspense>
   );
 }
+

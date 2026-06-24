@@ -58,12 +58,10 @@ export function CompanyHero({ company }: CompanyHeroProps) {
             }
             style={{ width: '120px', height: '120px' }}
           >
-            <Image
+            <img
               src={companyLogo}
               alt={'Logo'}
               className={'w-full h-full object-cover'}
-              unoptimized
-              fill
             />
           </div>
         ) : (

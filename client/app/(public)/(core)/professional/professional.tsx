@@ -3,10 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { ProfilePage } from '@/components/pages/core/profile/profile';
+import { SupplierProfessionalDashboardPage } from '@/components/sections/core/dashboard/supplier-profesisonal';
 import { useAuthStatus } from '@/hooks';
 
-export default function Profile() {
+export default function SupplierProfessional() {
   const { user, isLoading, isLoggedIn } = useAuthStatus();
   const router = useRouter();
 
@@ -32,5 +32,5 @@ export default function Profile() {
     return null;
   }
 
-  return <ProfilePage />;
+  return <SupplierProfessionalDashboardPage />;
 }

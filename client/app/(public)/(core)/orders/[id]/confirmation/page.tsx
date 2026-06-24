@@ -1,7 +1,18 @@
-import { OrderConfirmationPage } from '@/components/pages/core/orders/order-confirmation';
+import { Suspense } from 'react';
 
-export default function OrderConfirmation(props: {
+import OrderConfirmation from './order-confirmation';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Order Confirmation',
+};
+
+export default function OrderConfirmationPage(props: {
   params: Promise<{ id: string }>;
 }) {
-  return <OrderConfirmationPage params={props.params} />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OrderConfirmation params={props.params} />
+    </Suspense>
+  );
 }
