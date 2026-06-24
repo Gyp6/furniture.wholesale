@@ -1,0 +1,43 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { Suspense, useEffect } from 'react';
+
+import { CompanyProfilePage } from '@/components/pages/core/company/company-profile';
+import { useAuthStatus } from '@/hooks';
+
+export default function Company({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { user, isLoading, isLoggedIn } = useAuthStatus();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !isLoggedIn) {
+      router.push('/login');
+    }
+  }, [isLoading, isLoggedIn, router]);
+
+  if (isLoading) {
+    return (
+      <div className={'flex items-center justify-center min-h-[400px]'}>
+        <div
+          className={
+            'animate-spin rounded-full h-8 w-8 border-b-2 border-secondary'
+          }
+        />
+      </div>
+    );
+  }
+
+  if (!isLoggedIn || !user) {
+    return null;
+  }
+  return (
+    <Suspense fallback={<div>Завантаження...</div>}>
+      <CompanyProfilePage params={params} />
+    </Suspense>
+  );
+}

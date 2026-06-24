@@ -1,6 +1,7 @@
 'use client';
 
 import { Eye, EyeOff } from 'lucide-react';
+import { useEffect } from 'react';
 
 import {
   FormStateSync,
@@ -17,7 +18,7 @@ import {
 } from '@/components/ui/shadcn/field';
 import { Input } from '@/components/ui/shadcn/input';
 import { RoleButtonsConfig } from '@/config';
-import { useRegisterForm } from '@/hooks';
+import { useAuthStatus, useRegisterForm } from '@/hooks';
 import { cn } from '@/lib/cn';
 import { horecaType } from '@/shared/data/auth';
 
@@ -34,7 +35,28 @@ export function RegisterForm() {
     showOtpModal,
     registeredEmail,
     onOtpSuccess,
+    router,
   } = useRegisterForm();
+
+  const { isLoading, isLoggedIn } = useAuthStatus();
+
+  useEffect(() => {
+    if (!isLoading && isLoggedIn) {
+      router.push('/dashboard');
+    }
+  }, [isLoading, isLoggedIn, router]);
+
+  if (isLoading) {
+    return (
+      <div className={'flex items-center justify-center min-h-[400px]'}>
+        <div
+          className={
+            'animate-spin rounded-full h-8 w-8 border-b-2 border-secondary'
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <>

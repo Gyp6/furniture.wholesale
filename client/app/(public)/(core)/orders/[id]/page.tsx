@@ -1,37 +1,17 @@
-'use client';
+import { Metadata } from 'next';
+import OrderDetail from './orders-id';
+import { Suspense } from 'react';
 
-import { OrderDetailPage } from '@/components/pages/core/orders/order-detail';
-import { useAuthStatus } from '@/hooks';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+export const metadata: Metadata = {
+  title: 'Order Detail',
+};
 
-export default function OrderDetail(props: {
+export default function OrderDetailPage(props: {
   params: Promise<{ id: string }>;
 }) {
-  const { user, isLoading, isLoggedIn } = useAuthStatus();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
-      router.push('/login');
-    }
-  }, [isLoading, isLoggedIn, router]);
-
-  if (isLoading) {
-    return (
-      <div className={'flex items-center justify-center min-h-[400px]'}>
-        <div
-          className={
-            'animate-spin rounded-full h-8 w-8 border-b-2 border-secondary'
-          }
-        />
-      </div>
-    );
-  }
-
-  if (!isLoggedIn || !user) {
-    return null;
-  }
-
-  return <OrderDetailPage params={props.params} />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OrderDetail params={props.params} />
+    </Suspense>
+  );
 }

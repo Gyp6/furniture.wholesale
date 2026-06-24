@@ -13,11 +13,32 @@ import {
 import { Input } from '@/components/ui/shadcn/input';
 import { Label } from '@/components/ui/shadcn/label';
 import { ROUTES } from '@/constants';
-import { useLoginForm } from '@/hooks';
+import { useAuthStatus, useLoginForm } from '@/hooks';
+import { useEffect } from 'react';
 
 export function LoginForm() {
   const { form, showPassword, togglePassword, remember, setRemember, router } =
     useLoginForm();
+
+  const { isLoading, isLoggedIn } = useAuthStatus();
+
+  useEffect(() => {
+    if (!isLoading && isLoggedIn) {
+      router.push('/dashboard');
+    }
+  }, [isLoading, isLoggedIn, router]);
+
+  if (isLoading) {
+    return (
+      <div className={'flex items-center justify-center min-h-[400px]'}>
+        <div
+          className={
+            'animate-spin rounded-full h-8 w-8 border-b-2 border-secondary'
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <form
