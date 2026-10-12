@@ -13,6 +13,8 @@ import { Input } from '@/components/ui/shadcn/input';
 import { useForgotPasswordForm } from '@/hooks';
 import { emailSchema, passwordSchema } from '@/shared/schemas';
 
+
+// lab1 test
 export function ForgotPasswordForm() {
   const { form, isResetMode, showPassword, togglePassword } =
     useForgotPasswordForm();

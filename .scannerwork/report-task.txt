@@ -1,0 +1,6 @@
+projectKey=lab1-quality
+serverUrl=http://localhost:9000
+serverVersion=26.9.0.129388
+dashboardUrl=http://localhost:9000/dashboard?id=lab1-quality
+ceTaskId=ea9590be-2d02-4d97-8035-4561090c8c27
+ceTaskUrl=http://localhost:9000/api/ce/task?id=ea9590be-2d02-4d97-8035-4561090c8c27
