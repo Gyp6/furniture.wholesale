@@ -67,6 +67,19 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 const CARD_CLASS =
   'rounded-2xl border border-neutral-100 bg-white shadow-[0_8px_40px_rgba(0,0,0,0.08)]';
 
+const ORDER_SKELETON_IDS = ['o1', 'o2', 'o3', 'o4', 'o5'];
+const PROJECT_SKELETON_IDS = ['p1', 'p2', 'p3'];
+
+function activateOnKey(action: () => void) {
+  return (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.target !== e.currentTarget) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      action();
+    }
+  };
+}
+
 function OrderRow({
   order,
   onSelect,
@@ -81,10 +94,13 @@ function OrderRow({
 
   return (
     <div
+      role={'button'}
+      tabIndex={0}
       className={
         'grid grid-cols-[0.8fr_0.8fr_1fr_1fr_0.8fr_1fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors cursor-pointer'
       }
       onClick={() => onSelect(order.id)}
+      onKeyDown={activateOnKey(() => onSelect(order.id))}
     >
       <span className={'text-sm font-medium text-muted-foreground'}>
         #{order.id.slice(0, 8).toUpperCase()}
@@ -157,9 +173,9 @@ function OrdersBody({
   if (isLoading) {
     return (
       <div className={'flex flex-col gap-2 p-4'}>
-        {[...Array(5)].map((_, i) => (
+        {ORDER_SKELETON_IDS.map(id => (
           <Skeleton
-            key={i}
+            key={id}
             className={'h-12 rounded-xl'}
           />
         ))}
@@ -179,9 +195,9 @@ function OrdersBody({
   }
   return (
     <>
-      {orders.map((order, i) => (
+      {orders.map(order => (
         <OrderRow
-          key={order.id || i}
+          key={order.id}
           order={order}
           onSelect={onSelect}
           onReorder={onReorder}
@@ -287,8 +303,11 @@ function ProjectCard({
 }) {
   return (
     <div
+      role={'button'}
+      tabIndex={0}
       className={`${CARD_CLASS} p-4 flex flex-col justify-between min-h-[160px] cursor-pointer hover:bg-secondary/5 transition-colors`}
       onClick={() => onOpen(bundle)}
+      onKeyDown={activateOnKey(() => onOpen(bundle))}
     >
       <div className={'flex justify-end'}>
         <div
@@ -328,9 +347,9 @@ function ProjectsBody({
   if (isLoading) {
     return (
       <div className={'flex gap-2'}>
-        {[...Array(3)].map((_, i) => (
+        {PROJECT_SKELETON_IDS.map(id => (
           <Skeleton
-            key={i}
+            key={id}
             className={'w-[150px] h-[160px] rounded-2xl shrink-0'}
           />
         ))}
@@ -348,9 +367,9 @@ function ProjectsBody({
       className={'w-full'}
     >
       <CarouselContent className={'-ml-3'}>
-        {bundles.map((bundle, i) => (
+        {bundles.map(bundle => (
           <CarouselItem
-            key={bundle.id || i}
+            key={bundle.id}
             className={'pl-2 basis-[150px]'}
           >
             <ProjectCard
