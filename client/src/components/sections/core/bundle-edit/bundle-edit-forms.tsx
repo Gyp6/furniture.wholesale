@@ -16,7 +16,7 @@ import {
 } from '@/shared/data/core/catalog/catalog.data';
 
 type TBundleEditFormProps = {
-  onChanged: () => void;
+  onChanged?: () => void;
 };
 
 export function BundleEditForm({ onChanged }: TBundleEditFormProps) {
@@ -73,7 +73,7 @@ export function BundleEditForm({ onChanged }: TBundleEditFormProps) {
                   key={option}
                   onClick={() => {
                     setStyle(option);
-                    onChanged();
+                    onChanged?.();
                   }}
                   className={'text-sm cursor-pointer'}
                 >
@@ -110,7 +110,7 @@ export function BundleEditForm({ onChanged }: TBundleEditFormProps) {
                   key={option}
                   onClick={() => {
                     setSpaceType(option);
-                    onChanged();
+                    onChanged?.();
                   }}
                   className={'text-sm cursor-pointer'}
                 >

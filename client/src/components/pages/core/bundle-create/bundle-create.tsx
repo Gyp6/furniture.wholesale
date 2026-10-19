@@ -1,7 +1,6 @@
 'use client';
 
-import { ArrowLeft, Package, Plus, Search, Upload, X } from 'lucide-react';
-import Image from 'next/image';
+import { ArrowLeft, Plus, Upload, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -24,9 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/shadcn/select';
-import { Skeleton } from '@/components/ui/shadcn/skeleton';
-import { Textarea } from '@/components/ui/shadcn/textarea';
-import { ROUTES } from '@/constants';
 import { useCreateBundle } from '@/hooks/queries/bundle.query';
 import {
   useCreateProduct,
@@ -38,11 +34,14 @@ import {
 import { bundleService, productService } from '@/services';
 import { IProduct } from '@/shared/types';
 
-interface BundleFormData {
-  name: string;
-  description: string;
-  spaceTypeId: string;
-}
+import {
+  AddProductTile,
+  BundleFormData,
+  BundleInfoFields,
+  BundleProductCard,
+  PickerProductList,
+  PickerSearch,
+} from '../bundle-shared/bundle-parts';
 
 interface SelectedProduct {
   product: IProduct;
@@ -311,57 +310,13 @@ export function BundleCreatePage() {
         onSubmit={handleSubmit(onSubmit)}
         className={'space-y-6'}
       >
-        <Card className={'p-6 rounded-[30px] border-0 shadow-md space-y-6'}>
-          <div className={'space-y-4'}>
-            <div>
-              <Label htmlFor={'name'}>Bundle Name *</Label>
-              <Input
-                id={'name'}
-                {...register('name', { required: 'Bundle name is required' })}
-                placeholder={'Enter bundle name'}
-                className={'mt-2'}
-              />
-              {errors.name && (
-                <p className={'text-sm text-red-500 mt-1'}>
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor={'description'}>Description</Label>
-              <Textarea
-                id={'description'}
-                {...register('description')}
-                placeholder={'Describe your bundle'}
-                className={'mt-2'}
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <Label>Space Type *</Label>
-              <Select
-                onValueChange={value => setValue('spaceTypeId', value)}
-                disabled={spacesLoading}
-              >
-                <SelectTrigger className={'mt-2'}>
-                  <SelectValue placeholder={'Select space type'} />
-                </SelectTrigger>
-                <SelectContent>
-                  {spaces?.map(space => (
-                    <SelectItem
-                      key={space.id}
-                      value={space.id}
-                    >
-                      {space.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </Card>
+        <BundleInfoFields
+          register={register}
+          errors={errors}
+          setValue={setValue}
+          spaces={spaces}
+          spacesLoading={spacesLoading}
+        />
 
         <Card className={'p-6 rounded-[30px] border-0 shadow-md space-y-4'}>
           <div className={'flex items-center justify-between'}>
@@ -391,119 +346,52 @@ export function BundleCreatePage() {
 
           <div className={'grid grid-cols-2 md:grid-cols-3 gap-4'}>
             {selectedProducts.map(sp => (
-              <div
+              <BundleProductCard
                 key={sp.product.id}
-                className={
-                  'relative rounded-[20px] border border-neutral-100 bg-white overflow-hidden shadow-sm'
-                }
-              >
-                <button
-                  type={'button'}
-                  onClick={() => removeProduct(sp.product.id)}
-                  className={
-                    'absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600'
-                  }
-                >
-                  <X className={'w-4 h-4'} />
-                </button>
-
-                <div className={'aspect-square bg-neutral-50 relative'}>
-                  {sp.product.images?.[0] ? (
-                    <Image
-                      src={ROUTES.S3(sp.product.images[0])}
-                      alt={sp.product.title}
-                      className={'w-full h-full object-cover'}
-                      unoptimized
-                      fill
-                    />
-                  ) : (
-                    <div
-                      className={
-                        'w-full h-full flex items-center justify-center'
-                      }
-                    >
-                      <Package className={'w-10 h-10 text-neutral-300'} />
-                    </div>
-                  )}
-                </div>
-
-                <div className={'p-3 space-y-2'}>
-                  <p
+                product={sp.product}
+                unitPrice={sp.product.price}
+                onRemove={() => removeProduct(sp.product.id)}
+                quantitySlot={
+                  <div
                     className={
-                      'text-sm font-semibold leading-tight line-clamp-2'
+                      'flex items-center gap-2 bg-secondary/10 rounded-full px-3 py-1'
                     }
                   >
-                    {sp.product.title}
-                  </p>
-                  <p className={'text-xs text-muted-foreground'}>
-                    $
-                    {sp.product.price.toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                    })}{' '}
-                    / unit
-                  </p>
-                  <div className={'flex items-center gap-2'}>
-                    <span className={'text-xs text-muted-foreground'}>
-                      Qty:
-                    </span>
-                    <div
+                    <button
+                      type={'button'}
+                      onClick={() =>
+                        updateQuantity(sp.product.id, sp.quantity - 1)
+                      }
                       className={
-                        'flex items-center gap-2 bg-secondary/10 rounded-full px-3 py-1'
+                        'text-secondary font-bold text-sm hover:opacity-70 transition-opacity'
                       }
                     >
-                      <button
-                        type={'button'}
-                        onClick={() =>
-                          updateQuantity(sp.product.id, sp.quantity - 1)
-                        }
-                        className={
-                          'text-secondary font-bold text-sm hover:opacity-70 transition-opacity'
-                        }
-                      >
-                        −
-                      </button>
-                      <span
-                        className={
-                          'text-sm font-semibold w-5 text-center text-secondary'
-                        }
-                      >
-                        {sp.quantity}
-                      </span>
-                      <button
-                        type={'button'}
-                        onClick={() =>
-                          updateQuantity(sp.product.id, sp.quantity + 1)
-                        }
-                        className={
-                          'text-secondary font-bold text-sm hover:opacity-70 transition-opacity'
-                        }
-                      >
-                        +
-                      </button>
-                    </div>
+                      −
+                    </button>
+                    <span
+                      className={
+                        'text-sm font-semibold w-5 text-center text-secondary'
+                      }
+                    >
+                      {sp.quantity}
+                    </span>
+                    <button
+                      type={'button'}
+                      onClick={() =>
+                        updateQuantity(sp.product.id, sp.quantity + 1)
+                      }
+                      className={
+                        'text-secondary font-bold text-sm hover:opacity-70 transition-opacity'
+                      }
+                    >
+                      +
+                    </button>
                   </div>
-                </div>
-              </div>
+                }
+              />
             ))}
 
-            <button
-              type={'button'}
-              onClick={() => setPickerOpen(true)}
-              className={
-                'aspect-square rounded-[20px] border-2 border-dashed border-neutral-300 hover:border-secondary transition-colors cursor-pointer flex flex-col items-center justify-center gap-2'
-              }
-            >
-              <div
-                className={
-                  'w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center'
-                }
-              >
-                <Plus className={'w-5 h-5 text-secondary'} />
-              </div>
-              <span className={'text-xs font-medium text-muted-foreground'}>
-                Add Product
-              </span>
-            </button>
+            <AddProductTile onClick={() => setPickerOpen(true)} />
           </div>
         </Card>
 
@@ -540,128 +428,22 @@ export function BundleCreatePage() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className={'relative'}>
-            <Search
-              className={
-                'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground'
-              }
-            />
-            <Input
-              placeholder={'Search your products...'}
-              value={pickerSearch}
-              onChange={e => setPickerSearch(e.target.value)}
-              className={'pl-9'}
-            />
-          </div>
+          <PickerSearch
+            value={pickerSearch}
+            onChange={setPickerSearch}
+          />
 
           <div
             className={'flex-1 overflow-y-auto space-y-2 min-h-0 max-h-[50vh]'}
           >
-            {productsLoading ? (
-              <div className={'space-y-2'}>
-                {[...Array(4)].map((_, i) => (
-                  <Skeleton
-                    key={i}
-                    className={'h-16 rounded-xl'}
-                  />
-                ))}
-              </div>
-            ) : filteredProducts.length > 0 ? (
-              filteredProducts.map(product => {
-                const isSelected = alreadySelectedIds.has(product.id);
-                return (
-                  <div
-                    key={product.id}
-                    className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${
-                      isSelected
-                        ? 'border-secondary/30 bg-secondary/5 opacity-60'
-                        : 'border-neutral-100 hover:bg-neutral-50 cursor-pointer'
-                    }`}
-                    onClick={() => {
-                      if (!isSelected) {
-                        addProduct(product);
-                      }
-                    }}
-                  >
-                    <div
-                      className={
-                        'w-12 h-12 rounded-lg bg-neutral-100 overflow-hidden shrink-0'
-                      }
-                    >
-                      {product.images?.[0] ? (
-                        <img
-                          src={ROUTES.S3(product.images[0])}
-                          alt={product.title}
-                          className={'w-full h-full object-cover'}
-                        />
-                      ) : (
-                        <div
-                          className={
-                            'w-full h-full flex items-center justify-center'
-                          }
-                        >
-                          <Package className={'w-5 h-5 text-neutral-300'} />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className={'flex-1 min-w-0'}>
-                      <p className={'text-sm font-medium truncate'}>
-                        {product.title}
-                      </p>
-                      <p className={'text-xs text-muted-foreground'}>
-                        $
-                        {product.price.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                        })}
-                        {product.stock !== undefined &&
-                          ` · ${product.stock} in stock`}
-                      </p>
-                    </div>
-
-                    {isSelected ? (
-                      <span
-                        className={
-                          'text-xs font-medium text-secondary px-2 py-1 rounded-full bg-secondary/10'
-                        }
-                      >
-                        Added
-                      </span>
-                    ) : (
-                      <Button
-                        type={'button'}
-                        variant={'outline'}
-                        size={'sm'}
-                        className={'rounded-full text-xs shrink-0'}
-                        onClick={e => {
-                          e.stopPropagation();
-                          addProduct(product);
-                        }}
-                      >
-                        <Plus className={'w-3 h-3 mr-1'} />
-                        Add
-                      </Button>
-                    )}
-                  </div>
-                );
-              })
-            ) : (
-              <div
-                className={
-                  'flex flex-col items-center justify-center py-12 text-muted-foreground'
-                }
-              >
-                <Package className={'w-10 h-10 mb-2 text-neutral-300'} />
-                <p className={'text-sm'}>
-                  {pickerSearch
-                    ? 'No products match your search'
-                    : 'No products found'}
-                </p>
-                <p className={'text-xs mt-1'}>
-                  Create products first in your dashboard
-                </p>
-              </div>
-            )}
+            <PickerProductList
+              loading={productsLoading}
+              products={filteredProducts}
+              selectedIds={alreadySelectedIds}
+              search={pickerSearch}
+              onAdd={addProduct}
+              emptyHint={'Create products first in your dashboard'}
+            />
           </div>
 
           <div className={'flex justify-between pt-2'}>
