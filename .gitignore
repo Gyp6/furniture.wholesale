@@ -6,3 +6,6 @@ deploy/env
 /.trash
 /.claude
 .env
+# SonarQube scanner work dir
+.scannerwork
+**/.scannerwork

@@ -11,7 +11,8 @@
     "deploy": "deploy"
   },
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "sonar": "powershell -ExecutionPolicy Bypass -File scripts/sonar-scan.ps1"
   },
   "repository": {
     "type": "git",
