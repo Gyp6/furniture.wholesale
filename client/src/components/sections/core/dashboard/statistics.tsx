@@ -1,48 +1,39 @@
-'use client';
+import { DesignerStatsData } from '@/shared/data/dashboard';
 
-import {
-  type DashboardBundles,
-  type DashboardOrders,
-  type DashboardStat,
-  RoleDashboard,
-} from './role-dashboard';
+import { ICON_MAP } from './icon-map';
 
-const buildStats = (
-  orders: DashboardOrders,
-  bundles: DashboardBundles,
-): DashboardStat[] => [
-  {
-    label: 'Total Orders',
-    value: orders?.length ?? '—',
-    icon: 'Cart',
-    badge: '+5%',
-    badgeColor: 'bg-green-100 text-green-700',
-  },
-  {
-    label: 'Active Bundles',
-    value: bundles?.length ?? '—',
-    icon: 'Bundles',
-    badge: 'New',
-    badgeColor: 'bg-blue-100 text-blue-700',
-  },
-  {
-    label: 'Total Spend',
-    value: orders
-      ? `$${orders.reduce((s, o) => s + (o.totalAmount ?? 0), 0).toLocaleString()}`
-      : '—',
-    icon: 'WalletFigma',
-    badge: 'YTD',
-    badgeColor: 'bg-purple-100 text-purple-700',
-  },
-];
-
-export function SupplierPersonalDashboardPage() {
+export function Statistics() {
   return (
-    <RoleDashboard
-      overviewLabel={'Supplier Personal Overview'}
-      unsavedRedirectPath={'/catalog'}
-      statsGridClass={'grid grid-cols-3 gap-3'}
-      buildStats={buildStats}
-    />
+    <div className={'grid grid-cols-2 gap-4'}>
+      {DesignerStatsData.map(stat => (
+        <div
+          key={stat.label}
+          className={
+            'relative rounded-3xl border border-neutral-100 p-8 bg-white shadow-xl min-h-[208px]'
+          }
+        >
+          <span
+            className={`absolute top-3 right-3 text-[12px] font-semibold px-2 py-1 rounded-full ${stat.badgeColor}`}
+          >
+            {stat.badge}
+          </span>
+          <div
+            className={
+              'w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center mb-7'
+            }
+          >
+            {ICON_MAP[stat.icon]}
+          </div>
+          <p className={'text-4xl font-normal tracking-tight'}>{stat.value}</p>
+          <p
+            className={
+              'text-[13px] uppercase tracking-widest text-muted-foreground mt-5'
+            }
+          >
+            {stat.label}
+          </p>
+        </div>
+      ))}
+    </div>
   );
 }
