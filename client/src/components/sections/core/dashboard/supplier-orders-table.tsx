@@ -94,10 +94,7 @@ function OrderActions({ order, updateStatus }: TOrderActionsProps) {
 
   if (order.status === 'NEW') {
     return (
-      <div
-        className={'flex items-center gap-2'}
-        onClick={e => e.stopPropagation()}
-      >
+      <div className={'relative z-10 flex items-center gap-2'}>
         <button
           className={
             'w-10 h-10 rounded-full bg-green-100 flex items-center justify-center hover:bg-green-200 transition-colors'
@@ -120,10 +117,7 @@ function OrderActions({ order, updateStatus }: TOrderActionsProps) {
 
   if (order.status === 'PROCESSING') {
     return (
-      <div
-        className={'flex items-center'}
-        onClick={e => e.stopPropagation()}
-      >
+      <div className={'relative z-10 flex items-center'}>
         <Button
           variant={'outline'}
           size={'sm'}
@@ -155,9 +149,15 @@ function OrderRow({ order, updateStatus, onOpen }: TOrderRowProps) {
 
   return (
     <div
-      className={`${ORDER_GRID} items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors cursor-pointer`}
-      onClick={() => onOpen(order.id)}
+      className={`${ORDER_GRID} relative items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors cursor-pointer`}
     >
+      {/* Stretched native button: whole row opens the order, keyboard accessible */}
+      <button
+        type={'button'}
+        aria-label={`Open order #${order.id.slice(0, 8).toUpperCase()}`}
+        className={'absolute inset-0 w-full h-full cursor-pointer'}
+        onClick={() => onOpen(order.id)}
+      />
       <span className={'text-sm font-medium text-muted-foreground'}>
         #{order.id.slice(0, 8).toUpperCase()}
       </span>
@@ -229,7 +229,7 @@ function OrdersBody({
   if (loading) {
     return (
       <div className={'flex flex-col gap-2 p-4'}>
-        {[...Array(5)].map((_, i) => (
+        {Array.from({ length: 5 }, (_, i) => (
           <Skeleton
             key={i}
             className={'h-12 rounded-xl'}

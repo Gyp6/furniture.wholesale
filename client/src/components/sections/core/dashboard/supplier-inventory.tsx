@@ -70,7 +70,7 @@ function RowActions({
   onDelete?: () => void;
 }) {
   return (
-    <div className={'flex items-center gap-2'}>
+    <div className={'relative z-10 flex items-center gap-2'}>
       <button
         className={
           'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors'
@@ -126,9 +126,17 @@ function InventoryRow({
 }: TInventoryRowProps) {
   return (
     <div
-      className={`${INVENTORY_GRID} items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors${clickable ? ' cursor-pointer' : ''}`}
-      onClick={clickable ? onEdit : undefined}
+      className={`${INVENTORY_GRID} relative items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors${clickable ? ' cursor-pointer' : ''}`}
     >
+      {clickable && (
+        // Stretched native button: whole row opens the editor, keyboard accessible
+        <button
+          type={'button'}
+          aria-label={`Edit ${title}`}
+          className={'absolute inset-0 w-full h-full cursor-pointer'}
+          onClick={onEdit}
+        />
+      )}
       <div className={'flex items-center gap-2'}>
         <span
           className={
@@ -147,10 +155,7 @@ function InventoryRow({
 
       <span className={'text-sm text-muted-foreground'}>{stockLabel}</span>
 
-      <div
-        className={'flex items-center'}
-        onClick={e => e.stopPropagation()}
-      >
+      <div className={'relative z-10 flex items-center'}>
         <StatusSelect
           value={status}
           onChange={onStatusChange}
@@ -196,7 +201,7 @@ function InventoryList({
   if (loading) {
     return (
       <div className={'flex flex-col gap-2 p-4'}>
-        {[...Array(3)].map((_, i) => (
+        {Array.from({ length: 3 }, (_, i) => (
           <Skeleton
             key={i}
             className={'h-10 rounded-xl'}
