@@ -1,25 +1,13 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowUpRight, Check, X } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/shadcn/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/shadcn/select';
-import { Skeleton } from '@/components/ui/shadcn/skeleton';
 import { ROUTES } from '@/constants';
-import {
-  CATEGORY_STYLES,
-  ORDER_STATUS_STYLES,
-} from '@/constants/dashboard.const';
 import {
   useGetMyBundles,
   useGetReceivedOrders,
@@ -31,6 +19,12 @@ import { bundleService, productService } from '@/services';
 import { ICONS } from '@/shared/data/icons';
 
 import { OrderDetailsModal } from './order-details-modal';
+import { SupplierInventory } from './supplier-inventory';
+import {
+  orderSubtotal,
+  SupplierOrdersTable,
+  TSupplierOrder,
+} from './supplier-orders-table';
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   Cart: (
@@ -56,6 +50,68 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   ),
 };
 
+type TStat = {
+  label: string;
+  value: string | number;
+  icon: string;
+  badge?: string;
+  badgeColor?: string;
+};
+
+function getErrorMessage(error: unknown): string {
+  const err = error as { response?: { data?: { message?: string } } };
+  return err.response?.data?.message || 'Failed to update status';
+}
+
+/** Wraps an async status update with cache invalidation and toasts. */
+function useStatusUpdater(
+  update: (id: string, status: string) => Promise<unknown>,
+  queryKey: string,
+  entity: string,
+) {
+  const queryClient = useQueryClient();
+  return async (id: string, newStatus: string) => {
+    try {
+      await update(id, newStatus);
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
+      toast.success(`${entity} status updated to ${newStatus}`);
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    }
+  };
+}
+
+function buildSupplierStats(
+  orders: TSupplierOrder[] | undefined,
+  activeBundles: number,
+): TStat[] {
+  const totalSales = (orders ?? [])
+    .filter(order => order.status !== 'CANCELLED')
+    .reduce((sum: number, order) => sum + orderSubtotal(order), 0);
+
+  return [
+    {
+      label: 'Total Sales',
+      value: `$${totalSales.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+      icon: 'Market',
+      badge: '+18%',
+      badgeColor: 'bg-green-100 text-green-700',
+    },
+    {
+      label: 'Active Bundles',
+      value: activeBundles,
+      icon: 'OrganizationFigma',
+    },
+    {
+      label: 'Orders Received',
+      value: orders?.length ?? 0,
+      icon: 'Cart',
+      badge: 'New',
+      badgeColor: 'bg-blue-100 text-blue-700',
+    },
+  ];
+}
+
 export function SupplierProfessionalDashboardPage() {
   const { data: session } = authClient.useSession();
   const name = session?.user?.name?.split(' ')[0] ?? 'there';
@@ -66,84 +122,31 @@ export function SupplierProfessionalDashboardPage() {
   const [showProducts, setShowProducts] = useState(false);
 
   const { data: rawOrders, isLoading: ordersLoading } = useGetReceivedOrders();
-  const orders = rawOrders as any[] | undefined;
+  const orders = rawOrders as TSupplierOrder[] | undefined;
   const { data: bundles, isLoading: bundlesLoading } =
     useGetMyBundles('SUPPLIER');
   const { data: products, isLoading: productsLoading } = useGetMyProducts();
   const { mutate: updateStatus } = useUpdateOrderStatus();
 
-  const queryClient = useQueryClient();
+  const handleBundleStatusChange = useStatusUpdater(
+    (id, status) => bundleService.update(id, { status } as never),
+    'bundles',
+    'Bundle',
+  );
+  const handleProductStatusChange = useStatusUpdater(
+    (id, status) => productService.updateStatus(id, status),
+    'products',
+    'Product',
+  );
 
-  const handleBundleStatusChange = async (
-    bundleId: string,
-    newStatus: string,
-  ) => {
-    try {
-      await bundleService.update(bundleId, { status: newStatus } as any);
-      queryClient.invalidateQueries({ queryKey: ['bundles'] });
-      toast.success(`Bundle status updated to ${newStatus}`);
-    } catch (error) {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err.response?.data?.message || 'Failed to update status');
-    }
+  const activeBundlesCount =
+    bundles?.filter(b => b.status === 'ACTIVE').length ?? 0;
+  const liveStats = buildSupplierStats(orders, activeBundlesCount);
+
+  const openOrder = (orderId: string) => {
+    setSelectedOrderId(orderId);
+    setDetailsOpen(true);
   };
-
-  const handleProductStatusChange = async (
-    productId: string,
-    newStatus: string,
-  ) => {
-    try {
-      await productService.updateStatus(productId, newStatus);
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success(`Product status updated to ${newStatus}`);
-    } catch (error) {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err.response?.data?.message || 'Failed to update status');
-    }
-  };
-
-  // Compute stats dynamically from real data
-  const totalSales = orders
-    ? orders
-        .filter(o => o.status !== 'CANCELLED')
-        .reduce(
-          (sum: number, o: any) =>
-            sum +
-            o.items.reduce(
-              (s: number, it: any) => s + it.priceSnapshot * it.quantity,
-              0,
-            ),
-          0,
-        )
-    : 0;
-
-  const activeBundlesCount = bundles
-    ? bundles.filter(b => b.status === 'ACTIVE').length
-    : 0;
-
-  const totalOrders = orders?.length ?? 0;
-
-  const liveStats = [
-    {
-      label: 'Total Sales',
-      value: `$${totalSales.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
-      icon: 'Market',
-      badge: '+18%',
-      badgeColor: 'bg-green-100 text-green-700',
-    },
-    {
-      label: 'Active Bundles',
-      value: activeBundlesCount,
-      icon: 'OrganizationFigma',
-    },
-    {
-      label: 'Orders Received',
-      value: totalOrders,
-      icon: 'Cart',
-      badge: 'New',
-      badgeColor: 'bg-blue-100 text-blue-700',
-    },
-  ];
 
   return (
     <div className={'h-[calc(100dvh-64px)] overflow-hidden flex flex-col'}>
@@ -195,498 +198,26 @@ export function SupplierProfessionalDashboardPage() {
           'w-full px-10 py-4 flex flex-col lg:flex-row gap-[30px] flex-1 min-h-0 items-stretch'
         }
       >
-        <div className={'flex flex-col min-h-0 flex-1'}>
-          <h2 className={'text-2xl font-semibold mb-3'}>Orders</h2>
-
-          <div
-            className={
-              'rounded-2xl border border-neutral-100 overflow-hidden flex flex-col min-h-0 flex-1 bg-white shadow-[0_8px_40px_rgba(0,0,0,0.08)]'
-            }
-          >
-            <div
-              className={
-                'grid grid-cols-[0.8fr_1.2fr_0.8fr_1fr_1fr_0.8fr_1.2fr] px-5 py-3 border-b border-neutral-100 shrink-0'
-              }
-            >
-              {[
-                'ORDER ID',
-                'CLIENT',
-                'ITEMS',
-                'DATE',
-                'STATUS',
-                'TOTAL',
-                'ACTIONS',
-              ].map(col => (
-                <span
-                  key={col}
-                  className={
-                    'text-[14px] font-bold uppercase tracking-widest text-muted-foreground'
-                  }
-                >
-                  {col}
-                </span>
-              ))}
-            </div>
-
-            <div className={'overflow-y-auto scrollbar-hide flex-1'}>
-              {ordersLoading ? (
-                <div className={'flex flex-col gap-2 p-4'}>
-                  {[...Array(5)].map((_, i) => (
-                    <Skeleton
-                      key={i}
-                      className={'h-12 rounded-xl'}
-                    />
-                  ))}
-                </div>
-              ) : orders && orders.length > 0 ? (
-                orders.map((order, i) => {
-                  const subTotal = order.items.reduce(
-                    (sum: number, item: any) =>
-                      sum + item.priceSnapshot * item.quantity,
-                    0,
-                  );
-                  return (
-                    <div
-                      key={order.id || i}
-                      className={
-                        'grid grid-cols-[0.8fr_1.2fr_0.8fr_1fr_1fr_0.8fr_1.2fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors cursor-pointer'
-                      }
-                      onClick={() => {
-                        setSelectedOrderId(order.id);
-                        setDetailsOpen(true);
-                      }}
-                    >
-                      <span
-                        className={'text-sm font-medium text-muted-foreground'}
-                      >
-                        #{order.id.slice(0, 8).toUpperCase()}
-                      </span>
-
-                      <div className={'flex flex-col min-w-0'}>
-                        <span
-                          className={
-                            'text-sm font-semibold text-neutral-800 truncate'
-                          }
-                        >
-                          {order.buyer?.profile?.company?.name ||
-                            order.buyer?.name ||
-                            'Individual client'}
-                        </span>
-                        <span
-                          className={
-                            'text-[11px] text-muted-foreground truncate'
-                          }
-                        >
-                          {order.buyer?.email}
-                        </span>
-                      </div>
-
-                      <div className={'flex items-center gap-1'}>
-                        <div className={'flex -space-x-2'}>
-                          <div
-                            className={
-                              'w-6 h-6 rounded-full bg-neutral-300 border-2 border-white'
-                            }
-                          />
-                        </div>
-                        <span
-                          className={'text-[14px] text-muted-foreground ml-0.5'}
-                        >
-                          {order.items?.length || 0} items
-                        </span>
-                      </div>
-
-                      <span className={'text-sm text-muted-foreground'}>
-                        {new Date(order.createdAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}
-                      </span>
-
-                      <span
-                        className={`inline-flex w-fit px-2.5 py-0.5 rounded-full text-[14px] font-bold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status] ?? 'bg-neutral-100 text-neutral-700'}`}
-                      >
-                        {order.status}
-                      </span>
-
-                      <span className={'text-sm font-semibold'}>
-                        $
-                        {subTotal.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                        })}
-                      </span>
-
-                      {order.status === 'NEW' ? (
-                        <div
-                          className={'flex items-center gap-2'}
-                          onClick={e => e.stopPropagation()}
-                        >
-                          <button
-                            className={
-                              'w-10 h-10 rounded-full bg-green-100 flex items-center justify-center hover:bg-green-200 transition-colors'
-                            }
-                            onClick={() => {
-                              toast.promise(
-                                new Promise((resolve, reject) => {
-                                  updateStatus(
-                                    { id: order.id, status: 'PROCESSING' },
-                                    { onSuccess: resolve, onError: reject },
-                                  );
-                                }),
-                                {
-                                  loading: 'Confirming order...',
-                                  success:
-                                    'Order confirmed! Stock has been updated.',
-                                  error: 'Failed to confirm order.',
-                                },
-                              );
-                            }}
-                          >
-                            <Check className={'w-5 h-5 text-green-600'} />
-                          </button>
-                          <button
-                            className={
-                              'w-10 h-10 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors'
-                            }
-                            onClick={() => {
-                              toast.promise(
-                                new Promise((resolve, reject) => {
-                                  updateStatus(
-                                    { id: order.id, status: 'CANCELLED' },
-                                    { onSuccess: resolve, onError: reject },
-                                  );
-                                }),
-                                {
-                                  loading: 'Rejecting order...',
-                                  success: 'Order has been rejected.',
-                                  error: 'Failed to reject order.',
-                                },
-                              );
-                            }}
-                          >
-                            <X className={'w-5 h-5 text-red-500'} />
-                          </button>
-                        </div>
-                      ) : order.status === 'PROCESSING' ? (
-                        <div
-                          className={'flex items-center'}
-                          onClick={e => e.stopPropagation()}
-                        >
-                          <Button
-                            variant={'outline'}
-                            size={'sm'}
-                            className={
-                              'rounded-2xl text-[12px] h-8 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
-                            }
-                            onClick={() => {
-                              toast.promise(
-                                new Promise((resolve, reject) => {
-                                  updateStatus(
-                                    { id: order.id, status: 'SHIPPED' },
-                                    { onSuccess: resolve, onError: reject },
-                                  );
-                                }),
-                                {
-                                  loading: 'Marking as shipped...',
-                                  success: 'Order marked as shipped!',
-                                  error: 'Failed to update order.',
-                                },
-                              );
-                            }}
-                          >
-                            Mark Shipped
-                          </Button>
-                        </div>
-                      ) : (
-                        <div />
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <div
-                  className={
-                    'flex items-center justify-center h-full py-12 text-muted-foreground text-sm'
-                  }
-                >
-                  No orders received yet.
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <SupplierOrdersTable
+          orders={orders}
+          loading={ordersLoading}
+          updateStatus={updateStatus}
+          onOpen={openOrder}
+        />
 
         <div
           className={'lg:w-[600px] w-full shrink-0 flex flex-col gap-4 min-h-0'}
         >
-          <div
-            className={
-              'rounded-2xl bg-white overflow-hidden flex flex-col shadow-[0_8px_40px_rgba(0,0,0,0.08)]'
-            }
-            style={{ height: '300px' }}
-          >
-            <div
-              className={'flex items-center justify-between px-5 py-4 shrink-0'}
-            >
-              <h2 className={'text-xl font-semibold'}>
-                {showProducts ? 'Items Inventory' : 'Bundles Inventory'}
-              </h2>
-              <Button
-                variant={'secondary'}
-                className={
-                  'rounded-full bg-secondary/10 text-secondary hover:bg-secondary/20 border-0'
-                }
-                style={{ width: '178px', height: '48px' }}
-                onClick={() => setShowProducts(!showProducts)}
-              >
-                {showProducts ? 'Bundles Inventory' : 'Items Inventory'}
-              </Button>
-            </div>
-
-            <div
-              className={
-                'grid grid-cols-[2fr_1fr_0.8fr_0.8fr_0.6fr] px-5 py-3 border-y border-neutral-50 shrink-0'
-              }
-            >
-              {[
-                'PRODUCT NAME',
-                'CATEGORY',
-                'STOCK LEVEL',
-                'STATUS',
-                'ACTION',
-              ].map(col => (
-                <span
-                  key={col}
-                  className={
-                    'text-[12px] font-bold uppercase tracking-widest text-muted-foreground'
-                  }
-                >
-                  {col}
-                </span>
-              ))}
-            </div>
-
-            <div className={'overflow-y-auto scrollbar-hide flex-1'}>
-              {(showProducts ? productsLoading : bundlesLoading) ? (
-                <div className={'flex flex-col gap-2 p-4'}>
-                  {[...Array(3)].map((_, i) => (
-                    <Skeleton
-                      key={i}
-                      className={'h-10 rounded-xl'}
-                    />
-                  ))}
-                </div>
-              ) : showProducts ? (
-                products && products.length > 0 ? (
-                  products.map((product, i) => {
-                    const categoryTitle =
-                      product.category?.title || 'Uncategorized';
-                    return (
-                      <div
-                        key={product.id || i}
-                        className={
-                          'grid grid-cols-[2fr_1fr_0.8fr_0.8fr_0.6fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors cursor-pointer'
-                        }
-                        onClick={() => {
-                          router.push(`/product/${product.id}/edit`);
-                        }}
-                      >
-                        <div className={'flex items-center gap-2'}>
-                          <span
-                            className={
-                              'text-sm font-medium text-muted-foreground leading-tight line-clamp-1'
-                            }
-                          >
-                            {product.title}
-                          </span>
-                        </div>
-
-                        <span
-                          className={`inline-flex w-fit px-2 py-0.5 rounded-full text-[12px] font-semibold ${CATEGORY_STYLES[categoryTitle] ?? 'bg-neutral-100 text-neutral-600'}`}
-                        >
-                          {categoryTitle}
-                        </span>
-
-                        <span className={'text-sm text-muted-foreground'}>
-                          {product.stock} units
-                        </span>
-
-                        <div
-                          className={'flex items-center'}
-                          onClick={e => e.stopPropagation()}
-                        >
-                          <Select
-                            value={product.status}
-                            onValueChange={value =>
-                              handleProductStatusChange(product.id, value)
-                            }
-                          >
-                            <SelectTrigger
-                              className={
-                                'h-7 w-[110px] text-xs border-0 bg-transparent px-1 gap-1'
-                              }
-                            >
-                              <div className={'flex items-center gap-1'}>
-                                <div
-                                  className={`w-1.5 h-1.5 rounded-full ${product.status === 'ACTIVE' ? 'bg-green-500' : product.status === 'DRAFT' ? 'bg-yellow-500' : 'bg-neutral-300'}`}
-                                />
-                                <SelectValue />
-                              </div>
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value={'ACTIVE'}>Active</SelectItem>
-                              <SelectItem value={'INACTIVE'}>
-                                Inactive
-                              </SelectItem>
-                              <SelectItem value={'DRAFT'}>Draft</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className={'flex items-center gap-2'}>
-                          <button
-                            className={
-                              'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors'
-                            }
-                            onClick={e => {
-                              e.stopPropagation();
-                              router.push(`/product/${product.id}/edit`);
-                            }}
-                          >
-                            <ICONS.PenFigma
-                              size={14}
-                              color={'currentColor'}
-                              className={'text-secondary'}
-                            />
-                          </button>
-                          <button
-                            className={
-                              'w-8 h-8 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors'
-                            }
-                            onClick={e => {
-                              e.stopPropagation();
-                              // TODO: Delete product
-                            }}
-                          >
-                            <ICONS.TrashFigma
-                              size={14}
-                              color={'currentColor'}
-                              className={'text-red-500'}
-                            />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div
-                    className={
-                      'flex items-center justify-center h-full py-8 text-muted-foreground text-sm'
-                    }
-                  >
-                    No products in inventory.
-                  </div>
-                )
-              ) : bundles && bundles.length > 0 ? (
-                bundles.map((bundle, i) => {
-                  const itemsCount = bundle.items?.length || 0;
-                  const categoryTitle = bundle.space?.title || 'Hotel Room';
-                  return (
-                    <div
-                      key={bundle.id || i}
-                      className={
-                        'grid grid-cols-[2fr_1fr_0.8fr_0.8fr_0.6fr] items-center px-5 py-3 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-colors'
-                      }
-                    >
-                      <div className={'flex items-center gap-2'}>
-                        <span
-                          className={
-                            'text-sm font-medium text-muted-foreground leading-tight line-clamp-1'
-                          }
-                        >
-                          {bundle.name}
-                        </span>
-                      </div>
-
-                      <span
-                        className={`inline-flex w-fit px-2 py-0.5 rounded-full text-[12px] font-semibold ${CATEGORY_STYLES[categoryTitle] ?? 'bg-neutral-100 text-neutral-600'}`}
-                      >
-                        {categoryTitle}
-                      </span>
-
-                      <span className={'text-sm text-muted-foreground'}>
-                        {itemsCount} units
-                      </span>
-
-                      <div className={'flex items-center'}>
-                        <Select
-                          value={bundle.status}
-                          onValueChange={value =>
-                            handleBundleStatusChange(bundle.id, value)
-                          }
-                        >
-                          <SelectTrigger
-                            className={
-                              'h-7 w-[110px] text-xs border-0 bg-transparent px-1 gap-1'
-                            }
-                          >
-                            <div className={'flex items-center gap-1'}>
-                              <div
-                                className={`w-1.5 h-1.5 rounded-full ${bundle.status === 'ACTIVE' ? 'bg-green-500' : bundle.status === 'DRAFT' ? 'bg-yellow-500' : 'bg-neutral-300'}`}
-                              />
-                              <SelectValue />
-                            </div>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={'ACTIVE'}>Active</SelectItem>
-                            <SelectItem value={'INACTIVE'}>Inactive</SelectItem>
-                            <SelectItem value={'DRAFT'}>Draft</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className={'flex items-center gap-2'}>
-                        <button
-                          className={
-                            'w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors'
-                          }
-                          onClick={() =>
-                            router.push(`/bundle-edit/${bundle.id}`)
-                          }
-                        >
-                          <ICONS.PenFigma
-                            size={14}
-                            color={'currentColor'}
-                            className={'text-secondary'}
-                          />
-                        </button>
-                        <button
-                          className={
-                            'w-8 h-8 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors'
-                          }
-                        >
-                          <ICONS.TrashFigma
-                            size={14}
-                            color={'currentColor'}
-                            className={'text-red-500'}
-                          />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div
-                  className={
-                    'flex items-center justify-center h-full py-8 text-muted-foreground text-sm'
-                  }
-                >
-                  No bundles in inventory.
-                </div>
-              )}
-            </div>
-          </div>
+          <SupplierInventory
+            showProducts={showProducts}
+            onToggle={() => setShowProducts(!showProducts)}
+            productsLoading={productsLoading}
+            bundlesLoading={bundlesLoading}
+            products={products}
+            bundles={bundles}
+            onProductStatusChange={handleProductStatusChange}
+            onBundleStatusChange={handleBundleStatusChange}
+          />
 
           <div className={'grid grid-cols-3 gap-4 shrink-0'}>
             {liveStats.map(stat => (

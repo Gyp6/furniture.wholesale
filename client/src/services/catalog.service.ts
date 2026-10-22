@@ -35,86 +35,98 @@ export const productTagService = {
   },
 };
 
+type TProductPredicate = (product: IProduct) => boolean;
+
+const hasAny = (values?: string[]): values is string[] =>
+  Array.isArray(values) && values.length > 0;
+
+const matchesSearch =
+  (search: string): TProductPredicate =>
+  product => {
+    const query = search.toLowerCase();
+    const manufacturer = product.manufacturer?.name?.toLowerCase?.() ?? '';
+    return (
+      product.title.toLowerCase().includes(query) ||
+      manufacturer.includes(query)
+    );
+  };
+
+const inSlugs = (slugs: string[], slug?: string) =>
+  Boolean(slug) && slugs.includes(slug as string);
+
+/** Builds the list of active filters from the query params (Strategy pattern). */
+function buildProductFilters(params: IProductParams): TProductPredicate[] {
+  const { search, categories, spaces, tags, minPrice, maxPrice } = params;
+  const filters: TProductPredicate[] = [];
+
+  if (search) filters.push(matchesSearch(search));
+  if (hasAny(categories)) {
+    filters.push(p => inSlugs(categories, p.category?.slug));
+  }
+  if (hasAny(spaces)) {
+    filters.push(p => p.spaces?.some(s => inSlugs(spaces, s.slug)) ?? false);
+  }
+  if (hasAny(tags)) {
+    filters.push(p => p.tags?.some(t => inSlugs(tags, t.slug)) ?? false);
+  }
+  if (minPrice !== undefined) {
+    filters.push(p => p.price === undefined || Number(p.price) >= minPrice);
+  }
+  if (maxPrice !== undefined) {
+    filters.push(p => p.price === undefined || Number(p.price) <= maxPrice);
+  }
+  return filters;
+}
+
+const SORTERS: Record<string, (items: IProduct[]) => IProduct[]> = {
+  'Price: Low to High': items =>
+    [...items].sort((a, b) => Number(a.price) - Number(b.price)),
+  'Price: High to Low': items =>
+    [...items].sort((a, b) => Number(b.price) - Number(a.price)),
+  'Newest Arrivals': items => [...items].reverse(),
+};
+
+function sortProducts(products: IProduct[], sort?: string): IProduct[] {
+  const sorter = sort ? SORTERS[sort] : undefined;
+  return sorter ? sorter(products) : products;
+}
+
+function paginate(
+  products: IProduct[],
+  page = 1,
+  limit = 20,
+): IProductResponse {
+  const total = products.length;
+  const startIndex = (page - 1) * limit;
+  return {
+    items: products.slice(startIndex, startIndex + limit),
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+  };
+}
+
+/** API structure might be { data: { items: [], total } }, { items: [] } or a bare array. */
+function extractProducts(data: unknown): IProduct[] {
+  if (Array.isArray(data)) return data as IProduct[];
+  const body = data as { items?: IProduct[]; data?: IProduct[] };
+  return body.items || body.data || (data as IProduct[]);
+}
+
 export const productService = {
   async getAll(params: IProductParams = {}): Promise<IProductResponse> {
     const { data } = await api.get(ROUTES.API.CATALOG.PRODUCT.GET_ALL);
 
-    // API structure might be { data: { items: [], total: ... } } or just { items: [] }
-    let products: IProduct[] = (
-      Array.isArray(data) ? data : data.items || data.data || data
-    ) as IProduct[];
+    const filters = buildProductFilters(params);
+    const filtered = extractProducts(data).filter(product =>
+      filters.every(matches => matches(product)),
+    );
 
-    if (params.search) {
-      const search = params.search.toLowerCase();
-      products = products.filter(
-        p =>
-          p.title.toLowerCase().includes(search) ||
-          (p.manufacturer?.name?.toLowerCase?.() || '').includes(search),
-      );
-    }
-
-    // Category filter
-    if (params.categories && params.categories.length > 0) {
-      products = products.filter(p =>
-        p.category?.slug ? params.categories?.includes(p.category.slug) : false,
-      );
-    }
-
-    // Space filter
-    if (params.spaces && params.spaces.length > 0) {
-      products = products.filter(p =>
-        p.spaces?.some(s => s.slug && params.spaces?.includes(s.slug)),
-      );
-    }
-
-    // Tag (Style) filter
-    if (params.tags && params.tags.length > 0) {
-      products = products.filter(p =>
-        p.tags?.some(t => t.slug && params.tags?.includes(t.slug)),
-      );
-    }
-
-    // Price filter
-    if (params.minPrice !== undefined) {
-      products = products.filter(
-        p => p.price === undefined || Number(p.price) >= params.minPrice!,
-      );
-    }
-    if (params.maxPrice !== undefined) {
-      products = products.filter(
-        p => p.price === undefined || Number(p.price) <= params.maxPrice!,
-      );
-    }
-
-    // Sort
-    if (params.sort) {
-      switch (params.sort) {
-        case 'Price: Low to High':
-          products.sort((a, b) => Number(a.price) - Number(b.price));
-          break;
-        case 'Price: High to Low':
-          products.sort((a, b) => Number(b.price) - Number(a.price));
-          break;
-        case 'Newest Arrivals':
-          products.reverse();
-          break;
-      }
-    }
-
-    // Pagination
-    const page = params.page || 1;
-    const limit = params.limit || 20;
-    const total = products.length;
-    const totalPages = Math.ceil(total / limit);
-    const startIndex = (page - 1) * limit;
-    const items = products.slice(startIndex, startIndex + limit);
-
-    return {
-      items,
-      total,
-      page,
-      totalPages,
-    };
+    return paginate(
+      sortProducts(filtered, params.sort),
+      params.page || 1,
+      params.limit || 20,
+    );
   },
 
   async getOne(id: string): Promise<IProduct> {
