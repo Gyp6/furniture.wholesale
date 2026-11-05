@@ -156,3 +156,23 @@ export const orderShippedTemplate = (data: OrderStatusUpdateData) => ({
     data,
   ),
 });
+
+export const orderDeliveredTemplate = (data: OrderStatusUpdateData) => ({
+  subject: `Order Delivered — #${data.orderId.slice(0, 8).toUpperCase()} | Gyp6.sale`,
+  html: buildEmail(
+    'Order Delivered',
+    'Your Order Has Arrived',
+    `Hi ${data.buyerName}, your order from <strong>${data.supplierName}</strong> is marked as delivered. Thank you for buying on Gyp6.sale!`,
+    data,
+  ),
+});
+
+export const orderCancelledTemplate = (data: OrderStatusUpdateData) => ({
+  subject: `Order Cancelled — #${data.orderId.slice(0, 8).toUpperCase()} | Gyp6.sale`,
+  html: buildEmail(
+    'Order Cancelled',
+    'Your Order Was Cancelled',
+    `Hi ${data.buyerName}, <strong>${data.supplierName}</strong> has cancelled this order. No payment is due for the items below.`,
+    data,
+  ),
+});

@@ -6,8 +6,10 @@ import { Resend } from 'resend';
 import type { IMailOptions } from '@/common/types';
 
 import {
+  orderCancelledTemplate,
   orderConfirmationTemplate,
   orderConfirmedTemplate,
+  orderDeliveredTemplate,
   orderShippedTemplate,
   resetPasswordTemplate,
   supplierNotificationTemplate,
@@ -59,6 +61,22 @@ export class MailService {
 
   async sendOrderShippedNotification(to: string, data: OrderStatusUpdateData) {
     const { subject, html } = orderShippedTemplate(data);
+    return this.enqueue(to, subject, html);
+  }
+
+  async sendOrderDeliveredNotification(
+    to: string,
+    data: OrderStatusUpdateData,
+  ) {
+    const { subject, html } = orderDeliveredTemplate(data);
+    return this.enqueue(to, subject, html);
+  }
+
+  async sendOrderCancelledNotification(
+    to: string,
+    data: OrderStatusUpdateData,
+  ) {
+    const { subject, html } = orderCancelledTemplate(data);
     return this.enqueue(to, subject, html);
   }
 

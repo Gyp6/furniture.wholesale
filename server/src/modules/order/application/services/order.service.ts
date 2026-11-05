@@ -305,6 +305,12 @@ export class OrderService {
           status,
         );
 
+        this.sendStatusUpdateEmail(subOrder, status).catch(err =>
+          this.logger.error(
+            `Failed to send delivery email for sub-order ${id}: ${err.message}`,
+          ),
+        );
+
         await this.syncParentOrderStatus(subOrder.orderId);
 
         return OrderMapper.subOrderToResponse(updated, this.baseUrl);
@@ -396,6 +402,7 @@ export class OrderService {
   ): Promise<void> {
     const buyerEmail = subOrder.buyer?.email;
     if (!buyerEmail) return;
+    if (newStatus === subOrder.status) return; // no-op transition: nothing to notify
 
     const subOrderTotal = subOrder.items.reduce(
       (sum, item) => sum + item.quantity * item.priceSnapshot,
@@ -419,10 +426,32 @@ export class OrderService {
       subOrderTotal,
     };
 
-    if (newStatus === OrderStatus.PROCESSING) {
+    // Notification rules depend on the transition (from -> to), not only on the new status.
+    if (
+      subOrder.status === OrderStatus.NEW &&
+      newStatus === OrderStatus.PROCESSING
+    ) {
       await this.mailService.sendOrderConfirmedNotification(buyerEmail, data);
-    } else if (newStatus === OrderStatus.SHIPPED) {
+    } else if (
+      subOrder.status === OrderStatus.PROCESSING &&
+      newStatus === OrderStatus.SHIPPED
+    ) {
       await this.mailService.sendOrderShippedNotification(buyerEmail, data);
+    } else if (
+      subOrder.status === OrderStatus.SHIPPED &&
+      newStatus === OrderStatus.DELIVERED
+    ) {
+      await this.mailService.sendOrderDeliveredNotification(buyerEmail, data);
+    } else if (
+      subOrder.status === OrderStatus.NEW &&
+      newStatus === OrderStatus.CANCELLED
+    ) {
+      await this.mailService.sendOrderCancelledNotification(buyerEmail, data);
+    } else if (
+      subOrder.status === OrderStatus.PROCESSING &&
+      newStatus === OrderStatus.CANCELLED
+    ) {
+      await this.mailService.sendOrderCancelledNotification(buyerEmail, data);
     }
   }
 
