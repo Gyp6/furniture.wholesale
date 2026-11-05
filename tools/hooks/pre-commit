@@ -1,0 +1,82 @@
+#!/bin/sh
+# Lab 6 — local quality gate (Git pre-commit hook).
+#
+# Blocks the commit when any function in a STAGED .ts/.tsx file has
+# cyclomatic complexity (McCabe, Lizard 1.25.0) above CC_LIMIT (default 10).
+#
+#   install:  node tools/hooks/install.mjs      (copies this file to .git/hooks/pre-commit)
+#   bypass:   git commit --no-verify            (conscious, visible in review)
+#   override: CC_LIMIT=15 git commit ...        LIZARD="python -m lizard" git commit ...
+#
+# Git for Windows runs hooks with its bundled sh, so the same file works on
+# Windows, macOS and Linux.
+
+LIMIT="${CC_LIMIT:-10}"
+ESC=$(printf '\033')
+RED="${ESC}[1;31m"; GREEN="${ESC}[1;32m"; CYAN="${ESC}[36m"; RESET="${ESC}[0m"
+
+# 1. Staged files only (Added/Copied/Modified/Renamed), production code only.
+FILES=$(git diff --cached --name-only --diff-filter=ACMR -- '*.ts' '*.tsx' |
+  grep -Ev '\.(spec|test)\.tsx?$|\.d\.ts$|\.goodhart\.ts$|/generated/' || true)
+
+if [ -z "$FILES" ]; then
+  echo "${CYAN}[pre-commit]${RESET} no staged .ts/.tsx — complexity gate skipped"
+  exit 0
+fi
+
+# 2. Scan the version that is going INTO the commit (the index), not the
+#    working tree: a partially staged file is checked exactly as committed.
+SNAP=".git/precommit-snapshot"
+rm -rf "$SNAP" && mkdir -p "$SNAP"
+echo "$FILES" | git checkout-index --stdin --prefix="$SNAP/"
+TARGETS=$(echo "$FILES" | sed "s|^|$SNAP/|")
+
+# 3. Pinned scanner: local lizard only if it is exactly 1.25.0 (1.17.x cannot
+#    parse TS classes — see lab 5), otherwise the hashed Docker image.
+run_lizard() {
+  if [ -n "$LIZARD" ]; then
+    $LIZARD "$@"
+  elif command -v lizard >/dev/null 2>&1 && [ "$(lizard --version 2>/dev/null)" = "1.25.0" ]; then
+    lizard "$@"
+  else
+    MSYS_NO_PATHCONV=1 docker compose -f tools/metrics/docker-compose.yaml run --rm -T lizard "$@"
+  fi
+}
+
+echo "${CYAN}[pre-commit]${RESET} complexity gate: Lizard 1.25.0, limit CC <= $LIMIT"
+echo "$FILES" | sed 's/^/  staged: /'
+
+# shellcheck disable=SC2086
+REPORT=$(run_lizard -l typescript -l tsx -C "$LIMIT" $TARGETS 2>&1)
+CODE=$?
+rm -rf "$SNAP"
+
+# 4. Function table (CCN + name), worst first. Lizard rows look like
+#    "NLOC CCN token PARAM length name@start-end@file"; offenders are printed
+#    twice by lizard (table + warnings section), hence sort -u.
+ROWS=$(echo "$REPORT" | awk -v snap="$SNAP/" '$6 ~ /@/ && $2 ~ /^[0-9]+$/ {
+  split($6, loc, "@"); file = loc[3]; sub(snap, "", file);
+  printf "%5d  %s  (%s:%s)\n", $2, loc[1], file, loc[2] }' | sort -u | sort -rn)
+echo "  CCN  function"
+echo "$ROWS" | head -8 | while IFS= read -r row; do
+  ccn=$(echo "$row" | awk '{print $1}')
+  if [ "$ccn" -gt "$LIMIT" ]; then echo "${RED}${row}  <-- CC > $LIMIT${RESET}"; else echo "$row"; fi
+done
+
+# 5. Gate on the scanner's exit code: 0 = no thresholds exceeded,
+#    1 = warnings, anything else = scanner failure (fail closed).
+if [ "$CODE" -eq 0 ]; then
+  echo "${GREEN}[pre-commit] PASS: every staged function has CC <= $LIMIT — commit allowed${RESET}"
+  exit 0
+fi
+
+BAD=$(echo "$ROWS" | awk -v l="$LIMIT" '$1 > l' | wc -l | tr -d ' ')
+if [ "$CODE" -eq 1 ] && [ "$BAD" -gt 0 ]; then
+  echo "${RED}[pre-commit] FAIL: $BAD function(s) exceed cyclomatic complexity $LIMIT.${RESET}"
+  echo "${RED}  Commit BLOCKED. Flatten the branches (lookup table / early return) and stage again.${RESET}"
+  exit 1
+fi
+
+echo "${RED}[pre-commit] FAIL: scanner error (exit $CODE) — commit blocked (fail closed).${RESET}"
+echo "$REPORT" | tail -5
+exit 1

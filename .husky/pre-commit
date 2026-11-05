@@ -1,1 +1,2 @@
+sh tools/hooks/pre-commit || exit 1
 bunx lint-staged

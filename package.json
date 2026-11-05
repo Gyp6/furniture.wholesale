@@ -20,7 +20,10 @@
     "metrics:encoding": "node tools/metrics/check-encoding.mjs",
     "metrics:complexity": "docker compose -f tools/metrics/docker-compose.yaml run --rm lizard -l typescript -C 15 -w server/src client/src",
     "perf:gate": "node perf/median-gate.mjs normal 3",
-    "quality:balanced": "node tools/metrics/balanced-gate.mjs server"
+    "quality:balanced": "node tools/metrics/balanced-gate.mjs server",
+    "metrics:halstead": "docker compose -f tools/metrics/docker-compose.yaml run --rm --entrypoint python lizard tools/metrics/halstead.py --top 10",
+    "metrics:cc": "docker compose -f tools/metrics/docker-compose.yaml run --rm lizard -l typescript -l tsx -C 10 -w server/src client/src",
+    "hooks:install": "node tools/hooks/install.mjs"
   },
   "repository": {
     "type": "git",
