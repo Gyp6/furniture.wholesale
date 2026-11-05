@@ -24,6 +24,7 @@ import {
   Patch,
   Post,
   Req,
+  Res,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -34,6 +35,7 @@ import {
 } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { AllowAnonymous, Roles } from '@thallesp/nestjs-better-auth';
+import type { FastifyReply } from 'fastify';
 
 import { ROLES } from '@/common/constants';
 import { IReqUser } from '@/common/types';
@@ -77,8 +79,14 @@ export class ProductController {
   @Get('price-list')
   @SkipThrottle()
   @AllowAnonymous()
-  async priceList(): Promise<PriceListResponse> {
-    return this.priceListService.getPriceList();
+  async priceList(
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<PriceListResponse> {
+    const list = await this.priceListService.getPriceList();
+    reply.header('X-FX-Source', list.rateSource);
+    reply.header('X-FX-Attempts', String(list.fxAttempts));
+    if (list.degraded) reply.header('X-Degraded', 'fx');
+    return list;
   }
 
   @ApiOperation({ summary: 'Get product by id' })

@@ -5,7 +5,8 @@ export class PriceListItemResponse {
   @ApiProperty() sku!: string;
   @ApiProperty() title!: string;
   @ApiProperty({ description: 'Base wholesale price, USD' }) priceUsd!: number;
-  @ApiProperty({ description: 'Price in the response currency' }) price!: number;
+  @ApiProperty({ description: 'Price in the response currency' })
+  price!: number;
 }
 
 export class PriceListResponse {
@@ -15,7 +16,14 @@ export class PriceListResponse {
   @ApiProperty({ nullable: true }) rateDate!: string | null;
   @ApiProperty({ enum: ['live', 'stale-cache', 'unavailable'] })
   rateSource!: 'live' | 'stale-cache' | 'unavailable';
-  @ApiProperty({ description: 'true when the FX dependency failed and a fallback was used' })
+  @ApiProperty({
+    description: 'true when the FX dependency failed and a fallback was used',
+  })
   degraded!: boolean;
-  @ApiProperty({ type: [PriceListItemResponse] }) items!: PriceListItemResponse[];
+  @ApiProperty({
+    description: 'HTTP attempts spent on the FX dependency (1 = no retries)',
+  })
+  fxAttempts!: number;
+  @ApiProperty({ type: [PriceListItemResponse] })
+  items!: PriceListItemResponse[];
 }
