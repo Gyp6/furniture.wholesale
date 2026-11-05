@@ -1,0 +1,13 @@
+# Lab 5 — isolated, version-pinned static-analysis runner.
+#   docker compose -f tools/metrics/docker-compose.yaml run --rm lizard -l typescript -C 15 server/src client/src
+services:
+  lizard:
+    build: .
+    image: gyp6-metrics:lizard-1.25.0
+    network_mode: none     # analysis must not depend on the network
+    cpus: "1.0"            # fixed resources: same limits on every agent
+    mem_limit: 512m
+    read_only: true
+    working_dir: /src
+    volumes:
+      - ../..:/src:ro

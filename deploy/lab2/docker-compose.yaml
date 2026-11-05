@@ -57,6 +57,10 @@ services:
       FX_RESILIENCE_ENABLED: ${FX_RESILIENCE_ENABLED:-true}
     ports:
       - "4200:4200"
+    # Lab 5: fixed resources -> perf numbers comparable between runs/machines.
+    # Lab 5 stability test lowers it on purpose: docker update --cpus 0.1 gyp6-lab2-api-1
+    cpus: "1.0"
+    mem_limit: 768m
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -70,9 +74,12 @@ services:
   k6:
     image: grafana/k6:1.5.0
     profiles: ["tools"]
+    cpus: "1.0"
+    mem_limit: 512m
     working_dir: /work
     environment:
       BASE_URL: http://api:4200
+      K6_NO_USAGE_REPORT: "true"
     volumes:
       - ../../perf:/perf:ro
       - ../../perf/results:/work/perf/results
