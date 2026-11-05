@@ -25,5 +25,4 @@ Dockerfile*
 README.md
 eslint.config.mjs
 prettier.config.mjs
-tsconfig.build.json
 tsconfig.test.json

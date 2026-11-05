@@ -5,10 +5,14 @@ import {
   UploadUrlRequest,
 } from '@catalog/application/dto/requests';
 import {
+  PriceListResponse,
   ProductResponse,
   UploadUrlResponse,
 } from '@catalog/application/dto/responses';
-import { ProductService } from '@catalog/application/services';
+import {
+  PriceListService,
+  ProductService,
+} from '@catalog/application/services';
 import {
   Body,
   Controller,
@@ -43,6 +47,7 @@ export class ProductController {
   constructor(
     private readonly s3Service: S3Service,
     private readonly productService: ProductService,
+    private readonly priceListService: PriceListService,
   ) {}
 
   @ApiOperation({ summary: 'Get all active products' })
@@ -63,6 +68,17 @@ export class ProductController {
     @Req() { user }: { user: IReqUser },
   ): Promise<ProductResponse[]> {
     return this.productService.findMyProducts(user.id);
+  }
+
+  @ApiOperation({
+    summary: 'Wholesale price list in UAH (NBU exchange rate)',
+  })
+  @ApiOkResponse({ type: PriceListResponse })
+  @Get('price-list')
+  @SkipThrottle()
+  @AllowAnonymous()
+  async priceList(): Promise<PriceListResponse> {
+    return this.priceListService.getPriceList();
   }
 
   @ApiOperation({ summary: 'Get product by id' })

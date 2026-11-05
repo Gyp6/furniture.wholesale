@@ -23,6 +23,7 @@ import {
 
 import { IMailOptions } from '@/common/types';
 import { CaslModule } from '@/infrastructure/casl/casl.module';
+import { FxModule } from '@/infrastructure/fx';
 import { MailModule } from '@/infrastructure/mail/mail.module';
 import { MailService } from '@/infrastructure/mail/mail.service';
 import { OtpModule } from '@/infrastructure/otp/otp.module';
@@ -45,6 +46,7 @@ import { createAuth } from './lib';
     }),
     PrismaModule,
     RedisModule,
+    FxModule,
     BullModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         connection: {

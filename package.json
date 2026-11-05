@@ -12,7 +12,11 @@
   },
   "scripts": {
     "prepare": "husky",
-    "sonar": "powershell -ExecutionPolicy Bypass -File scripts/sonar-scan.ps1"
+    "sonar": "powershell -ExecutionPolicy Bypass -File scripts/sonar-scan.ps1",
+    "lab2:up": "docker compose -f deploy/lab2/docker-compose.yaml up -d --build",
+    "lab2:down": "docker compose -f deploy/lab2/docker-compose.yaml down -v",
+    "perf:normal": "k6 run -e PROFILE=normal perf/price-list.k6.js",
+    "perf:peak": "k6 run -e PROFILE=peak perf/price-list.k6.js"
   },
   "repository": {
     "type": "git",

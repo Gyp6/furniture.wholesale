@@ -1,0 +1,78 @@
+# Lab 2 (ISO/IEC 25010: Performance Efficiency & Reliability) — isolated test stand.
+#   docker compose -f deploy/lab2/docker-compose.yaml up -d --build
+#   API:       http://localhost:4200/api/v1/products/price-list
+#   Fake NBU:  http://localhost:4300/__chaos   (fault injection control)
+name: gyp6-lab2
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_DB: furniture
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d furniture"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--requirepass", "1234"]
+
+  # External dependency under test: NBU exchange-rate API (fake, with fault injection)
+  fake-nbu:
+    image: oven/bun:1.2-alpine
+    working_dir: /app
+    command: ["bun", "fake-nbu.server.ts"]
+    environment:
+      PORT: "4300"
+      BASE_LATENCY_MS: "20"
+    volumes:
+      - ../../server/test/fakes:/app:ro
+    ports:
+      - "4300:4300"
+
+  # One-shot: schema migrations + demo data (products in USD)
+  migrate:
+    build:
+      context: ../../server
+      dockerfile: Dockerfile.api
+    image: gyp6-lab2-api:latest
+    env_file: api.env
+    command: ["sh", "-c", "bunx prisma migrate deploy && bun src/infrastructure/prisma/lab2.seed.ts"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ../../server
+      dockerfile: Dockerfile.api
+    image: gyp6-lab2-api:latest
+    env_file: api.env
+    environment:
+      # Kill-switch for the "before" demo: FX_RESILIENCE_ENABLED=false docker compose ... up -d api
+      FX_RESILIENCE_ENABLED: ${FX_RESILIENCE_ENABLED:-true}
+    ports:
+      - "4200:4200"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+      fake-nbu:
+        condition: service_started
+
+  # Load generator (alternative to a locally installed k6):
+  #   docker compose -f deploy/lab2/docker-compose.yaml run --rm k6 run -e PROFILE=normal /perf/price-list.k6.js
+  k6:
+    image: grafana/k6:1.5.0
+    profiles: ["tools"]
+    working_dir: /work
+    environment:
+      BASE_URL: http://api:4200
+    volumes:
+      - ../../perf:/perf:ro
+      - ../../perf/results:/work/perf/results

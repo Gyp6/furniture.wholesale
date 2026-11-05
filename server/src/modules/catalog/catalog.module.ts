@@ -5,6 +5,7 @@ import { IdentityModule } from '@/modules/identity/identity.module';
 import {
   CategoryService,
   DimensionService,
+  PriceListService,
   ProductService,
   SpaceService,
   TagService,
@@ -41,6 +42,7 @@ const controllers = [
 const services = [
   CategoryService,
   DimensionService,
+  PriceListService,
   ProductService,
   SpaceService,
   TagService,

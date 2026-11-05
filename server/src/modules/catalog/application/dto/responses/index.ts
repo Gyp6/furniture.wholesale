@@ -5,3 +5,4 @@ export * from './product.response';
 export * from './space.response';
 export * from './tag.response';
 export * from './upload-url.response';
+export * from './price-list.response';
