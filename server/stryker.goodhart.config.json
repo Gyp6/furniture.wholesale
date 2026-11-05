@@ -1,0 +1,42 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "_comment": "Lab 5 Goodhart experiment: the same mutants against the assert-free coverage-farming suite.",
+  "packageManager": "npm",
+  "testRunner": "command",
+  "commandRunner": {
+    "command": "bun test ./test/goodhart/fx.no-assert.goodhart.ts"
+  },
+  "mutate": [
+    "src/infrastructure/fx/**/*.ts",
+    "!src/infrastructure/fx/**/*.spec.ts",
+    "!src/infrastructure/fx/index.ts",
+    "!src/infrastructure/fx/fx.module.ts",
+    "src/modules/catalog/application/services/price-list.service.ts"
+  ],
+  "coverageAnalysis": "off",
+  "concurrency": 2,
+  "timeoutMS": 15000,
+  "reporters": [
+    "clear-text",
+    "progress",
+    "json",
+    "html"
+  ],
+  "jsonReporter": {
+    "fileName": "reports/mutation-goodhart/mutation.json"
+  },
+  "htmlReporter": {
+    "fileName": "reports/mutation-goodhart/mutation.html"
+  },
+  "thresholds": {
+    "high": 80,
+    "low": 65,
+    "break": null
+  },
+  "ignorePatterns": [
+    "dist",
+    "coverage",
+    "reports",
+    ".scannerwork"
+  ]
+}
