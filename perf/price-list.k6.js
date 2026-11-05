@@ -4,6 +4,7 @@
  *
  *   k6 run -e PROFILE=normal perf/price-list.k6.js     # нормальне навантаження  -> PASS
  *   k6 run -e PROFILE=peak   perf/price-list.k6.js     # підвищене навантаження  -> FAIL
+ *   k6 run -e PROFILE=fault  perf/price-list.k6.js     # нормальне навантаження під час відмови NBU
  *
  * Env: BASE_URL (default http://localhost:4200), P95_MS, ERROR_RATE (override SLO).
  * Exit code 99 = thresholds crossed (FAIL), 0 = PASS.
@@ -16,7 +17,8 @@ const BASE_URL = __ENV.BASE_URL || 'http://localhost:4200';
 const PROFILE = __ENV.PROFILE || 'normal';
 
 // ---- SLO (обґрунтування — у звіті, розділ 2.4) ----
-const P95_MS = Number(__ENV.P95_MS || 300); // p95 response time ≤ 300 ms
+// fault: SLO деградованого режиму (залежність NBU недоступна) — відповідь ≤ 2 с, без помилок.
+const P95_MS = Number(__ENV.P95_MS || (PROFILE === 'fault' ? 2000 : 300)); // p95 ≤ 300 ms
 const ERROR_RATE = Number(__ENV.ERROR_RATE || 0.01); // Error Rate < 1 %
 
 // ---- Модель навантаження ----
@@ -39,6 +41,15 @@ const PROFILES = {
       { duration: '10s', target: 0 },
     ],
     thinkTime: 0.2,
+  },
+  // Нормальне навантаження під час відмови NBU (fault injection через /__chaos).
+  fault: {
+    stages: [
+      { duration: '10s', target: 20 },
+      { duration: '30s', target: 20 },
+      { duration: '5s', target: 0 },
+    ],
+    thinkTime: 1,
   },
 };
 const profile = PROFILES[PROFILE];
