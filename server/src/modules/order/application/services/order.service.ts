@@ -31,6 +31,8 @@ import {
   SubOrderResponse,
 } from '../dto/responses/order.response';
 
+import { mailerFor } from './order-status-mail.table';
+
 @Injectable()
 export class OrderService {
   private readonly logger = new Logger(OrderService.name);
@@ -402,57 +404,12 @@ export class OrderService {
   ): Promise<void> {
     const buyerEmail = subOrder.buyer?.email;
     if (!buyerEmail) return;
-    if (newStatus === subOrder.status) return; // no-op transition: nothing to notify
-
-    const subOrderTotal = subOrder.items.reduce(
-      (sum, item) => sum + item.quantity * item.priceSnapshot,
-      0,
+    const send = mailerFor(subOrder.status, newStatus);
+    await send(
+      this.mailService,
+      buyerEmail,
+      OrderMapper.toStatusMailData(subOrder),
     );
-
-    const data = {
-      orderId: subOrder.orderId,
-      subOrderId: subOrder.id,
-      buyerName: subOrder.buyer?.name || 'Customer',
-      supplierName:
-        subOrder.supplier?.profile?.company?.name ||
-        subOrder.supplier?.name ||
-        'Supplier',
-      items: subOrder.items.map(item => ({
-        titleSnapshot: item.titleSnapshot,
-        skuSnapshot: item.skuSnapshot,
-        quantity: item.quantity,
-        priceSnapshot: item.priceSnapshot,
-      })),
-      subOrderTotal,
-    };
-
-    // Notification rules depend on the transition (from -> to), not only on the new status.
-    if (
-      subOrder.status === OrderStatus.NEW &&
-      newStatus === OrderStatus.PROCESSING
-    ) {
-      await this.mailService.sendOrderConfirmedNotification(buyerEmail, data);
-    } else if (
-      subOrder.status === OrderStatus.PROCESSING &&
-      newStatus === OrderStatus.SHIPPED
-    ) {
-      await this.mailService.sendOrderShippedNotification(buyerEmail, data);
-    } else if (
-      subOrder.status === OrderStatus.SHIPPED &&
-      newStatus === OrderStatus.DELIVERED
-    ) {
-      await this.mailService.sendOrderDeliveredNotification(buyerEmail, data);
-    } else if (
-      subOrder.status === OrderStatus.NEW &&
-      newStatus === OrderStatus.CANCELLED
-    ) {
-      await this.mailService.sendOrderCancelledNotification(buyerEmail, data);
-    } else if (
-      subOrder.status === OrderStatus.PROCESSING &&
-      newStatus === OrderStatus.CANCELLED
-    ) {
-      await this.mailService.sendOrderCancelledNotification(buyerEmail, data);
-    }
   }
 
   async checkStock(

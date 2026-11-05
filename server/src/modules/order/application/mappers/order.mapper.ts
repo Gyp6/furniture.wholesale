@@ -2,6 +2,7 @@ import { Order, OrderItem, SubOrder } from '@order/domain/entities';
 import { Prisma } from '@prisma/client';
 
 import { TRoleValues } from '@/common/types';
+import type { OrderStatusUpdateData } from '@/infrastructure/mail/templates';
 import { ProductMapper } from '@/modules/catalog/application/mappers';
 import { ProfileMapper } from '@/modules/identity/application/mappers/profile.mapper';
 
@@ -263,6 +264,29 @@ export class OrderMapper {
           ? ProductMapper.toResponse(item.product, baseUrl)
           : null,
       })),
+    };
+  }
+
+  /** Payload of the buyer status e-mail (defaults for missing names live here, not in the service). */
+  static toStatusMailData(subOrder: SubOrder): OrderStatusUpdateData {
+    return {
+      orderId: subOrder.orderId,
+      subOrderId: subOrder.id,
+      buyerName: subOrder.buyer?.name || 'Customer',
+      supplierName:
+        subOrder.supplier?.profile?.company?.name ||
+        subOrder.supplier?.name ||
+        'Supplier',
+      items: subOrder.items.map(item => ({
+        titleSnapshot: item.titleSnapshot,
+        skuSnapshot: item.skuSnapshot,
+        quantity: item.quantity,
+        priceSnapshot: item.priceSnapshot,
+      })),
+      subOrderTotal: subOrder.items.reduce(
+        (sum, item) => sum + item.quantity * item.priceSnapshot,
+        0,
+      ),
     };
   }
 }
