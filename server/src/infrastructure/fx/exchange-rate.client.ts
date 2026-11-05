@@ -128,11 +128,25 @@ export class ExchangeRateClient {
     timeoutMs?: number,
   ): Promise<IExchangeRate> {
     const url = `${this.options.baseUrl}?valcode=${currency}&json`;
-    const response = await this.fetchFn(
-      url,
-      timeoutMs ? { signal: AbortSignal.timeout(timeoutMs) } : undefined,
-    );
-    if (!response.ok) throw new FxResponseError(response.status);
-    return parseNbuRate(await response.json(), currency);
+    // Own AbortController + setTimeout instead of AbortSignal.timeout():
+    // Bun on Windows does not always fire AbortSignal.timeout, so a hung
+    // provider would hang the request (seen in lab 5 test runs).
+    const controller = new AbortController();
+    const timer = timeoutMs
+      ? setTimeout(
+          () => controller.abort(new DOMException('timeout', 'TimeoutError')),
+          timeoutMs,
+        )
+      : undefined;
+    try {
+      const response = await this.fetchFn(
+        url,
+        timeoutMs ? { signal: controller.signal } : undefined,
+      );
+      if (!response.ok) throw new FxResponseError(response.status);
+      return parseNbuRate(await response.json(), currency);
+    } finally {
+      clearTimeout(timer);
+    }
   }
 }
