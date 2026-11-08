@@ -9,3 +9,6 @@ deploy/env
 # SonarQube scanner work dir
 .scannerwork
 **/.scannerwork
+
+# lab 7: local hotspot reports (CI uploads them as an artifact)
+/reports/

@@ -1,0 +1,69 @@
+# Lab 7 — cloud complexity scan + Git churn -> Hotspot matrix (build artifact).
+# Runs on every push and pull request, inside a pinned Docker container.
+name: Complexity & Hotspots
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hotspots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hotspots:
+    name: Lizard + git churn -> hotspots
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # same base image as tools/metrics/Dockerfile (lab 5): same numbers locally and in CI
+    container: python:3.13.1-slim-bookworm
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Install git (full history is needed inside the container)
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends git ca-certificates > /dev/null
+          git --version
+
+      - name: Checkout (full history for churn)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Trust the workspace
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install Lizard 1.25.0 (pinned, sha256 hashes)
+        run: |
+          pip install --no-cache-dir --require-hashes -r tools/metrics/requirements.txt
+          lizard --version
+
+      - name: Scan whole repository -> CSV (functions) + JSON (Halstead per file)
+        run: |
+          mkdir -p reports/complexity
+          lizard -l typescript -l tsx --csv -x "*/generated/*" server/src client/src > reports/complexity/lizard.csv
+          python tools/metrics/halstead.py --top 10 --json reports/complexity/halstead.json
+
+      - name: Process metrics — commits per file (Churn Rate)
+        run: |
+          git log --format=format: --name-only | grep -Ev '^$' | sort | uniq -c | sort -nr > reports/complexity/churn-all.txt
+          git log --since="90 days ago" --format=format: --name-only | grep -Ev '^$' | sort | uniq -c | sort -nr > reports/complexity/churn-90d.txt
+          echo "--- top 20, whole history ---"; head -20 reports/complexity/churn-all.txt
+          echo "--- top 20, last 90 days ---";  head -20 reports/complexity/churn-90d.txt
+
+      - name: Hotspot matrix (complexity x churn)
+        run: python tools/metrics/hotspots.py --out reports/complexity | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: complexity-report
+          path: reports/complexity/
+          retention-days: 30
+          if-no-files-found: error
