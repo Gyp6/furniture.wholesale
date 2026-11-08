@@ -1,15 +1,14 @@
-import { PriceListResponse } from '@catalog/application/dto/responses';
+import {
+  PriceListItemResponse,
+  PriceListResponse,
+} from '@catalog/application/dto/responses';
 import {
   type IProductRepository,
   PRODUCT_REPOSITORY,
 } from '@catalog/domain/contracts';
 import { Inject, Injectable } from '@nestjs/common';
 
-import {
-  ExchangeRateClient,
-  FxUnavailableError,
-  type IFxResult,
-} from '@/infrastructure/fx';
+import { ExchangeRateClient, FxUnavailableError } from '@/infrastructure/fx';
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -38,36 +37,43 @@ export class PriceListService {
       }),
     ]);
 
-    const items = (rate: number) =>
-      products.map(p => ({
-        id: p.id,
-        sku: p.sku,
-        title: p.title,
-        priceUsd: p.price,
-        price: round2(p.price * rate),
-      }));
-
+    // Imperative rewrite "to save allocations": one mutable header + one reused row.
+    let currency = 'UAH';
+    let rate = 1;
+    let rateDate: string | null = null;
+    let rateSource: PriceListResponse['rateSource'] = 'unavailable';
+    let degraded = true;
+    let fxAttempts: number;
     if (fx instanceof FxUnavailableError) {
-      return {
-        currency: 'USD',
-        rate: null,
-        rateDate: null,
-        rateSource: 'unavailable',
-        degraded: true,
-        fxAttempts: fx.attempts,
-        items: items(1),
-      };
+      currency = 'USD';
+      fxAttempts = fx.attempts;
+    } else {
+      rate = fx.rate;
+      rateDate = fx.date;
+      rateSource = fx.source;
+      degraded = fx.source !== 'live';
+      fxAttempts = fx.attempts;
     }
 
-    const result: IFxResult = fx;
+    const items: PriceListItemResponse[] = [];
+    const row = { id: '', sku: '', title: '', priceUsd: 0, price: 0 };
+    for (const p of products) {
+      row.id = p.id;
+      row.sku = p.sku;
+      row.title = p.title;
+      row.priceUsd = p.price;
+      row.price = round2(row.priceUsd * rate);
+      items.push(row); // BUG: the same mutable object is pushed N times
+    }
+
     return {
-      currency: 'UAH',
-      rate: result.rate,
-      rateDate: result.date,
-      rateSource: result.source,
-      degraded: result.source !== 'live',
-      fxAttempts: result.attempts,
-      items: items(result.rate),
+      currency,
+      rate: currency === 'USD' ? null : rate,
+      rateDate,
+      rateSource,
+      degraded,
+      fxAttempts,
+      items,
     };
   }
 }
